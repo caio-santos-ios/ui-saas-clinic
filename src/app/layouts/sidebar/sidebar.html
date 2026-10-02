@@ -1,0 +1,30 @@
+<aside class="sidebar">
+  <div class="sidebar-header" style="display: flex; justify-content: center; align-items: center;">
+    <img src="assets/logo-bora-trampar.jpeg" alt="Saas Clínica Logo" style="max-height: 40px; max-width: 100%; object-fit: contain; border-radius: 8px;" />
+  </div>
+  
+  <nav class="sidebar-nav">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <i class="fa-solid fa-chart-pie nav-icon"></i>
+      <span>Dashboard</span>
+    </a>
+    
+    <!-- <button (click)="themeService.toggleTheme()" class="nav-item" style="background: none; border: none; width: 100%; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; color: var(--text-sidebar-muted);">
+      <i class="fa-solid nav-icon" [ngClass]="themeService.isDark() ? 'fa-sun' : 'fa-moon'" style="font-size: 14px; width: 16px; text-align: center;"></i>
+      <span>{{ themeService.isDark() ? 'Modo Claro' : 'Modo Escuro' }}</span>
+    </button>
+    <div class="user-profile-bar" (click)="goToProfile()" title="Editar Perfil">
+      <div class="user-avatar-circle">
+        <img *ngIf="user?.photo" [src]="user?.photo" alt="Avatar" />
+        <span *ngIf="!user?.photo">{{ (user?.name || 'A')[0].toUpperCase() }}</span>
+      </div>
+      <div class="user-profile-info">
+        <span class="user-profile-name">{{ user?.name || 'Administrador' }}</span>
+        <span class="user-profile-role">{{ user?.role === 'Admin' || user?.role === 'admin' ? 'Administrador' : (user?.role || 'Admin') }}</span>
+      </div>
+      <button class="btn-logout-mini" (click)="logout($event)" title="Sair do painel">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </button>
+    </div> -->
+  </nav>
+</aside>

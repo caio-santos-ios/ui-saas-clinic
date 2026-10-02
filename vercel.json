@@ -1,0 +1,9 @@
+{
+  "outputDirectory": "dist/ui-clinic/browser",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

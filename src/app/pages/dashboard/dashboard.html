@@ -1,0 +1,171 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Visão Geral da Plataforma</h1>
+      <p class="page-subtitle">Acompanhamento executivo de métricas, transações e moderação em tempo real</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/verifications" class="btn-primary">
+        <i class="fa-solid fa-id-card"></i>
+        <span>Analisar Documentos ({{ stats.pendingVerifications }})</span>
+      </a>
+      <a routerLink="/disputes" class="btn-secondary">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Contestações ({{ stats.openDisputes }})</span>
+      </a>
+    </div>
+  </div>
+
+  <app-loading *ngIf="isLoading" [isLoading]="isLoading"></app-loading>
+
+  <div class="kpi-grid">
+    <div class="kpi-card gold-border">
+      <div class="kpi-icon-wrap gold-icon">
+        <i class="fa-solid fa-money-bill-trend-up"></i>
+      </div>
+      <div class="kpi-data">
+        <span class="kpi-label">Faturamento Total Pix</span>
+        <h3 class="kpi-value">{{ global.formatCurrency(stats.totalRevenue) }}</h3>
+        <span class="kpi-subtext">Volume acumulado</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap blue-icon">
+        <i class="fa-solid fa-calendar-check"></i>
+      </div>
+      <div class="kpi-data">
+        <span class="kpi-label">Agendamentos no Mês</span>
+        <h3 class="kpi-value">{{ stats.monthAppointments }}</h3>
+        <span class="kpi-subtext">Total no período</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap green-icon">
+        <i class="fa-solid fa-user-tie"></i>
+      </div>
+      <div class="kpi-data">
+        <span class="kpi-label">Profissionais Ativos</span>
+        <h3 class="kpi-value">{{ stats.activePros }}</h3>
+        <span class="kpi-subtext">Verificados e disponíveis</span>
+      </div>
+    </div>
+
+    <div class="kpi-card warning-border">
+      <div class="kpi-icon-wrap amber-icon">
+        <i class="fa-solid fa-user-clock"></i>
+      </div>
+      <div class="kpi-data">
+        <span class="kpi-label">Verificações Pendentes</span>
+        <h3 class="kpi-value warning-text">{{ stats.pendingVerifications }}</h3>
+        <span class="kpi-subtext">Aguardando moderação</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="card chart-card large-chart">
+      <div class="chart-header">
+        <div>
+          <h2 class="chart-title">Evolução do Faturamento Pix</h2>
+          <p class="chart-subtitle">Volume bruto transacionado nos últimos 6 meses</p>
+        </div>
+        <span class="badge-accent">Exclusivo Pix</span>
+      </div>
+      <div class="chart-wrapper">
+        <canvas #revenueChart></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-card side-chart">
+      <div class="chart-header">
+        <div>
+          <h2 class="chart-title">Demanda por Categoria</h2>
+          <p class="chart-subtitle">Distribuição dos serviços contratados</p>
+        </div>
+      </div>
+      <div class="chart-wrapper doughnut-wrapper">
+        <canvas #categoryChart></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-card-header">
+      <div>
+        <h2 class="chart-title">Últimos Agendamentos Solicitados</h2>
+        <p class="chart-subtitle">Acompanhamento das transações recentes de clientes e profissionais</p>
+      </div>
+      <a routerLink="/appointments" class="btn-secondary btn-sm">
+        <span>Ver Todos</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="table-responsive desktop-table-view" *ngIf="recentAppointments.length > 0; else emptyTable">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Profissional</th>
+            <th>Serviço</th>
+            <th>Data/Horário</th>
+            <th>Valor</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of recentAppointments">
+            <td>{{ item.customer }}</td>
+            <td>{{ item.professional }}</td>
+            <td>{{ item.service }}</td>
+            <td>{{ (item.date | date: 'dd/MM/yyyy HH:mm') || item.date }}</td>
+            <td><strong>{{ global.formatCurrency(item.value) }}</strong></td>
+            <td>
+              <span class="status-badge" [ngClass]="item.status">
+                <i class="fa-solid fa-circle" style="font-size: 6px;"></i>
+                {{ global.normalizeStatus(item.statusText || item.status) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptyTable>
+      <div style="padding: 40px; text-align: center; color: #94a3b8;">
+        <i class="fa-solid fa-calendar-xmark" style="font-size: 36px; margin-bottom: 12px; opacity: 0.5;"></i>
+        <p style="font-size: 15px; margin: 0;">Nenhum agendamento realizado até o momento.</p>
+        <span style="font-size: 13px; color: #64748b;">Os agendamentos recebidos pelos profissionais aparecerão aqui em tempo real.</span>
+      </div>
+    </ng-template>
+
+    <div class="mobile-cards-view" *ngIf="recentAppointments.length > 0">
+      <div class="mobile-data-card" *ngFor="let item of recentAppointments">
+        <div class="mobile-card-header">
+          <div style="font-size: 14px; font-weight: 700;">{{ item.service }}</div>
+          <span class="status-badge" [ngClass]="item.status">{{ global.normalizeStatus(item.statusText || item.status) }}</span>
+        </div>
+        <div class="mobile-card-body">
+          <div class="mobile-card-field">
+            <span class="mobile-card-field-label">Cliente</span>
+            <span class="mobile-card-field-value">{{ item.customer }}</span>
+          </div>
+          <div class="mobile-card-field">
+            <span class="mobile-card-field-label">Profissional</span>
+            <span class="mobile-card-field-value">{{ item.professional }}</span>
+          </div>
+          <div class="mobile-card-field">
+            <span class="mobile-card-field-label">Data</span>
+            <span class="mobile-card-field-value">{{ (item.date | date: 'dd/MM/yyyy HH:mm') || item.date }}</span>
+          </div>
+          <div class="mobile-card-field">
+            <span class="mobile-card-field-label">Valor</span>
+            <span class="mobile-card-field-value gold-text">{{ global.formatCurrency(item.value) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
