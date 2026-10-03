@@ -7,11 +7,12 @@ import { Loading } from '../../components/loading/loading';
 import { GlobalService } from '../../services/global.service';
 import { api } from '../../services/api';
 import { ResetPagination, TPagination } from '../../types/pagination.type';
+import { PhonePipe } from '../../pipes/phone.pipe';
 
 @Component({
   selector: 'app-doctors',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, Loading, NgxMaskDirective],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Loading, NgxMaskDirective, PhonePipe],
   providers: [provideNgxMask()],
   templateUrl: './doctors.html',
   styleUrl: './doctors.css'

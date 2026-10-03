@@ -52,7 +52,7 @@
               </div>
             </td>
             <td>
-              <span class="text-xs font-medium text-slate-700">{{ doc.phone || '-' }}</span>
+              <span class="text-xs font-medium text-slate-700">{{ doc.phone | phone }}</span>
             </td>
             <td>
               <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
@@ -117,7 +117,7 @@
         <div class="user-card-body">
           <div class="user-card-row">
             <span class="label">Telefone:</span>
-            <span>{{ doc.phone || '-' }}</span>
+            <span>{{ doc.phone | phone }}</span>
           </div>
           <div class="user-card-row">
             <span class="label">CRM:</span>
