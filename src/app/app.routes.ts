@@ -7,6 +7,7 @@ import { Confirmation } from './pages/confirmation/confirmation';
 import { AuthGuard } from './guards/auth-guard';
 import { Signature } from './pages/signature/signature';
 import { Plans } from './pages/plans/plans';
+import { Doctors } from './pages/doctors/doctors';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -21,6 +22,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
+      { path: 'doctors', component: Doctors },
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

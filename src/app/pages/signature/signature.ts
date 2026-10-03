@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
+import { GlobalService } from '../../services/global.service';
 
 interface ColorPalette {
   name: string;
@@ -50,7 +51,8 @@ export class Signature {
     private auth: Auth,
     private router: Router,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public global: GlobalService
   ) {
     if (auth.isSignatureValidated()) {
       // router.navigateByUrl('/login');
@@ -232,7 +234,7 @@ export class Signature {
       const { data } = await api.post('/api/attachments/logo', body);
       this.logo = data.data.uri;
     } catch (error) {
-      this.auth.validatedError(error);
+      this.global.errorNotification(error);
     }
   }
 
@@ -274,6 +276,12 @@ export class Signature {
       this.cdr.detectChanges();
 
       const { data } = await api.post('/api/auth/register-admin', payload);
+      if (data?.data?.signatureId) {
+        this.auth.setSignatureId(data.data.signatureId);
+      }
+      if (data?.data?.clinicId) {
+        localStorage.setItem('clinicId', data.data.clinicId);
+      }
       this.toastr.success(data.message);
       setTimeout(() => {
         this.router.navigateByUrl('/plans');

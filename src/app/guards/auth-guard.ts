@@ -10,7 +10,7 @@ export const AuthGuard: CanActivateFn = () => {
     router.navigate(['/signature']);
     return false;
   }
-  console.log(router.url)
+
   if (auth.isAuthenticated()) {
     return true;
   }

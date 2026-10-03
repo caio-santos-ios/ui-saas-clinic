@@ -83,7 +83,7 @@
 
 .main-content {
   flex: 1;
-  padding: 20px 16px;
+  padding: 1rem;
   background-color: var(--bg-main);
   max-width: 100%;
   overflow-x: hidden;
@@ -112,7 +112,7 @@
   }
 
   .main-content {
-    padding: 24px 32px;
+    padding: 1rem;
     max-width: 100%;
     overflow-x: hidden;
     min-width: 0;

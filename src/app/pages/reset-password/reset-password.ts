@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
+import { GlobalService } from '../../services/global.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -24,7 +25,8 @@ export class ResetPassword implements OnInit {
     private auth: Auth,
     private router: Router,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public global: GlobalService
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
@@ -96,7 +98,7 @@ export class ResetPassword implements OnInit {
       this.auth.applyClinicTheme(data.data.clinicSetting);
       this.cdr.detectChanges();
     } catch (error) {
-      this.auth.validatedError(error);
+      this.global.errorNotification(error);
     }
   }
 }

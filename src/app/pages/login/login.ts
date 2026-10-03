@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
+import { GlobalService } from '../../services/global.service';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,7 @@ export class Login implements OnInit {
     private auth: Auth,
     private router: Router,
     private toastr: ToastrService,
+    public global: GlobalService,
     private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
@@ -113,7 +115,7 @@ export class Login implements OnInit {
       this.auth.applyClinicTheme(data.data.clinicSetting);
       this.cdr.detectChanges();
     } catch (error) {
-      this.auth.validatedError(error);
+      this.global.errorNotification(error);
     }
   }
 }

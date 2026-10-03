@@ -1,9 +1,11 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { Auth } from '../../services/auth';
+import { api } from '../../services/api';
 
 export interface PlanFeature {
   text: string;
@@ -31,13 +33,26 @@ export type PaymentMethod = 'credit_card' | 'pix' | 'boleto';
   templateUrl: './plans.html',
   styleUrl: './plans.css'
 })
-export class Plans {
+export class Plans implements OnDestroy {
   billingCycle: 'monthly' | 'yearly' = 'monthly';
   selectedPlan: PricingPlan | null = null;
   paymentMethod: PaymentMethod = 'credit_card';
   showPaymentModal = false;
   isLoading = false;
   pixCopied = false;
+  boletoCopied = false;
+
+  isPixWaiting = false;
+  isPixConfirmed = false;
+  isPixChecking = false;
+  pixCountdown = 900;
+  pixFormattedTime = '15:00';
+  private pixTimerInterval: any = null;
+  private pixPollInterval: any = null;
+
+  isBoletoSuccess = false;
+  boletoLine = '34191.79001 01043.510047 91020.150008 1 95000000000000';
+  pixQrCodeImage = '';
 
   cardData = {
     number: '',
@@ -115,8 +130,13 @@ export class Plans {
   constructor(
     private router: Router,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public auth: Auth
   ) {}
+
+  ngOnDestroy(): void {
+    this.stopPixIntervals();
+  }
 
   setCycle(cycle: 'monthly' | 'yearly'): void {
     this.billingCycle = cycle;
@@ -126,11 +146,19 @@ export class Plans {
     this.selectedPlan = plan;
     this.showPaymentModal = true;
     this.pixCopied = false;
+    this.boletoCopied = false;
+    this.isPixWaiting = false;
+    this.isPixConfirmed = false;
+    this.isBoletoSuccess = false;
     this.cdr.detectChanges();
   }
 
   closePaymentModal(): void {
     this.showPaymentModal = false;
+    this.isPixWaiting = false;
+    this.isPixConfirmed = false;
+    this.isBoletoSuccess = false;
+    this.stopPixIntervals();
   }
 
   setPaymentMethod(method: PaymentMethod): void {
@@ -152,14 +180,157 @@ export class Plans {
     }, 3000);
   }
 
+  copyBoleto(): void {
+    navigator.clipboard.writeText(this.boletoLine);
+    this.boletoCopied = true;
+    this.toastr.info('Linha digitável copiada para a área de transferência!');
+    setTimeout(() => {
+      this.boletoCopied = false;
+      this.cdr.detectChanges();
+    }, 3000);
+  }
+
+  startPixWaiting(): void {
+    this.isPixWaiting = true;
+    this.isPixConfirmed = false;
+    this.pixCountdown = 900;
+    this.pixFormattedTime = '15:00';
+    this.stopPixIntervals();
+
+    this.pixTimerInterval = setInterval(() => {
+      if (this.pixCountdown > 0) {
+        this.pixCountdown--;
+        this.pixFormattedTime = this.formatTime(this.pixCountdown);
+        this.cdr.detectChanges();
+      } else {
+        this.stopPixIntervals();
+      }
+    }, 1000);
+
+    this.pixPollInterval = setInterval(() => {
+      this.checkPixStatus(false);
+    }, 4500);
+  }
+
+  stopPixIntervals(): void {
+    if (this.pixTimerInterval) {
+      clearInterval(this.pixTimerInterval);
+      this.pixTimerInterval = null;
+    }
+    if (this.pixPollInterval) {
+      clearInterval(this.pixPollInterval);
+      this.pixPollInterval = null;
+    }
+  }
+
+  formatTime(seconds: number): string {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  async checkPixStatus(manual: boolean = false): Promise<void> {
+    if (this.isPixConfirmed) return;
+
+    if (manual) {
+      this.isPixChecking = true;
+      this.cdr.detectChanges();
+    }
+
+    let isApproved = false;
+    const signatureId = this.auth.getSignature() || localStorage.getItem('signatureId');
+
+    if (signatureId) {
+      try {
+        const { data } = await api.get(`/api/signatures/${signatureId}`);
+        if (data?.data?.status === 'ATIVO' || data?.data?.status === 'CONFIRMADO') {
+          isApproved = true;
+        }
+      } catch {
+      }
+    }
+
+    if (manual) {
+      this.isPixChecking = false;
+      this.cdr.detectChanges();
+      if (!isApproved) {
+        this.toastr.info('Pagamento ainda não confirmado. Aguarde alguns instantes.');
+      }
+    }
+
+    if (isApproved) {
+      this.onPixSuccess();
+    }
+  }
+
+  onPixSuccess(): void {
+    this.stopPixIntervals();
+    this.isPixConfirmed = true;
+    this.toastr.success('Pagamento via Pix confirmado com sucesso!');
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.showPaymentModal = false;
+      if (this.auth.isAuthenticated()) {
+        this.router.navigateByUrl('/dashboard');
+      } else {
+        this.router.navigateByUrl('/login');
+      }
+    }, 2400);
+  }
+
+  goToLoginAfterBoleto(): void {
+    this.showPaymentModal = false;
+    this.isBoletoSuccess = false;
+    this.toastr.info('Aguardando compensação bancária do boleto.');
+    this.router.navigateByUrl('/login');
+  }
+
   async confirmSubscription(): Promise<void> {
     if (!this.selectedPlan) return;
 
-    if (this.paymentMethod === 'credit_card') {
-      if (!this.cardData.number || !this.cardData.holderName || !this.cardData.expiry || !this.cardData.cvv) {
-        this.toastr.warning('Preencha os dados do cartão de crédito.');
-        return;
+    const signatureId = this.auth.getSignature() || localStorage.getItem('signatureId') || '';
+    const clinicId = localStorage.getItem('clinicId') || '';
+
+    if (this.paymentMethod === 'pix') {
+      this.isLoading = true;
+      this.cdr.detectChanges();
+
+      try {
+        const { data } = await api.post('/api/signatures/subscribe', {
+          signatureId,
+          clinicId,
+          planId: this.selectedPlan.id,
+          cycle: this.billingCycle,
+          paymentMethod: 'PIX'
+        });
+
+        if (data?.data?.pixCopyPaste) {
+          this.pixCode = data.data.pixCopyPaste;
+        }
+        if (data?.data?.pixQrCode) {
+          this.pixQrCodeImage = data.data.pixQrCode;
+        }
+        if (data?.data?.signatureId) {
+          this.auth.setSignatureId(data.data.signatureId);
+        }
+
+        localStorage.setItem('selectedPlan', JSON.stringify({
+          id: this.selectedPlan.id,
+          name: this.selectedPlan.name,
+          cycle: this.billingCycle,
+          price: this.currentPrice,
+          paymentMethod: 'pix'
+        }));
+
+        this.startPixWaiting();
+      } catch (err: any) {
+        this.toastr.error(err?.response?.data?.message || 'Erro ao gerar cobrança Pix. Tente novamente.');
+      } finally {
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
+      return;
     }
 
     if (this.paymentMethod === 'boleto') {
@@ -167,30 +338,98 @@ export class Plans {
         this.toastr.warning('Preencha o nome e CPF/CNPJ para emissão do boleto.');
         return;
       }
+
+      this.isLoading = true;
+      this.cdr.detectChanges();
+
+      try {
+        const { data } = await api.post('/api/signatures/subscribe', {
+          signatureId,
+          clinicId,
+          planId: this.selectedPlan.id,
+          cycle: this.billingCycle,
+          paymentMethod: 'BOLETO'
+        });
+
+        if (data?.data?.identificationField) {
+          this.boletoLine = data.data.identificationField;
+        }
+        if (data?.data?.signatureId) {
+          this.auth.setSignatureId(data.data.signatureId);
+        }
+
+        localStorage.setItem('selectedPlan', JSON.stringify({
+          id: this.selectedPlan.id,
+          name: this.selectedPlan.name,
+          cycle: this.billingCycle,
+          price: this.currentPrice,
+          paymentMethod: 'boleto'
+        }));
+
+        this.isBoletoSuccess = true;
+      } catch (err: any) {
+        this.toastr.error(err?.response?.data?.message || 'Erro ao gerar boleto. Tente novamente.');
+      } finally {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+      return;
     }
 
-    this.isLoading = true;
-    this.cdr.detectChanges();
+    if (this.paymentMethod === 'credit_card') {
+      if (!this.cardData.number || !this.cardData.holderName || !this.cardData.expiry || !this.cardData.cvv) {
+        this.toastr.warning('Preencha os dados do cartão de crédito.');
+        return;
+      }
 
-    try {
-      localStorage.setItem('selectedPlan', JSON.stringify({
-        id: this.selectedPlan.id,
-        name: this.selectedPlan.name,
-        cycle: this.billingCycle,
-        price: this.currentPrice,
-        paymentMethod: this.paymentMethod
-      }));
-
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      this.toastr.success(`Assinatura do Plano ${this.selectedPlan.name} confirmada!`);
-      this.showPaymentModal = false;
-      this.router.navigateByUrl('/login');
-    } catch {
-      this.toastr.error('Erro ao processar assinatura. Tente novamente.');
-    } finally {
-      this.isLoading = false;
+      this.isLoading = true;
       this.cdr.detectChanges();
+
+      try {
+        const [expMonth, expYear] = this.cardData.expiry.split('/');
+
+        const { data } = await api.post('/api/signatures/subscribe', {
+          signatureId,
+          clinicId,
+          planId: this.selectedPlan.id,
+          cycle: this.billingCycle,
+          paymentMethod: 'CREDIT_CARD',
+          cardData: {
+            holderName: this.cardData.holderName,
+            number: this.cardData.number.replace(/\s+/g, ''),
+            expiryMonth: expMonth || '',
+            expiryYear: expYear ? `20${expYear}` : '',
+            cvv: this.cardData.cvv,
+            holderCpfCnpj: this.cardData.document
+          }
+        });
+
+        if (data?.data?.signatureId) {
+          this.auth.setSignatureId(data.data.signatureId);
+        }
+
+        localStorage.setItem('selectedPlan', JSON.stringify({
+          id: this.selectedPlan.id,
+          name: this.selectedPlan.name,
+          cycle: this.billingCycle,
+          price: this.currentPrice,
+          paymentMethod: 'credit_card'
+        }));
+
+        this.toastr.success(`Assinatura do Plano ${this.selectedPlan.name} confirmada!`);
+        this.showPaymentModal = false;
+
+        if (this.auth.isAuthenticated()) {
+          this.router.navigateByUrl('/dashboard');
+        } else {
+          this.router.navigateByUrl('/login');
+        }
+      } catch (err: any) {
+        this.toastr.error(err?.response?.data?.message || 'Erro ao processar assinatura. Tente novamente.');
+      } finally {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
     }
   }
 }

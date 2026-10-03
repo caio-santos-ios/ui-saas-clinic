@@ -1,0 +1,408 @@
+<div class="page-container">
+  <div class="page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="page-title flex items-center gap-2.5 text-2xl font-black text-slate-900">
+        <i class="fa-solid fa-user-doctor text-clinic-primary"></i>
+        Médicos
+      </h1>
+      <p class="text-xs text-slate-500 mt-0.5">Gerencie os profissionais de saúde e membros do corpo clínico.</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
+          placeholder="Buscar rápida..."
+          class="pl-2 pr-3 py-2 text-xs bg-white border border-slate-300 rounded-lg outline-none transition focus:border-clinic-primary shadow-sm w-48 sm:w-64" />
+      </div>
+
+      <button type="button" [disabled]="isLoading" (click)="openModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-md bg-clinic-primary disabled:opacity-55 disabled:cursor-not-allowed">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Adicionar Médico</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="!isLoading">
+    <div class="table-responsive desktop-table-view">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Documento</th>
+            <th>Especialidade</th>
+            <th>Status</th>
+            <th>Data Cadastro</th>
+            <th style="text-align: right;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let doc of data.data">
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-clinic-primary/20 text-clinic-primary font-bold flex items-center justify-center shrink-0 border border-clinic-primary/30 overflow-hidden">
+                  <img *ngIf="doc.photo" [src]="doc.photo" [alt]="doc.name" class="w-full h-full object-cover" />
+                  <span *ngIf="!doc.photo">{{ (doc.name || 'M')[0].toUpperCase() }}</span>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm text-slate-900 truncate">{{ doc.name }}</div>
+                  <div class="text-xs text-slate-500 truncate">{{ doc.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="text-xs font-medium text-slate-700">{{ doc.phone || '-' }}</span>
+            </td>
+            <td>
+              <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
+                CRM {{ doc.licenseNumber }}{{ doc.licenseState ? '/' + doc.licenseState : '' }}
+              </span>
+            </td>
+            <td>
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">
+                <i class="fa-solid fa-stethoscope text-[10px]"></i>
+                {{ doc.specialty || 'Geral' }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="doc.blocked ? 'inactive' : 'active'">
+                <i class="fa-solid" [ngClass]="doc.blocked ? 'fa-lock' : 'fa-check'"></i>
+                {{ doc.blocked ? 'Bloqueado' : 'Ativo' }}
+              </span>
+            </td>
+            <td>
+              <span class="text-xs text-slate-500">{{ global.formatDate(doc.createdAt) }}</span>
+            </td>
+            <td style="text-align: right;">
+              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                <button type="button" class="btn-icon" style="color: var(--clinic-primary);" (click)="openModal(doc)" title="Editar Médico">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" class="btn-icon" [style.color]="doc.blocked ? 'var(--status-active)' : '#f59e0b'" (click)="toggleBlock(doc)" [title]="doc.blocked ? 'Desbloquear' : 'Bloquear'">
+                  <i class="fa-solid" [ngClass]="doc.blocked ? 'fa-lock-open' : 'fa-lock'"></i>
+                </button>
+                <button type="button" class="btn-icon" style="color: #ef4444;" (click)="openDeleteModal(doc)" title="Excluir Médico">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="data.data.length === 0">
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              Nenhum médico encontrado.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-card-list">
+      <div class="user-card-item" *ngFor="let doc of data.data">
+        <div class="user-card-header">
+          <div class="user-cell">
+            <div class="avatar-circle" *ngIf="!doc.photo">{{ (doc.name || 'M')[0].toUpperCase() }}</div>
+            <div class="avatar-circle" *ngIf="doc.photo">
+              <img [src]="doc.photo" [alt]="doc.name" />
+            </div>
+            <div>
+              <div class="user-cell-name">{{ doc.name }}</div>
+              <div class="user-cell-sub">{{ doc.email }}</div>
+            </div>
+          </div>
+          <span class="status-badge" [ngClass]="doc.blocked ? 'inactive' : 'active'">
+            {{ doc.blocked ? 'Bloqueado' : 'Ativo' }}
+          </span>
+        </div>
+        <div class="user-card-body">
+          <div class="user-card-row">
+            <span class="label">Telefone:</span>
+            <span>{{ doc.phone || '-' }}</span>
+          </div>
+          <div class="user-card-row">
+            <span class="label">CRM:</span>
+            <span>{{ doc.licenseNumber }}{{ doc.licenseState ? '/' + doc.licenseState : '' }}</span>
+          </div>
+          <div class="user-card-row">
+            <span class="label">Especialidade:</span>
+            <span>{{ doc.specialty || 'Geral' }}</span>
+          </div>
+          <div class="user-card-row">
+            <span class="label">Cadastro:</span>
+            <span>{{ global.formatDate(doc.createdAt) }}</span>
+          </div>
+        </div>
+        <div class="user-card-actions">
+          <button class="btn-secondary" style="flex: 1; padding: 8px;" (click)="openModal(doc)">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
+          </button>
+          <button class="btn-secondary" style="flex: 1; padding: 8px;" [style.color]="doc.blocked ? 'var(--status-active)' : '#f59e0b'" (click)="toggleBlock(doc)">
+            <i class="fa-solid" [ngClass]="doc.blocked ? 'fa-lock-open' : 'fa-lock'"></i>
+            {{ doc.blocked ? 'Desbloquear' : 'Bloquear' }}
+          </button>
+          <button class="btn-secondary" style="flex: 1; padding: 8px; color: #ef4444;" (click)="openDeleteModal(doc)">
+            <i class="fa-solid fa-trash-can"></i> Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination-container" *ngIf="data.totalCount > 0">
+      <div class="pagination-text">
+        Exibindo <strong>{{ data.data.length }}</strong> de <strong>{{ data.totalCount }}</strong> registros
+      </div>
+      <div class="pagination-nav">
+        <button class="page-btn" (click)="goToPage(1)" [disabled]="data.currentPage === 1" title="Primeira página">
+          &laquo;
+        </button>
+        <button class="page-btn" (click)="goToPage(data.currentPage - 1)" [disabled]="data.currentPage === 1" title="Página anterior">
+          &lsaquo;
+        </button>
+        <button *ngFor="let page of visiblePages" class="page-btn" [class.active]="page === data.currentPage" (click)="goToPage(page)">
+          {{ page }}
+        </button>
+        <button class="page-btn" (click)="goToPage(data.currentPage + 1)" [disabled]="data.currentPage === data.totalPages" title="Próxima página">
+          &rsaquo;
+        </button>
+        <button class="page-btn" (click)="goToPage(data.totalPages)" [disabled]="data.currentPage === data.totalPages" title="Última página">
+          &raquo;
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modal" (click)="closeModal()">
+    <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-user-doctor text-clinic-primary"></i>
+          {{ doctor ? 'Editar Médico' : 'Cadastrar Novo Médico' }}
+        </h2>
+        <button type="button" class="btn-icon" (click)="closeModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="saveDoctor()" class="space-y-5">
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1 flex items-center gap-1.5">
+            <i class="fa-regular fa-user text-clinic-primary"></i>
+            1. Dados Pessoais & Acesso
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Nome Completo <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="name" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('name') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="Dr. Nome Sobrenome" />
+              <span class="text-[11px] text-red-500" *ngIf="err('name')">{{ err('name') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                E-mail <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="email" type="email"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('email') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="medico@clinica.com.br" />
+              <span class="text-[11px] text-red-500" *ngIf="err('email')">{{ err('email') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Telefone / WhatsApp <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="phone" type="text" mask="(00) 00000-0000"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('phone') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="(11) 99999-9999" />
+              <span class="text-[11px] text-red-500" *ngIf="err('phone')">{{ err('phone') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Senha de Acesso {{ doctor ? '(Opcional)' : '' }}
+              </label>
+              <input formControlName="password" type="password"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                [placeholder]="doctor ? 'Deixe vazio para manter a atual' : 'Senha temporária'" />
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-id-card text-clinic-primary"></i>
+            2. Dados Profissionais
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Especialidade <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="specialty" list="specialtiesList" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('specialty') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="Ex: Cardiologia" />
+              <datalist id="specialtiesList">
+                <option *ngFor="let s of specialties" [value]="s"></option>
+              </datalist>
+              <span class="text-[11px] text-red-500" *ngIf="err('specialty')">{{ err('specialty') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                CRM / Registro <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="licenseNumber" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('licenseNumber') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="Ex: 123456" />
+              <span class="text-[11px] text-red-500" *ngIf="err('licenseNumber')">{{ err('licenseNumber') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                UF do CRM <span class="text-red-500">*</span>
+              </label>
+              <select formControlName="licenseState"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black outline-none transition focus:border-clinic-primary shadow-sm cursor-pointer">
+                <option *ngFor="let st of states" [value]="st">{{ st }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              Minibiografia / Resumo Profissional
+            </label>
+            <textarea formControlName="bio" rows="2"
+              class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Breve resumo da trajetória acadêmica, titulações e atuação médica..."></textarea>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-location-dot text-clinic-primary"></i>
+            3. Endereço do Consultório / Atendimento
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                CEP
+              </label>
+              <div class="relative">
+                <input formControlName="zipCode" type="text" mask="00000-000" (blur)="searchCep()"
+                  class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                  placeholder="00000-000" />
+                <i class="fa-solid fa-spinner fa-spin absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400" *ngIf="loadingZip"></i>
+              </div>
+            </div>
+
+            <div class="col-span-2">
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Logradouro / Rua
+              </label>
+              <input formControlName="street" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="Av. Paulista" />
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Número
+              </label>
+              <input formControlName="number" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="1000" />
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Complemento
+              </label>
+              <input formControlName="complement" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="Sala 102" />
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Bairro
+              </label>
+              <input formControlName="neighborhood" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="Bela Vista" />
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Cidade
+              </label>
+              <input formControlName="city" type="text"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="São Paulo" />
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                Estado (UF)
+              </label>
+              <select formControlName="state"
+                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black outline-none transition focus:border-clinic-primary shadow-sm cursor-pointer">
+                <option *ngFor="let st of states" [value]="st">{{ st }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" [disabled]="isSaving"
+            class="px-5 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:opacity-95 bg-clinic-primary disabled:opacity-50 flex items-center gap-2">
+            <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isSaving"></i>
+            <span>{{ isSaving ? 'Salvando...' : doctor ? 'Atualizar Médico' : 'Cadastrar Médico' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="deleteModal" (click)="closeDeleteModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2 class="text-base font-bold text-red-600 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          Remover Médico
+        </h2>
+        <button type="button" class="btn-icon" (click)="closeDeleteModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="py-2">
+        <p class="text-sm text-slate-700">
+          Deseja realmente remover o médico <strong>{{ doctorToDelete?.name }}</strong>?
+        </p>
+        <p class="text-xs text-slate-500 mt-2">
+          O profissional será desativado e não poderá mais acessar a plataforma da clínica.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 mt-4">
+        <button type="button" class="btn-secondary" (click)="closeDeleteModal()">Cancelar</button>
+        <button type="button" class="btn-danger" [disabled]="isDeleting" (click)="confirmDelete()">
+          <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isDeleting"></i>
+          <span>{{ isDeleting ? 'Excluindo...' : 'Sim, Remover' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-loading [isLoading]="isLoading"></app-loading>
+</div>

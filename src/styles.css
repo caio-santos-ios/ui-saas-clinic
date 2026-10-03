@@ -292,17 +292,11 @@ body {
 }
 
 .page-container {
-  padding: 32px;
+  padding: .1rem;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-}
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: 16px;
-  }
 }
 
 .btn,
@@ -554,9 +548,9 @@ button[disabled],
 
 .page-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: .5rem;
 }
 
 .header-actions {
