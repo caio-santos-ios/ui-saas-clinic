@@ -86,18 +86,25 @@ export class Login implements OnInit {
         }
       });
 
-      if (["PENDENTE", "CANCELADO", "VENCIDO"].includes(data.data.signatureStatus)) {
-        if (data.data.accessProfile == "admin") {
-          this.router.navigateByUrl("/plans");
-        } else {
-          this.toastr.warning("Plano suspenso, entre em contato com o Administrador da Clínica");
-        }
-      } else {
+      if(data.data.accessProfile == "master") {
         this.auth.setToken(data.data.token);
         this.auth.setSignatureId(data.data.signatureId);
-        await this.getSignature();
         this.toastr.success(data?.message);
         this.router.navigateByUrl('/dashboard');
+      } else {
+        if (["PENDENTE", "CANCELADO", "VENCIDO"].includes(data.data.signatureStatus)) {
+          if (data.data.accessProfile == "admin") {
+            this.router.navigateByUrl("/plans");
+          } else {
+            this.toastr.warning("Plano suspenso, entre em contato com o Administrador da Clínica");
+          }
+        } else {
+          this.auth.setToken(data.data.token);
+          this.auth.setSignatureId(data.data.signatureId);
+          await this.getSignature();
+          this.toastr.success(data?.message);
+          this.router.navigateByUrl('/dashboard');
+        }
       }
     } catch (err: any) {
       this.auth.validatedError(err);
