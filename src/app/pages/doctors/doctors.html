@@ -24,7 +24,7 @@
   </div>
 
   <div class="card" *ngIf="!isLoading">
-    <div class="table-responsive desktop-table-view">
+    <div class="table-responsive desktop-table-view hiddenlg:flex">
       <table class="table">
         <thead>
           <tr>
@@ -46,7 +46,7 @@
                   <span *ngIf="!doc.photo">{{ (doc.name || 'M')[0].toUpperCase() }}</span>
                 </div>
                 <div class="min-w-0">
-                  <div class="font-bold text-sm text-slate-900 truncate">{{ doc.name }}</div>
+                  <div class="font-bold text-sm truncate">{{ doc.name }}</div>
                   <div class="text-xs text-slate-500 truncate">{{ doc.email }}</div>
                 </div>
               </div>
@@ -97,7 +97,7 @@
       </table>
     </div>
 
-    <div class="mobile-card-list">
+    <div class="mobile-card-list lg:hidden">
       <div class="user-card-item" *ngFor="let doc of data.data">
         <div class="user-card-header">
           <div class="user-cell">
@@ -183,12 +183,33 @@
         </button>
       </div>
 
+      <div class="flex items-center gap-1.5 border-b border-slate-200 pb-2 mb-4 overflow-x-auto">
+        <button type="button" (click)="setTab('personal')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'personal' ? 'bg-clinic-primary/15 text-black border-clinic-primary' : 'bg-transparent text-slate-600 border-transparent hover:bg-slate-100'">
+          <i class="fa-regular fa-user text-clinic-primary"></i>
+          <span>1. Dados Pessoais</span>
+          <span *ngIf="err('name') || err('email') || err('phone')" class="w-2 h-2 rounded-full bg-red-500"></span>
+        </button>
+
+        <button type="button" (click)="setTab('professional')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'professional' ? 'bg-clinic-primary/15 text-black border-clinic-primary' : 'bg-transparent text-slate-600 border-transparent hover:bg-slate-100'">
+          <i class="fa-solid fa-id-card text-clinic-primary"></i>
+          <span>2. Dados Profissionais</span>
+          <span *ngIf="err('specialty') || err('licenseNumber')" class="w-2 h-2 rounded-full bg-red-500"></span>
+        </button>
+
+        <button type="button" (click)="setTab('address')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'address' ? 'bg-clinic-primary/15 text-black border-clinic-primary' : 'bg-transparent text-slate-600 border-transparent hover:bg-slate-100'">
+          <i class="fa-solid fa-location-dot text-clinic-primary"></i>
+          <span>3. Endereço</span>
+        </button>
+      </div>
+
       <form [formGroup]="form" (ngSubmit)="saveDoctor()" class="space-y-5">
-        <div class="space-y-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1 flex items-center gap-1.5">
-            <i class="fa-regular fa-user text-clinic-primary"></i>
-            1. Dados Pessoais & Acesso
-          </h3>
+        <div *ngIf="activeTab === 'personal'" class="space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
@@ -234,11 +255,7 @@
           </div>
         </div>
 
-        <div class="space-y-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1 flex items-center gap-1.5">
-            <i class="fa-solid fa-id-card text-clinic-primary"></i>
-            2. Dados Profissionais
-          </h3>
+        <div *ngIf="activeTab === 'professional'" class="space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
@@ -280,17 +297,13 @@
             <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
               Minibiografia / Resumo Profissional
             </label>
-            <textarea formControlName="bio" rows="2"
+            <textarea formControlName="bio" rows="3"
               class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
               placeholder="Breve resumo da trajetória acadêmica, titulações e atuação médica..."></textarea>
           </div>
         </div>
 
-        <div class="space-y-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-1 flex items-center gap-1.5">
-            <i class="fa-solid fa-location-dot text-clinic-primary"></i>
-            3. Endereço do Consultório / Atendimento
-          </h3>
+        <div *ngIf="activeTab === 'address'" class="space-y-3">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
               <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
@@ -361,13 +374,35 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-          <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
-          <button type="submit" [disabled]="isSaving"
-            class="px-5 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:opacity-95 bg-clinic-primary disabled:opacity-50 flex items-center gap-2">
-            <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isSaving"></i>
-            <span>{{ isSaving ? 'Salvando...' : doctor ? 'Atualizar Médico' : 'Cadastrar Médico' }}</span>
-          </button>
+        <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200">
+          <div>
+            <button type="button" *ngIf="activeTab === 'professional'" (click)="setTab('personal')" class="btn-secondary text-xs">
+              &laquo; Anterior
+            </button>
+            <button type="button" *ngIf="activeTab === 'address'" (click)="setTab('professional')" class="btn-secondary text-xs">
+              &laquo; Anterior
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+
+            <button type="button" *ngIf="activeTab === 'personal'" (click)="setTab('professional')"
+              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 cursor-pointer transition">
+              Próximo &raquo;
+            </button>
+
+            <button type="button" *ngIf="activeTab === 'professional'" (click)="setTab('address')"
+              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 cursor-pointer transition">
+              Próximo &raquo;
+            </button>
+
+            <button type="submit" [disabled]="isSaving"
+              class="px-5 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:opacity-95 bg-clinic-primary disabled:opacity-50 flex items-center gap-2">
+              <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isSaving"></i>
+              <span>{{ isSaving ? 'Salvando...' : doctor ? 'Atualizar Médico' : 'Cadastrar Médico' }}</span>
+            </button>
+          </div>
         </div>
       </form>
     </div>

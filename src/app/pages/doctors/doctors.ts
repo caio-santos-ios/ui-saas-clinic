@@ -27,6 +27,7 @@ export class Doctors implements OnInit {
   data: TPagination = ResetPagination;
   doctor: any | null = null;
   modal: boolean = false;
+  activeTab: 'personal' | 'professional' | 'address' = 'personal';
   form: FormGroup;
   search: string = '';
   visiblePages: number[] = [];
@@ -66,7 +67,7 @@ export class Doctors implements OnInit {
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)]],
       phone: ['', [Validators.required]],
       password: [''],
       specialty: ['', [Validators.required]],
@@ -99,6 +100,7 @@ export class Doctors implements OnInit {
 
       const { data } = await api.get('api/doctors', { params });
       this.data = data.data || ResetPagination;
+      console.log(data.data.data[0])
       this.calculateVisiblePages();
     } catch (error) {
       this.global.errorNotification(error);
@@ -138,8 +140,14 @@ export class Doctors implements OnInit {
     this.loadData(1);
   }
 
+  setTab(tab: 'personal' | 'professional' | 'address') {
+    this.activeTab = tab;
+    this.cdr.detectChanges();
+  }
+
   openModal(doctor?: any | null) {
     this.doctor = doctor || null;
+    this.activeTab = 'personal';
 
     if (doctor) {
       this.form.patchValue({
@@ -186,6 +194,7 @@ export class Doctors implements OnInit {
   closeModal() {
     this.doctor = null;
     this.modal = false;
+    this.activeTab = 'personal';
     this.form.reset();
     this.cdr.detectChanges();
   }
@@ -194,6 +203,11 @@ export class Doctors implements OnInit {
     try {
       if (this.form.invalid) {
         this.form.markAllAsTouched();
+        if (this.err('name') || this.err('email') || this.err('phone')) {
+          this.activeTab = 'personal';
+        } else if (this.err('specialty') || this.err('licenseNumber') || this.err('licenseState')) {
+          this.activeTab = 'professional';
+        }
         this.toastr.warning('Preencha os campos obrigatórios.');
         return;
       }
@@ -204,7 +218,7 @@ export class Doctors implements OnInit {
       const val = this.form.value;
       const payload: any = {
         name: val.name,
-        email: val.email,
+        email: val.email?.trim().toLowerCase(),
         phone: val.phone,
         specialty: val.specialty,
         licenseNumber: val.licenseNumber,
@@ -318,7 +332,7 @@ export class Doctors implements OnInit {
     const c = this.form.get(name);
     if (!c || !c.invalid || !c.touched) return null;
     if (c.errors?.['required']) return 'Campo obrigatório';
-    if (c.errors?.['email']) return 'E-mail inválido';
+    if (c.errors?.['email'] || c.errors?.['pattern']) return 'E-mail inválido';
     return 'Campo inválido';
   }
 }
