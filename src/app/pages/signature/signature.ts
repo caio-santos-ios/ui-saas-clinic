@@ -32,6 +32,7 @@ export class Signature {
   logoPreview: string | null = null;
 
   form: FormGroup;
+  logo: string = "";
 
   palettes: ColorPalette[] = [
     { name: 'Dourado', primary: '#dca311', secondary: '#0b1120' },
@@ -52,7 +53,7 @@ export class Signature {
     private cdr: ChangeDetectorRef
   ) {
     if (auth.isSignatureValidated()) {
-      router.navigateByUrl('/login');
+      // router.navigateByUrl('/login');
     }
 
     this.form = this.fb.group({
@@ -131,7 +132,7 @@ export class Signature {
     this.logoInput?.nativeElement.click();
   }
 
-  onLogoChange(event: Event): void {
+  async onLogoChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
@@ -140,7 +141,7 @@ export class Signature {
       this.toastr.error('O logotipo deve ter no máximo 2 MB.');
       return;
     }
-
+    await this.uploadLogo(file);
     const reader = new FileReader();
     reader.onload = () => {
       this.logoPreview = reader.result as string;
@@ -163,10 +164,11 @@ export class Signature {
     event.preventDefault();
   }
 
-  onDrop(event: DragEvent): void {
+  async onDrop(event: DragEvent): Promise<void> {
     event.preventDefault();
     const file = event.dataTransfer?.files[0];
     if (!file || !file.type.startsWith('image/')) return;
+    await this.uploadLogo(file);
     const fakeEvent = { target: { files: [file] } } as any;
     this.onLogoChange(fakeEvent);
   }
@@ -221,6 +223,19 @@ export class Signature {
     return this.s1.get('tradeName')?.value || 'Nome da Clínica';
   }
 
+  async uploadLogo(file: any) {
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      body.append("parentId", "sem-id");
+      body.append("parent", "clinic");
+      const { data } = await api.post('/api/attachments/logo', body);
+      this.logo = data.data.uri;
+    } catch (error) {
+      this.auth.validatedError(error);
+    }
+  }
+
   async onSubmit(): Promise<void> {
     try {
       this.form.markAllAsTouched();
@@ -249,7 +264,7 @@ export class Signature {
           state: step2.state,
         },
         setting: {
-          logo: step3.logo,
+          logo: this.logo,
           primaryColor: step3.primaryColor,
           secondaryColor: step3.secondaryColor,
         },

@@ -7,7 +7,8 @@
         <span class="bar"></span>
       </button>
       <div class="app-logo">
-        <img src="assets/logo-bora-trampar.jpeg" alt="Saas Clínica Logo" style="max-height: 30px; border-radius: 6px;" />
+        <img *ngIf="clinicTheme?.logo" [src]="clinicTheme.logo" alt="Logo da Clínica" style="max-height: 30px; border-radius: 6px;" />
+        <img *ngIf="!clinicTheme?.logo" src="assets/logo-bora-trampar.jpeg" alt="Saas Clínica Logo" style="max-height: 30px; border-radius: 6px;" />
       </div>
     </div>
     

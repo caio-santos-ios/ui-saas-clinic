@@ -11,8 +11,7 @@
       <div class="flex items-center gap-3">
         <img *ngIf="clinicSetting?.logo" [src]="clinicSetting.logo" class="max-h-12 max-w-[220px] object-contain rounded-lg" alt="Logo da Clínica" />
         <ng-container *ngIf="!clinicSetting?.logo">
-          <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl text-black shrink-0"
-            style="background: var(--clinic-primary, #dca311); box-shadow: 0 6px 20px rgba(220,163,17,0.35)">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl text-black shrink-0 bg-clinic-primary shadow-[0_6px_20px_rgba(0,0,0,0.2)]">
             <i class="fa-solid fa-heart-pulse"></i>
           </div>
           <span class="text-xl font-extrabold text-slate-50 tracking-wide">ClinicSaaS</span>
@@ -28,29 +27,25 @@
 
       <ul class="flex flex-col gap-3">
         <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
-          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
-            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0 bg-white/10 text-clinic-primary">
             <i class="fa-solid fa-check"></i>
           </span>
           Painel clínico e administrativo completo
         </li>
         <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
-          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
-            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0 bg-white/10 text-clinic-primary">
             <i class="fa-solid fa-check"></i>
           </span>
           Chat e orientações em tempo real
         </li>
         <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
-          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
-            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0 bg-white/10 text-clinic-primary">
             <i class="fa-solid fa-check"></i>
           </span>
           Acompanhamento pré e pós-operatório
         </li>
         <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
-          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
-            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0 bg-white/10 text-clinic-primary">
             <i class="fa-solid fa-check"></i>
           </span>
           Controle de acessos e equipes
@@ -58,7 +53,7 @@
       </ul>
 
       <div class="flex items-center gap-2 text-xs text-slate-500 pt-4 border-t border-white/[0.06]">
-        <i class="fa-solid fa-shield-halved" style="color: var(--clinic-primary, #fdbf0f)"></i>
+        <i class="fa-solid fa-shield-halved text-clinic-primary"></i>
         <span>Ambiente seguro, criptografado e multiempresa</span>
       </div>
     </div>
@@ -75,10 +70,10 @@
 
         <div class="flex flex-col gap-1.5">
           <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
-            E-mail de Acesso <span class="text-red-500">*</span>
+            E-mail <span class="text-red-500">*</span>
           </label>
           <input formControlName="email" type="email" autocomplete="email"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[var(--clinic-primary,#dca311)] focus:ring-2 focus:ring-[var(--clinic-primary,#dca311)]/20 shadow-sm"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
             [ngClass]="err('email') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
             placeholder="exemplo@clinica.com.br" />
           <span class="text-[11px] text-red-500" *ngIf="err('email')">{{ err('email') }}</span>
@@ -87,16 +82,15 @@
         <div class="flex flex-col gap-1.5">
           <div class="flex items-center justify-between">
             <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
-              Senha de Acesso <span class="text-red-500">*</span>
+              Senha <span class="text-red-500">*</span>
             </label>
             <a routerLink="/reset-password"
-              class="text-xs font-semibold no-underline hover:underline"
-              style="color: var(--clinic-primary, #dca311)">
+              class="text-xs font-semibold no-underline hover:underline text-clinic-primary">
               Esqueceu a senha?
             </a>
           </div>
           <input formControlName="password" type="password" autocomplete="current-password"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[var(--clinic-primary,#dca311)] focus:ring-2 focus:ring-[var(--clinic-primary,#dca311)]/20 shadow-sm"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
             [ngClass]="err('password') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
             placeholder="Digite sua senha segura" />
           <span class="text-[11px] text-red-500" *ngIf="err('password')">{{ err('password') }}</span>
@@ -105,16 +99,14 @@
         <div class="flex items-center justify-between text-xs text-slate-600 pt-1">
           <label class="flex items-center gap-2 cursor-pointer select-none">
             <input type="checkbox" formControlName="remember"
-              class="w-4 h-4 rounded border-slate-300 bg-white cursor-pointer"
-              style="accent-color: var(--clinic-primary, #dca311)" />
+              class="w-4 h-4 rounded border-slate-300 bg-white cursor-pointer accent-clinic-primary" />
             <span class="font-medium text-slate-700">Manter conectado neste navegador</span>
           </label>
         </div>
 
         <div class="mt-2">
           <button type="submit" [disabled]="isLoading"
-            class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)] disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
-            style="background: var(--clinic-primary, #dca311)">
+            class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)] bg-clinic-primary disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none">
             <i class="fa-solid fa-spinner fa-spin" *ngIf="isLoading"></i>
             <i class="fa-solid fa-right-to-bracket" *ngIf="!isLoading"></i>
             <span>{{ isLoading ? 'Entrando...' : 'Entrar' }}</span>
@@ -126,8 +118,7 @@
       <div class="flex flex-col items-center gap-4 mt-8 pt-6 border-t border-slate-200">
         <p class="text-center text-[13px] text-slate-500">
           Ainda não tem conta da sua clínica?
-          <a routerLink="/" class="font-semibold no-underline hover:underline"
-            style="color: var(--clinic-primary, #dca311)">
+          <a routerLink="/" class="font-semibold no-underline hover:underline text-clinic-primary">
             Cadastrar clínica
           </a>
         </p>

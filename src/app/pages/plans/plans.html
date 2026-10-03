@@ -3,8 +3,7 @@
   <header class="w-full bg-white border-b border-slate-200 sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg text-black shrink-0"
-          style="background: linear-gradient(135deg, #fdbf0f 0%, #dca311 100%); box-shadow: 0 4px 14px rgba(253,191,15,0.35)">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg text-black shrink-0 bg-clinic-primary shadow-[0_4px_14px_rgba(var(--clinic-primary-rgb,220,163,17),0.35)]">
           <i class="fa-solid fa-heart-pulse"></i>
         </div>
         <span class="text-lg font-black text-slate-900 tracking-wide">ClinicSaaS</span>
@@ -55,10 +54,10 @@
 
       <div *ngFor="let plan of plans"
         class="bg-white rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative"
-        [ngClass]="plan.isPopular ? 'border-2 border-[#dca311] shadow-xl lg:-translate-y-2' : 'border border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md'">
+        [ngClass]="plan.isPopular ? 'border-2 border-clinic-primary shadow-xl lg:-translate-y-2' : 'border border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md'">
 
         <div *ngIf="plan.isPopular"
-          class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#dca311] text-black text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm flex items-center gap-1">
+          class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-clinic-primary text-black text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm flex items-center gap-1">
           <i class="fa-solid fa-crown text-[10px]"></i>
           Mais Escolhido
         </div>
@@ -102,8 +101,7 @@
         <div>
           <button type="button" (click)="selectPlan(plan)"
             class="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer"
-            [ngClass]="plan.isPopular ? 'text-black shadow-md hover:-translate-y-px hover:shadow-lg' : 'bg-slate-900 text-white hover:bg-slate-800'"
-            [style.background]="plan.isPopular ? '#dca311' : ''">
+            [ngClass]="plan.isPopular ? 'bg-clinic-primary text-black shadow-md hover:-translate-y-px hover:shadow-lg' : 'bg-slate-900 text-white hover:bg-slate-800'">
             <i class="fa-solid fa-credit-card text-xs"></i>
             <span>Assinar {{ plan.name }}</span>
           </button>
@@ -119,7 +117,7 @@
 
     <div class="mt-14 w-full max-w-4xl bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-50 text-[#dca311] flex items-center justify-center text-2xl shrink-0 border border-amber-200">
+        <div class="w-12 h-12 rounded-xl bg-clinic-primary/10 text-clinic-primary flex items-center justify-center text-2xl shrink-0 border border-clinic-primary/20">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <div>
@@ -176,14 +174,14 @@
         <div class="grid grid-cols-3 gap-2 sm:gap-3">
           <button type="button" (click)="setPaymentMethod('credit_card')"
             class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5"
-            [ngClass]="paymentMethod === 'credit_card' ? 'border-[#dca311] bg-amber-50/40 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
-            <i class="fa-solid fa-credit-card text-base" [ngClass]="paymentMethod === 'credit_card' ? 'text-[#dca311]' : 'text-slate-400'"></i>
+            [ngClass]="paymentMethod === 'credit_card' ? 'border-clinic-primary bg-clinic-primary/10 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+            <i class="fa-solid fa-credit-card text-base" [ngClass]="paymentMethod === 'credit_card' ? 'text-clinic-primary' : 'text-slate-400'"></i>
             <span class="text-xs font-bold">Cartão</span>
           </button>
 
           <button type="button" (click)="setPaymentMethod('pix')"
             class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5 relative"
-            [ngClass]="paymentMethod === 'pix' ? 'border-[#dca311] bg-amber-50/40 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+            [ngClass]="paymentMethod === 'pix' ? 'border-clinic-primary bg-clinic-primary/10 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
             <i class="fa-brands fa-pix text-base" [ngClass]="paymentMethod === 'pix' ? 'text-teal-600' : 'text-slate-400'"></i>
             <span class="text-xs font-bold">PIX</span>
             <span class="absolute -top-2 right-1 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
@@ -193,8 +191,8 @@
 
           <button type="button" (click)="setPaymentMethod('boleto')"
             class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5"
-            [ngClass]="paymentMethod === 'boleto' ? 'border-[#dca311] bg-amber-50/40 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
-            <i class="fa-solid fa-barcode text-base" [ngClass]="paymentMethod === 'boleto' ? 'text-[#dca311]' : 'text-slate-400'"></i>
+            [ngClass]="paymentMethod === 'boleto' ? 'border-clinic-primary bg-clinic-primary/10 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+            <i class="fa-solid fa-barcode text-base" [ngClass]="paymentMethod === 'boleto' ? 'text-clinic-primary' : 'text-slate-400'"></i>
             <span class="text-xs font-bold">Boleto</span>
           </button>
         </div>
@@ -206,7 +204,7 @@
             Número do Cartão <span class="text-red-500">*</span>
           </label>
           <input type="text" [(ngModel)]="cardData.number" mask="0000 0000 0000 0000"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
             placeholder="0000 0000 0000 0000" />
         </div>
 
@@ -215,7 +213,7 @@
             Nome Impresso no Cartão <span class="text-red-500">*</span>
           </label>
           <input type="text" [(ngModel)]="cardData.holderName"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
             placeholder="NOME COMO NO CARTÃO" />
         </div>
 
@@ -225,7 +223,7 @@
               Validade <span class="text-red-500">*</span>
             </label>
             <input type="text" [(ngModel)]="cardData.expiry" mask="00/00"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
               placeholder="MM/AA" />
           </div>
 
@@ -234,7 +232,7 @@
               CVV <span class="text-red-500">*</span>
             </label>
             <input type="text" [(ngModel)]="cardData.cvv" mask="0000"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
               placeholder="123" />
           </div>
         </div>
@@ -244,7 +242,7 @@
             CPF/CNPJ do Titular
           </label>
           <input type="text" [(ngModel)]="cardData.document"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
             placeholder="000.000.000-00 ou 00.000.000/0001-00" />
         </div>
       </div>
@@ -287,7 +285,7 @@
             Nome Completo ou Razão Social <span class="text-red-500">*</span>
           </label>
           <input type="text" [(ngModel)]="boletoData.name"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
             placeholder="Nome para emissão do boleto" />
         </div>
 
@@ -296,7 +294,7 @@
             CPF ou CNPJ <span class="text-red-500">*</span>
           </label>
           <input type="text" [(ngModel)]="boletoData.document"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
             placeholder="000.000.000-00 ou 00.000.000/0001-00" />
         </div>
 
@@ -312,8 +310,7 @@
           Voltar
         </button>
         <button type="button" (click)="confirmSubscription()" [disabled]="isLoading"
-          class="flex-1 py-3 px-4 rounded-lg text-xs sm:text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-          style="background: #dca311">
+          class="flex-1 py-3 px-4 rounded-lg text-xs sm:text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 bg-clinic-primary hover:opacity-95">
           <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isLoading"></i>
           <i class="fa-solid fa-check text-xs" *ngIf="!isLoading"></i>
           <span>{{ isLoading ? 'Processando...' : 'Confirmar e Iniciar Teste Grátis' }}</span>

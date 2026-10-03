@@ -93,6 +93,7 @@ export class Login implements OnInit {
       } else {
         this.auth.setToken(data.data.token);
         this.auth.setSignatureId(data.data.signatureId);
+        await this.getSignature();
         this.toastr.success(data?.message);
         this.router.navigateByUrl('/dashboard');
       }

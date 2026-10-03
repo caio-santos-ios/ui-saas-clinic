@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { ToastrService } from 'ngx-toastr';
+import { api } from './api';
 
 export interface UserSession {
   id?: string;
@@ -21,9 +22,18 @@ export class Auth {
   private isBrowser: boolean;
   private userSubject: BehaviorSubject<UserSession | null>;
   user$;
+  private clinicThemeSubject = new BehaviorSubject<{ primaryColor?: string; secondaryColor?: string; logo?: string } | null>(null);
+  clinicTheme$ = this.clinicThemeSubject.asObservable();
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
+    if (this.isBrowser) {
+      const cachedTheme = this.getClinicTheme();
+      if (cachedTheme) {
+        this.clinicThemeSubject.next(cachedTheme);
+        this.applyClinicTheme(cachedTheme);
+      }
+    }
     const initialUser = this.getUser();
     this.userSubject = new BehaviorSubject<UserSession | null>(initialUser);
     this.user$ = this.userSubject.asObservable();
@@ -117,12 +127,24 @@ export class Auth {
 
   applyClinicTheme(setting: { primaryColor?: string; secondaryColor?: string; logo?: string }) {
     if (!setting) return;
+    this.clinicThemeSubject.next(setting);
     if (setting.primaryColor) {
       document.documentElement.style.setProperty('--clinic-primary', setting.primaryColor);
       document.documentElement.style.setProperty('--accent-primary', setting.primaryColor);
+      document.documentElement.style.setProperty('--accent-hover', setting.primaryColor);
+      document.documentElement.style.setProperty('--accent-gold', setting.primaryColor);
+
+      const hex = setting.primaryColor.replace('#', '');
+      if (hex.length === 6) {
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        document.documentElement.style.setProperty('--clinic-primary-rgb', `${r}, ${g}, ${b}`);
+      }
     }
     if (setting.secondaryColor) {
       document.documentElement.style.setProperty('--clinic-secondary', setting.secondaryColor);
+      document.documentElement.style.setProperty('--bg-sidebar', setting.secondaryColor);
     }
     if (this.isBrowser) {
       localStorage.setItem('clinic_theme', JSON.stringify(setting));
@@ -135,5 +157,19 @@ export class Auth {
       return data ? JSON.parse(data) : null;
     }
     return null;
+  }
+
+  async loadClinicTheme(): Promise<void> {
+    if (!this.isBrowser) return;
+    const signatureId = this.getSignature();
+    if (signatureId) {
+      try {
+        const { data } = await api.get(`/api/signatures/${signatureId}`);
+        if (data?.data?.clinicSetting) {
+          this.applyClinicTheme(data.data.clinicSetting);
+        }
+      } catch (err) {
+      }
+    }
   }
 }

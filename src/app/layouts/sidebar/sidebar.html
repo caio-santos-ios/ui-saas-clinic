@@ -1,6 +1,7 @@
 <aside class="sidebar">
   <div class="sidebar-header" style="display: flex; justify-content: center; align-items: center;">
-    <img src="assets/logo-bora-trampar.jpeg" alt="Saas Clínica Logo" style="max-height: 40px; max-width: 100%; object-fit: contain; border-radius: 8px;" />
+    <img *ngIf="clinicTheme?.logo" [src]="clinicTheme.logo" alt="Logo da Clínica" style="max-height: 40px; max-width: 100%; object-fit: contain; border-radius: 8px;" />
+    <img *ngIf="!clinicTheme?.logo" src="assets/logo-bora-trampar.jpeg" alt="Saas Clínica Logo" style="max-height: 40px; max-width: 100%; object-fit: contain; border-radius: 8px;" />
   </div>
   
   <nav class="sidebar-nav">

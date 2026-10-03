@@ -56,7 +56,8 @@
 
       <div class="flex items-center mb-7">
         <div class="flex flex-col items-center gap-1.5 shrink-0">
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
+          <div
+            class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
             [ngClass]="currentStep === 1 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : currentStep > 1 ? 'bg-[#dca311] border-[#dca311] text-black' : 'bg-slate-200 border-slate-200 text-slate-400'">
             <i class="fa-solid fa-check" *ngIf="currentStep > 1"></i>
             <span *ngIf="currentStep <= 1">1</span>
@@ -69,7 +70,8 @@
           [ngClass]="currentStep > 1 ? 'bg-[#dca311]' : 'bg-slate-200'"></div>
 
         <div class="flex flex-col items-center gap-1.5 shrink-0">
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
+          <div
+            class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
             [ngClass]="currentStep === 2 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : currentStep > 2 ? 'bg-[#dca311] border-[#dca311] text-black' : 'bg-slate-200 border-slate-200 text-slate-400'">
             <i class="fa-solid fa-check" *ngIf="currentStep > 2"></i>
             <span *ngIf="currentStep <= 2">2</span>
@@ -82,7 +84,8 @@
           [ngClass]="currentStep > 2 ? 'bg-[#dca311]' : 'bg-slate-200'"></div>
 
         <div class="flex flex-col items-center gap-1.5 shrink-0">
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
+          <div
+            class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
             [ngClass]="currentStep === 3 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : 'bg-slate-200 border-slate-200 text-slate-400'">
             <span>3</span>
           </div>
@@ -130,7 +133,8 @@
               class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
               [ngClass]="err('step1.corporateName') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
               placeholder="Ex: Bella Vita Cirurgia Plástica Ltda" />
-            <span class="text-[11px] text-red-500" *ngIf="err('step1.corporateName')">{{ err('step1.corporateName') }}</span>
+            <span class="text-[11px] text-red-500"
+              *ngIf="err('step1.corporateName')">{{ err('step1.corporateName') }}</span>
           </div>
 
           <div class="grid grid-cols-2 gap-3.5 mb-2">
@@ -252,7 +256,8 @@
                 class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
                 [ngClass]="err('step2.neighborhood') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
                 placeholder="Jardim Paulista" />
-              <span class="text-[11px] text-red-500" *ngIf="err('step2.neighborhood')">{{ err('step2.neighborhood') }}</span>
+              <span class="text-[11px] text-red-500"
+                *ngIf="err('step2.neighborhood')">{{ err('step2.neighborhood') }}</span>
             </div>
 
             <div class="flex flex-col gap-1.5">
@@ -289,9 +294,7 @@
             <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">Logotipo da Clínica</label>
             <div
               class="relative border-2 border-dashed border-slate-300 rounded-lg min-h-[110px] flex items-center justify-center cursor-pointer transition overflow-hidden bg-white hover:border-[#dca311] hover:bg-amber-50/20"
-              [class.border-[#dca311]]="logoPreview"
-              (click)="triggerLogoUpload()"
-              (dragover)="onDragOver($event)"
+              [class.border-[#dca311]]="logoPreview" (click)="triggerLogoUpload()" (dragover)="onDragOver($event)"
               (drop)="onDrop($event)">
               <img *ngIf="logoPreview" [src]="logoPreview" class="max-h-20 max-w-full object-contain p-2" alt="Logo" />
               <div class="flex flex-col items-center gap-1 p-4 text-center" *ngIf="!logoPreview">
@@ -343,7 +346,8 @@
           </div>
 
           <div class="flex flex-col gap-1.5 mb-4">
-            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">Paletas predefinidas</label>
+            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">Paletas
+              predefinidas</label>
             <div class="flex flex-wrap gap-2 mt-1">
               <button type="button" *ngFor="let palette of palettes"
                 class="flex rounded-md overflow-hidden border border-slate-300 cursor-pointer transition p-0 w-10 h-6 hover:border-[#dca311] hover:scale-105"
@@ -354,7 +358,8 @@
             </div>
           </div>
 
-          <div class="border border-slate-200 rounded-lg overflow-hidden mb-4 shadow-sm" [style.border-color]="primaryColor">
+          <div class="border border-slate-200 rounded-lg overflow-hidden mb-4 shadow-sm"
+            [style.border-color]="primaryColor">
             <div class="flex items-center gap-2.5 px-4 py-3" [style.background]="secondaryColor">
               <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm overflow-hidden shrink-0"
                 style="background: rgba(255,255,255,0.15); color: #fdbf0f">
@@ -383,8 +388,10 @@
               <input type="checkbox" id="terms" formControlName="acceptedTerms"
                 class="w-4 h-4 shrink-0 mt-0.5 rounded border-slate-300 bg-white text-[#dca311] accent-[#dca311] focus:ring-[#dca311]/20 cursor-pointer" />
               <label for="terms" class="cursor-pointer select-none">
-                Concordo com os <a href="#" class="text-[#dca311] font-semibold no-underline hover:underline">Termos de Uso</a> e
-                <a href="#" class="text-[#dca311] font-semibold no-underline hover:underline">Política de Privacidade</a>.
+                Concordo com os <a href="#" class="text-[#dca311] font-semibold no-underline hover:underline">Termos de
+                  Uso</a> e
+                <a href="#" class="text-[#dca311] font-semibold no-underline hover:underline">Política de
+                  Privacidade</a>.
                 Confirmo que os dados são verídicos.
               </label>
             </div>

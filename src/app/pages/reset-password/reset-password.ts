@@ -1,109 +1,102 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css'
 })
 export class ResetPassword implements OnInit {
-  token = '';
-  email = '';
-  newPassword = '';
-  confirmPassword = '';
   showPassword = false;
-  showConfirmPassword = false;
-
-  hasToken = false;
-  isSubmitted = false;
-  isResetDone = false;
   isLoading = false;
+  form: FormGroup;
+  clinicSetting: any = null;
 
   constructor(
-    private route: ActivatedRoute,
+    private fb: FormBuilder,
+    private auth: Auth,
     private router: Router,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.token = params['token'] || params['code'] || '';
-      this.hasToken = !!this.token;
-      this.cdr.detectChanges();
+  ) {
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
     });
   }
 
-  toggleShowPassword() {
+  async ngOnInit(): Promise<void> {
+    this.clinicSetting = this.auth.getClinicTheme();
+    if (this.clinicSetting) {
+      this.auth.applyClinicTheme(this.clinicSetting);
+    }
+    if (this.auth.isSignatureValidated()) {
+      await this.getSignature();
+    }
+  }
+
+  field(name: string): AbstractControl {
+    return this.form.get(name)!;
+  }
+
+  err(name: string): string | null {
+    const c = this.form.get(name);
+    if (!c || !c.invalid || !c.touched) return null;
+    if (c.errors?.['required']) return 'Campo obrigatório';
+    if (c.errors?.['email']) return 'E-mail inválido';
+    if (c.errors?.['minlength']) return `Mínimo ${c.errors?.['minlength'].requiredLength} caracteres`;
+    return 'Campo inválido';
+  }
+
+  toggleShowPassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  toggleShowConfirmPassword() {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
-
-  async onRequestLink() {
-    if (!this.email.trim()) {
-      this.toastr.warning('Informe seu e-mail cadastrado.');
-      return;
-    }
-
-    this.isLoading = true;
-    this.cdr.detectChanges();
-
+  async onSubmit(): Promise<void> {
     try {
-      await api.post('/api/auth/forgot-password', { email: this.email });
-      this.isSubmitted = true;
-      this.toastr.success('Link de recuperação enviado com sucesso!');
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Se o e-mail estiver cadastrado, o link de recuperação foi enviado!';
-      this.isSubmitted = true;
-      this.toastr.success(msg);
-    } finally {
-      this.isLoading = false;
+      this.form.markAllAsTouched();
+
+      if (this.form.invalid) {
+        this.toastr.warning('Preencha seu e-mail corretamente.');
+        return;
+      }
+
+      this.isLoading = true;
       this.cdr.detectChanges();
-    }
-  }
 
-  async onResetPassword() {
-    if (!this.newPassword || !this.confirmPassword) {
-      this.toastr.warning('Preencha a nova senha e a confirmação.');
-      return;
-    }
+      const { email, password } = this.form.value;
 
-    if (this.newPassword !== this.confirmPassword) {
-      this.toastr.error('As senhas não coincidem.');
-      return;
-    }
-
-    if (this.newPassword.length < 6) {
-      this.toastr.warning('A senha deve ter no mínimo 6 caracteres.');
-      return;
-    }
-
-    this.isLoading = true;
-    this.cdr.detectChanges();
-
-    try {
-      await api.post('/api/auth/reset-password', {
-        token: this.token,
-        password: this.newPassword,
-        confirmPassword: this.confirmPassword
+      const { data } = await api.post('/api/auth/forgot-password', {
+        email
       });
-      this.isResetDone = true;
-      this.toastr.success('Sua senha foi redefinida com sucesso!');
+
+      this.toastr.success(data.message);
+      setTimeout(() => {
+        this.router.navigateByUrl("/login");
+      }, 300)
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.message || 'Token inválido ou expirado.';
-      this.toastr.error(msg);
+      this.auth.validatedError(err);
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
+    }
+  }
+
+  async getSignature() {
+    try {
+      const id = this.auth.getSignature() ?? "";
+      const { data } = await api.get(`/api/signatures/${id}`);
+      this.clinicSetting = data.data.clinicSetting;
+      this.auth.applyClinicTheme(data.data.clinicSetting);
+      this.cdr.detectChanges();
+    } catch (error) {
+      this.auth.validatedError(error);
     }
   }
 }

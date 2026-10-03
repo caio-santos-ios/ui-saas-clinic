@@ -20,13 +20,21 @@ type TMenu = {
 })
 export class Sidebar implements OnInit, OnDestroy {
   user: UserSession | null = null;
+  clinicTheme: { primaryColor?: string; secondaryColor?: string; logo?: string } | null = null;
   private sub?: Subscription;
+  private themeSub?: Subscription;
   menu: TMenu[] = [];
 
   constructor(public auth: Auth, private router: Router, public themeService: ThemeService) { }
 
   ngOnInit() {
     this.user = this.auth.getUser();
+    this.clinicTheme = this.auth.getClinicTheme();
+    this.themeSub = this.auth.clinicTheme$.subscribe(theme => {
+      if (theme) {
+        this.clinicTheme = theme;
+      }
+    });
 
     if (this.user) {
       switch(this.user.accessProfile) {
@@ -55,6 +63,7 @@ export class Sidebar implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
+    this.themeSub?.unsubscribe();
   }
 
   goToProfile() {
