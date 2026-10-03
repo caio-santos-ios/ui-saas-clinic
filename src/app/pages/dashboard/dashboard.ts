@@ -5,13 +5,14 @@ import { Chart, registerables } from 'chart.js';
 import { Loading } from '../../components/loading/loading';
 import { GlobalService } from '../../services/global.service';
 import { api } from '../../services/api';
+import { Auth } from '../../services/auth';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, Loading],
+  imports: [CommonModule, Loading],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -21,7 +22,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   chart: Chart | null = null;
   donutChart: Chart | null = null;
-  isLoading = true;
+  isLoading = false;
 
   stats = {
     totalRevenue: 0,
@@ -36,6 +37,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     public global: GlobalService,
+    private auth: Auth,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -63,75 +65,75 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async fetchData() {
-    this.isLoading = true;
-    this.cdr.detectChanges();
+    // this.isLoading = true;
+    // this.cdr.detectChanges();
 
-    const safetyTimer = setTimeout(() => {
-      if (this.isLoading) {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }
-    }, 3500);
+    // const safetyTimer = setTimeout(() => {
+    //   if (this.isLoading) {
+    //     this.isLoading = false;
+    //     this.cdr.detectChanges();
+    //   }
+    // }, 3500);
 
-    try {
-      const response = await api.get('/api/dashboard');
-      const data = response.data?.result?.data;
-      console.log(data)
-      if (data) {
-        this.stats.totalRevenue = data.totalRevenue || 0;
-        this.stats.monthAppointments = data.monthAppointments || 0;
-        this.stats.activePros = data.activePros || 0;
-        this.stats.pendingVerifications = data.pendingVerifications || 0;
-        this.stats.openDisputes = data.openDisputes || 0;
-        this.stats.satisfactionRate = data.satisfactionRate || 100;
+    // try {
+    //   const response = await api.get('/api/dashboard');
+    //   const data = response.data?.result?.data;
+    //   console.log(data)
+    //   if (data) {
+    //     this.stats.totalRevenue = data.totalRevenue || 0;
+    //     this.stats.monthAppointments = data.monthAppointments || 0;
+    //     this.stats.activePros = data.activePros || 0;
+    //     this.stats.pendingVerifications = data.pendingVerifications || 0;
+    //     this.stats.openDisputes = data.openDisputes || 0;
+    //     this.stats.satisfactionRate = data.satisfactionRate || 100;
 
-        this.recentAppointments = data.recentAppointments || [];
+    //     this.recentAppointments = data.recentAppointments || [];
 
-        if (this.chart && data.revenueHistory && data.revenueHistory.length > 0) {
-          this.chart.data.labels = data.revenueHistory.map((h: any) => h.label);
-          this.chart.data.datasets[0].data = data.revenueHistory.map((h: any) => h.revenue);
-          this.chart.update();
-        }
+    //     if (this.chart && data.revenueHistory && data.revenueHistory.length > 0) {
+    //       this.chart.data.labels = data.revenueHistory.map((h: any) => h.label);
+    //       this.chart.data.datasets[0].data = data.revenueHistory.map((h: any) => h.revenue);
+    //       this.chart.update();
+    //     }
 
-        if (this.donutChart) {
-          if (data.categoryDistribution && data.categoryDistribution.length > 0) {
-            this.donutChart.data.labels = data.categoryDistribution.map((c: any) => c.name);
-            this.donutChart.data.datasets[0].data = data.categoryDistribution.map((c: any) => c.count);
-            this.donutChart.data.datasets[0].backgroundColor = ['#fdbf0f', '#38bdf8', '#4ade80', '#a855f7', '#fb7185'];
-          } else {
-            this.donutChart.data.labels = ['Nenhuma categoria cadastrada'];
-            this.donutChart.data.datasets[0].data = [1];
-            this.donutChart.data.datasets[0].backgroundColor = ['#334155'];
-          }
-          this.donutChart.update();
-        }
-      }
+    //     if (this.donutChart) {
+    //       if (data.categoryDistribution && data.categoryDistribution.length > 0) {
+    //         this.donutChart.data.labels = data.categoryDistribution.map((c: any) => c.name);
+    //         this.donutChart.data.datasets[0].data = data.categoryDistribution.map((c: any) => c.count);
+    //         this.donutChart.data.datasets[0].backgroundColor = ['#fdbf0f', '#38bdf8', '#4ade80', '#a855f7', '#fb7185'];
+    //       } else {
+    //         this.donutChart.data.labels = ['Nenhuma categoria cadastrada'];
+    //         this.donutChart.data.datasets[0].data = [1];
+    //         this.donutChart.data.datasets[0].backgroundColor = ['#334155'];
+    //       }
+    //       this.donutChart.update();
+    //     }
+    //   }
 
-      this.isLoading = false;
-      this.cdr.detectChanges();
+    //   this.isLoading = false;
+    //   this.cdr.detectChanges();
 
-      api.get('/api/approvals')
-        .then(resApprovals => {
-          const apprList = resApprovals.data?.result || resApprovals.data?.data || resApprovals.data || [];
-          if (Array.isArray(apprList)) {
-            const pendingCount = apprList.filter((a: any) => {
-              const s = (a.status || '').toString().toLowerCase().trim();
-              return !a.approved && s !== 'approved' && s !== 'rejected';
-            }).length;
-            if (pendingCount > 0 || this.stats.pendingVerifications === 0) {
-              this.stats.pendingVerifications = pendingCount;
-              this.cdr.detectChanges();
-            }
-          }
-        })
-        .catch(() => {});
-    } catch (e) {
-      console.warn('Fallback ao carregar dashboard:', e);
-    } finally {
-      clearTimeout(safetyTimer);
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
+    //   api.get('/api/approvals')
+    //     .then(resApprovals => {
+    //       const apprList = resApprovals.data?.result || resApprovals.data?.data || resApprovals.data || [];
+    //       if (Array.isArray(apprList)) {
+    //         const pendingCount = apprList.filter((a: any) => {
+    //           const s = (a.status || '').toString().toLowerCase().trim();
+    //           return !a.approved && s !== 'approved' && s !== 'rejected';
+    //         }).length;
+    //         if (pendingCount > 0 || this.stats.pendingVerifications === 0) {
+    //           this.stats.pendingVerifications = pendingCount;
+    //           this.cdr.detectChanges();
+    //         }
+    //       }
+    //     })
+    //     .catch(() => {});
+    // } catch (e) {
+    //   console.warn('Fallback ao carregar dashboard:', e);
+    // } finally {
+    //   clearTimeout(safetyTimer);
+    //   this.isLoading = false;
+    //   this.cdr.detectChanges();
+    // }
   }
 
   initCharts() {

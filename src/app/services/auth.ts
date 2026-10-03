@@ -1,6 +1,8 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
+import { jwtDecode } from "jwt-decode";
+import { ToastrService } from 'ngx-toastr';
 
 export interface UserSession {
   id?: string;
@@ -9,6 +11,7 @@ export interface UserSession {
   role?: string;
   photo?: string;
   whatsapp?: string;
+  accessProfile?: string;
 }
 
 @Injectable({
@@ -32,12 +35,18 @@ export class Auth {
     }
   }
 
+  setSignatureId(signatureId: string) {
+    if (this.isBrowser) {
+      localStorage.setItem('signatureId', signatureId);
+    }
+  }
+
   getToken(): string | null {
     return this.isBrowser ? localStorage.getItem('token') : null;
   }
 
-  getPlan(): string | null {
-    return this.isBrowser ? localStorage.getItem('planId') : null;
+  getSignature(): string | null {
+    return this.isBrowser ? localStorage.getItem('signatureId') : null;
   }
 
   setRefreshToken(token: string) {
@@ -59,8 +68,19 @@ export class Auth {
 
   getUser(): UserSession | null {
     if (this.isBrowser) {
-      const data = localStorage.getItem('user');
-      return data ? JSON.parse(data) : null;
+      const data = localStorage.getItem('token');
+
+      if (data == null) return data;
+
+      const decoded: any = jwtDecode(data);
+
+      return {
+        id: decoded.sub,
+        email: decoded.email,
+        name: decoded.name,
+        photo: decoded.photo,
+        accessProfile: decoded.accessProfile
+      };
     }
     return null;
   }
@@ -78,11 +98,42 @@ export class Auth {
     return !!this.getToken();
   }
 
-  isPlanValidated(): boolean {
-    return !!this.getPlan();
+  isSignatureValidated(): boolean {
+    return !!this.getSignature();
   }
 
   validatedError(err: any) {
-    console.log(err)
+    // const status = err.response.status;
+    // if(status > 500 && status < 599) {
+    //   this.toastr.error("Falha interna, entre em contato com o Administrador");
+    //   return;
+    // } 
+
+    // if(status > 400 && status < 499) {
+    //   this.toastr.warning(err.response.data.message);
+    //   return;
+    // } 
+  }
+
+  applyClinicTheme(setting: { primaryColor?: string; secondaryColor?: string; logo?: string }) {
+    if (!setting) return;
+    if (setting.primaryColor) {
+      document.documentElement.style.setProperty('--clinic-primary', setting.primaryColor);
+      document.documentElement.style.setProperty('--accent-primary', setting.primaryColor);
+    }
+    if (setting.secondaryColor) {
+      document.documentElement.style.setProperty('--clinic-secondary', setting.secondaryColor);
+    }
+    if (this.isBrowser) {
+      localStorage.setItem('clinic_theme', JSON.stringify(setting));
+    }
+  }
+
+  getClinicTheme(): { primaryColor?: string; secondaryColor?: string; logo?: string } | null {
+    if (this.isBrowser) {
+      const data = localStorage.getItem('clinic_theme');
+      return data ? JSON.parse(data) : null;
+    }
+    return null;
   }
 }

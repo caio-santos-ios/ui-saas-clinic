@@ -6,9 +6,11 @@ import { ResetPassword } from './pages/reset-password/reset-password';
 import { Confirmation } from './pages/confirmation/confirmation';
 import { AuthGuard } from './guards/auth-guard';
 import { Signature } from './pages/signature/signature';
+import { Plans } from './pages/plans/plans';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
+  { path: 'plans', component: Plans },
   { path: 'login', component: Login },
   { path: 'reset-password', component: ResetPassword },
   { path: 'confirmation/:code', component: Confirmation },

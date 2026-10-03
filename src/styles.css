@@ -62,24 +62,31 @@
   --status-info-bg: rgba(56, 189, 248, 0.15);
 }
 
-[data-theme="dark"] .form-control,
-[data-theme="dark"] .form-input,
-[data-theme="dark"] select,
-[data-theme="dark"] textarea,
-[data-theme="dark"] input {
+[data-theme="dark"] .form-control.dark-style,
+[data-theme="dark"] .form-input.dark-style {
   background-color: #0b1120 !important;
   border-color: #1e293b !important;
   color: #f8fafc !important;
 }
 
-[data-theme="dark"] .form-control:focus,
-[data-theme="dark"] .form-input:focus,
-[data-theme="dark"] select:focus,
-[data-theme="dark"] textarea:focus,
-[data-theme="dark"] input:focus {
-  border-color: var(--accent-primary) !important;
-  background-color: #131d31 !important;
-  box-shadow: 0 0 0 3px rgba(253, 191, 15, 0.15) !important;
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+select,
+textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  accent-color: #dca311 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
 }
 
 [data-theme="dark"] .form-group label {
@@ -671,7 +678,7 @@ button[disabled],
   letter-spacing: 0.5px;
 }
 
-.form-control, .form-input, select, textarea, input {
+.form-control, .form-input, select, textarea, input:not([type="checkbox"]):not([type="radio"]):not([type="color"]) {
   appearance: none;
   background-color: #ffffff;
   border: 1px solid var(--border-color);
@@ -689,7 +696,7 @@ button[disabled],
   width: 100%;
 }
 
-.form-control:focus, .form-input:focus, select:focus, textarea:focus, input:focus {
+.form-control:focus, .form-input:focus, select:focus, textarea:focus, input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus {
   border-color: var(--accent-primary);
   background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(220, 163, 17, 0.15);

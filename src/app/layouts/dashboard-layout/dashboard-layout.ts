@@ -14,9 +14,9 @@ import { ThemeService } from '../../services/theme';
 export class DashboardLayout implements OnInit {
   isSidebarOpen = typeof window !== 'undefined' ? window.innerWidth >= 1024 : true;
 
-  constructor(public themeService: ThemeService, public router: Router) {}
+  constructor(public themeService: ThemeService, public router: Router) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {

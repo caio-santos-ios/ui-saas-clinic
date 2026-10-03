@@ -1,62 +1,139 @@
-<div class="auth-page">
-  <div class="auth-container">
-    <div class="auth-card">
-      <div class="auth-header">
-        <h1 class="auth-title">Saas Clinica</h1>
+<div class="min-h-screen flex bg-slate-50">
+
+  <div class="hidden lg:flex w-[420px] shrink-0 relative overflow-hidden items-center"
+    [style.background]="clinicSetting?.secondaryColor ? clinicSetting.secondaryColor : 'linear-gradient(160deg, #0b1120 0%, #111e38 60%, #0b1120 100%)'">
+    <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full"
+      style="background: radial-gradient(circle, rgba(253,191,15,0.12) 0%, transparent 70%)"></div>
+    <div class="absolute -bottom-24 -left-20 w-72 h-72 rounded-full"
+      style="background: radial-gradient(circle, rgba(253,191,15,0.07) 0%, transparent 70%)"></div>
+
+    <div class="relative z-10 px-10 py-12 flex flex-col gap-8 w-full">
+      <div class="flex items-center gap-3">
+        <img *ngIf="clinicSetting?.logo" [src]="clinicSetting.logo" class="max-h-12 max-w-[220px] object-contain rounded-lg" alt="Logo da Clínica" />
+        <ng-container *ngIf="!clinicSetting?.logo">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl text-black shrink-0"
+            style="background: var(--clinic-primary, #dca311); box-shadow: 0 6px 20px rgba(220,163,17,0.35)">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <span class="text-xl font-extrabold text-slate-50 tracking-wide">ClinicSaaS</span>
+        </ng-container>
       </div>
 
-      <form (ngSubmit)="onSubmit()" class="auth-form">
-        <div class="form-group">
-          <label for="email">E-mail Administrativo</label>
-          <input
-            type="email"
-            id="email"
-            class="form-control"
-            placeholder="admin@boratrampar.com"
-            [(ngModel)]="email"
-            name="email"
-            required
-            autocomplete="email"
-          />
-        </div>
+      <div>
+        <h2 class="text-3xl font-black text-slate-50 leading-tight mb-3">Bem-vindo de volta</h2>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Acesse o painel integrado da sua clínica para acompanhar pacientes, agendamentos e protocolos cirúrgicos em tempo real.
+        </p>
+      </div>
 
-        <div class="form-group">
-          <div class="label-row">
-            <label for="password">Senha de Acesso</label>
-            <a routerLink="/reset-password" class="forgot-link">Esqueceu a senha?</a>
-          </div>
-          <div class="password-input-wrapper">
-            <input
-              [type]="showPassword ? 'text' : 'password'"
-              id="password"
-              class="form-control"
-              placeholder="Digite sua senha segura"
-              [(ngModel)]="password"
-              name="password"
-              required
-            />
-            <button
-              type="button"
-              class="btn-toggle-pwd"
-              (click)="toggleShowPassword()"
-            >
-              <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-            </button>
-          </div>
-        </div>
+      <ul class="flex flex-col gap-3">
+        <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
+            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+            <i class="fa-solid fa-check"></i>
+          </span>
+          Painel clínico e administrativo completo
+        </li>
+        <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
+            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+            <i class="fa-solid fa-check"></i>
+          </span>
+          Chat e orientações em tempo real
+        </li>
+        <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
+            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+            <i class="fa-solid fa-check"></i>
+          </span>
+          Acompanhamento pré e pós-operatório
+        </li>
+        <li class="flex items-center gap-3 text-[13.5px] text-slate-300">
+          <span class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] shrink-0"
+            style="background: rgba(253,191,15,0.2); color: var(--clinic-primary, #fdbf0f)">
+            <i class="fa-solid fa-check"></i>
+          </span>
+          Controle de acessos e equipes
+        </li>
+      </ul>
 
-        <button type="submit" class="btn-primary btn-submit" [disabled]="isLoading">
-          <i class="fa-solid fa-right-to-bracket" *ngIf="!isLoading"></i>
-          <i class="fa-solid fa-spinner fa-spin" *ngIf="isLoading"></i>
-          <span>{{ isLoading ? 'Entrando...' : 'Acessar Painel' }}</span>
-        </button>
-      </form>
-
-      <div class="auth-footer">
-        <span class="security-badge">
-          <i class="fa-solid fa-lock"></i> Conexão Segura & Criptografada
-        </span>
+      <div class="flex items-center gap-2 text-xs text-slate-500 pt-4 border-t border-white/[0.06]">
+        <i class="fa-solid fa-shield-halved" style="color: var(--clinic-primary, #fdbf0f)"></i>
+        <span>Ambiente seguro, criptografado e multiempresa</span>
       </div>
     </div>
   </div>
+
+  <div class="flex-1 flex items-center justify-center px-5 py-8 md:px-8 md:py-12">
+    <div class="w-full max-w-[460px]">
+
+      <div class="mb-8">
+        <h1 class="text-2xl font-black text-slate-900 mb-1">Acessar plataforma</h1>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+            E-mail de Acesso <span class="text-red-500">*</span>
+          </label>
+          <input formControlName="email" type="email" autocomplete="email"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[var(--clinic-primary,#dca311)] focus:ring-2 focus:ring-[var(--clinic-primary,#dca311)]/20 shadow-sm"
+            [ngClass]="err('email') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+            placeholder="exemplo@clinica.com.br" />
+          <span class="text-[11px] text-red-500" *ngIf="err('email')">{{ err('email') }}</span>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              Senha de Acesso <span class="text-red-500">*</span>
+            </label>
+            <a routerLink="/reset-password"
+              class="text-xs font-semibold no-underline hover:underline"
+              style="color: var(--clinic-primary, #dca311)">
+              Esqueceu a senha?
+            </a>
+          </div>
+          <input formControlName="password" type="password" autocomplete="current-password"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[var(--clinic-primary,#dca311)] focus:ring-2 focus:ring-[var(--clinic-primary,#dca311)]/20 shadow-sm"
+            [ngClass]="err('password') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+            placeholder="Digite sua senha segura" />
+          <span class="text-[11px] text-red-500" *ngIf="err('password')">{{ err('password') }}</span>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-600 pt-1">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" formControlName="remember"
+              class="w-4 h-4 rounded border-slate-300 bg-white cursor-pointer"
+              style="accent-color: var(--clinic-primary, #dca311)" />
+            <span class="font-medium text-slate-700">Manter conectado neste navegador</span>
+          </label>
+        </div>
+
+        <div class="mt-2">
+          <button type="submit" [disabled]="isLoading"
+            class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)] disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
+            style="background: var(--clinic-primary, #dca311)">
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="isLoading"></i>
+            <i class="fa-solid fa-right-to-bracket" *ngIf="!isLoading"></i>
+            <span>{{ isLoading ? 'Entrando...' : 'Entrar' }}</span>
+          </button>
+        </div>
+
+      </form>
+
+      <div class="flex flex-col items-center gap-4 mt-8 pt-6 border-t border-slate-200">
+        <p class="text-center text-[13px] text-slate-500">
+          Ainda não tem conta da sua clínica?
+          <a routerLink="/" class="font-semibold no-underline hover:underline"
+            style="color: var(--clinic-primary, #dca311)">
+            Cadastrar clínica
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
 </div>

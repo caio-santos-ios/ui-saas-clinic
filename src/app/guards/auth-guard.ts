@@ -6,9 +6,7 @@ export const AuthGuard: CanActivateFn = () => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  console.log(auth.isPlanValidated())
-
-  if (!auth.isPlanValidated()) {
+  if (!auth.isSignatureValidated()) {
     router.navigate(['/signature']);
     return false;
   }

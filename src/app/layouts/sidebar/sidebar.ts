@@ -5,6 +5,12 @@ import { Subscription } from 'rxjs';
 import { Auth, UserSession } from '../../services/auth';
 import { ThemeService } from '../../services/theme';
 
+type TMenu = {
+  description: string;
+  icon: string;
+  link: string;
+}
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -15,11 +21,33 @@ import { ThemeService } from '../../services/theme';
 export class Sidebar implements OnInit, OnDestroy {
   user: UserSession | null = null;
   private sub?: Subscription;
+  menu: TMenu[] = [];
 
-  constructor(public auth: Auth, private router: Router, public themeService: ThemeService) {}
+  constructor(public auth: Auth, private router: Router, public themeService: ThemeService) { }
 
   ngOnInit() {
     this.user = this.auth.getUser();
+
+    if (this.user) {
+      switch(this.user.accessProfile) {
+        case "admin":  
+          this.menu = this.getMenuAdmin();
+          break;
+
+        case "master":  
+          this.menu = this.getMenuMaster();
+          break;
+
+        case "clinic-employee":  
+          this.menu = this.getMenuClinicEmployee();
+          break;
+
+        case "doctor":  
+          this.menu = this.getMenuDoctors();
+          break;
+      }
+    }
+
     this.sub = this.auth.user$.subscribe(u => {
       this.user = u;
     });
@@ -37,5 +65,33 @@ export class Sidebar implements OnInit, OnDestroy {
     if (event) event.stopPropagation();
     this.auth.clearSession();
     this.router.navigate(['/login']);
+  }
+
+  getMenuMaster(): TMenu[] {
+    return [
+      {
+        description: "Dashboard",
+        icon: "chart-pie",
+        link: "dashboard"
+      }
+    ]
+  }
+  
+  getMenuAdmin(): TMenu[] {
+    return [
+      {
+        description: "Dashboard",
+        icon: "chart-pie",
+        link: "dashboard"
+      }
+    ]
+  }
+
+  getMenuClinicEmployee(): TMenu[] {
+    return []
+  }
+
+  getMenuDoctors(): TMenu[] {
+    return []
   }
 }

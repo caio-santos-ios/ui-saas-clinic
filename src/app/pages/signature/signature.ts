@@ -34,14 +34,14 @@ export class Signature {
   form: FormGroup;
 
   palettes: ColorPalette[] = [
-    { name: 'Dourado',     primary: '#dca311', secondary: '#0b1120' },
+    { name: 'Dourado', primary: '#dca311', secondary: '#0b1120' },
     { name: 'Azul Médico', primary: '#0284c7', secondary: '#0c1a2e' },
     { name: 'Verde Saúde', primary: '#16a34a', secondary: '#052e16' },
-    { name: 'Roxo',        primary: '#7c3aed', secondary: '#1e1033' },
-    { name: 'Rosa',        primary: '#db2777', secondary: '#1a0011' },
-    { name: 'Teal',        primary: '#0d9488', secondary: '#022c22' },
-    { name: 'Laranja',     primary: '#ea580c', secondary: '#1c0a00' },
-    { name: 'Índigo',      primary: '#4338ca', secondary: '#0d0b2e' },
+    { name: 'Roxo', primary: '#7c3aed', secondary: '#1e1033' },
+    { name: 'Rosa', primary: '#db2777', secondary: '#1a0011' },
+    { name: 'Teal', primary: '#0d9488', secondary: '#022c22' },
+    { name: 'Laranja', primary: '#ea580c', secondary: '#1c0a00' },
+    { name: 'Índigo', primary: '#4338ca', secondary: '#0d0b2e' },
   ];
 
   constructor(
@@ -51,33 +51,33 @@ export class Signature {
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) {
-    if (auth.isPlanValidated()) {
+    if (auth.isSignatureValidated()) {
       router.navigateByUrl('/login');
     }
 
     this.form = this.fb.group({
       step1: this.fb.group({
-        cnpj:          ['', [Validators.required, Validators.minLength(14)]],
-        tradeName:     ['', [Validators.required, Validators.minLength(2)]],
+        cnpj: ['', [Validators.required, Validators.minLength(14)]],
+        tradeName: ['', [Validators.required, Validators.minLength(2)]],
         corporateName: ['', [Validators.required, Validators.minLength(2)]],
-        email:         ['', [Validators.required, Validators.email]],
-        phone:         ['', [Validators.required, Validators.minLength(10)]],
-        password:      ['', [Validators.required, Validators.minLength(6)]],
+        email: ['', [Validators.required, Validators.email]],
+        phone: ['', [Validators.required, Validators.minLength(10)]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
       }),
       step2: this.fb.group({
-        zipCode:      ['', [Validators.required, Validators.minLength(8)]],
-        street:       ['', [Validators.required]],
-        number:       ['', [Validators.required]],
-        complement:   [''],
+        zipCode: ['', [Validators.required, Validators.minLength(8)]],
+        street: ['', [Validators.required]],
+        number: ['', [Validators.required]],
+        complement: [''],
         neighborhood: ['', [Validators.required]],
-        city:         ['', [Validators.required]],
-        state:        ['', [Validators.required, Validators.maxLength(2)]],
+        city: ['', [Validators.required]],
+        state: ['', [Validators.required, Validators.maxLength(2)]],
       }),
       step3: this.fb.group({
-        logo:           [''],
-        primaryColor:   ['#dca311', [Validators.required]],
+        logo: [''],
+        primaryColor: ['#dca311', [Validators.required]],
         secondaryColor: ['#0b1120'],
-        acceptedTerms:  [false, [Validators.requiredTrue]],
+        acceptedTerms: [false, [Validators.requiredTrue]],
       }),
     });
   }
@@ -93,11 +93,11 @@ export class Signature {
   err(path: string): string | null {
     const c = this.form.get(path);
     if (!c || !c.invalid || !c.touched) return null;
-    if (c.errors?.['required'])   return 'Campo obrigatório';
+    if (c.errors?.['required']) return 'Campo obrigatório';
     if (c.errors?.['requiredTrue']) return 'Aceite os termos para continuar';
-    if (c.errors?.['email'])      return 'E-mail inválido';
-    if (c.errors?.['minlength'])  return `Mínimo ${c.errors?.['minlength'].requiredLength} caracteres`;
-    if (c.errors?.['maxlength'])  return `Máximo ${c.errors?.['maxlength'].requiredLength} caracteres`;
+    if (c.errors?.['email']) return 'E-mail inválido';
+    if (c.errors?.['minlength']) return `Mínimo ${c.errors?.['minlength'].requiredLength} caracteres`;
+    if (c.errors?.['maxlength']) return `Máximo ${c.errors?.['maxlength'].requiredLength} caracteres`;
     return 'Campo inválido';
   }
 
@@ -184,10 +184,10 @@ export class Signature {
 
       if (!data.erro) {
         this.s2.patchValue({
-          street:       data.logradouro || '',
-          neighborhood: data.bairro     || '',
-          city:         data.localidade || '',
-          state:        data.uf         || '',
+          street: data.logradouro || '',
+          neighborhood: data.bairro || '',
+          city: data.localidade || '',
+          state: data.uf || '',
         });
         this.toastr.success('Endereço preenchido automaticamente!');
       } else {
@@ -203,7 +203,7 @@ export class Signature {
 
   applyPalette(palette: ColorPalette): void {
     this.s3.patchValue({
-      primaryColor:   palette.primary,
+      primaryColor: palette.primary,
       secondaryColor: palette.secondary,
     });
     this.cdr.detectChanges();
@@ -222,44 +222,47 @@ export class Signature {
   }
 
   async onSubmit(): Promise<void> {
-    this.form.markAllAsTouched();
-
-    if (this.form.invalid) {
-      this.toastr.warning('Verifique os campos antes de continuar.');
-      return;
-    }
-
-    const { step1, step2, step3 } = this.form.value;
-
-    const payload = {
-      cnpj:          step1.cnpj,
-      tradeName:     step1.tradeName,
-      corporateName: step1.corporateName,
-      email:         step1.email,
-      phone:         step1.phone,
-      password:      step1.password,
-      address: {
-        zipCode:      step2.zipCode,
-        street:       step2.street,
-        number:       step2.number,
-        complement:   step2.complement,
-        neighborhood: step2.neighborhood,
-        city:         step2.city,
-        state:        step2.state,
-      },
-      setting: {
-        logo:           step3.logo,
-        primaryColor:   step3.primaryColor,
-        secondaryColor: step3.secondaryColor,
-      },
-    };
-
     try {
+      this.form.markAllAsTouched();
+  
+      if (this.form.invalid) {
+        this.toastr.warning('Verifique os campos antes de continuar.');
+        return;
+      }
+  
+      const { step1, step2, step3 } = this.form.value;
+  
+      const payload = {
+        cnpj: step1.cnpj,
+        tradeName: step1.tradeName,
+        corporateName: step1.corporateName,
+        email: step1.email,
+        phone: step1.phone,
+        password: step1.password,
+        address: {
+          zipCode: step2.zipCode,
+          street: step2.street,
+          number: step2.number,
+          complement: step2.complement,
+          neighborhood: step2.neighborhood,
+          city: step2.city,
+          state: step2.state,
+        },
+        setting: {
+          logo: step3.logo,
+          primaryColor: step3.primaryColor,
+          secondaryColor: step3.secondaryColor,
+        },
+      };
+
       this.isLoading = true;
       this.cdr.detectChanges();
 
       const { data } = await api.post('/api/auth/register-admin', payload);
-      this.router.navigateByUrl('/login');
+      this.toastr.success(data.message);
+      setTimeout(() => {
+        this.router.navigateByUrl('/plans');
+      }, 300);
     } catch (err: any) {
       this.auth.validatedError(err);
     } finally {

@@ -1,6 +1,6 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Auth } from '../../services/auth';
@@ -9,73 +9,110 @@ import { api } from '../../services/api';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class Login {
-  email = '';
-  password = '';
+export class Login implements OnInit {
   showPassword = false;
   isLoading = false;
+  form: FormGroup;
+  clinicSetting: any = null;
 
   constructor(
+    private fb: FormBuilder,
     private auth: Auth,
     private router: Router,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) {
-    console.log(auth.isPlanValidated())
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      remember: [true]
+    });
   }
 
-  toggleShowPassword() {
+  async ngOnInit(): Promise<void> {
+    this.clinicSetting = this.auth.getClinicTheme();
+    if (this.clinicSetting) {
+      this.auth.applyClinicTheme(this.clinicSetting);
+    }
+    if (this.auth.isSignatureValidated()) {
+      await this.getSignature();
+    }
+  }
+
+  field(name: string): AbstractControl {
+    return this.form.get(name)!;
+  }
+
+  err(name: string): string | null {
+    const c = this.form.get(name);
+    if (!c || !c.invalid || !c.touched) return null;
+    if (c.errors?.['required']) return 'Campo obrigatório';
+    if (c.errors?.['email']) return 'E-mail inválido';
+    if (c.errors?.['minlength']) return `Mínimo ${c.errors?.['minlength'].requiredLength} caracteres`;
+    return 'Campo inválido';
+  }
+
+  toggleShowPassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  async onSubmit() {
-    if (!this.email || !this.password) {
-      this.toastr.warning('Preencha seu e-mail e senha.');
-      return;
-    }
-
-    this.isLoading = true;
-    this.cdr.detectChanges();
-
+  async onSubmit(): Promise<void> {
     try {
-      const response = await api.post('/api/auth/login', {
-        email: this.email,
-        password: this.password
+      this.form.markAllAsTouched();
+
+      if (this.form.invalid) {
+        this.toastr.warning('Preencha seu e-mail e senha corretamente.');
+        return;
+      }
+
+      this.isLoading = true;
+      this.cdr.detectChanges();
+
+      const { email, password } = this.form.value;
+
+      const { data } = await api.post('/api/auth/login', {
+        email,
+        password,
+        device: {
+          platform: 'web',
+          ip: '',
+          userAgent: ''
+        }
       });
 
-      const resObj = response.data?.result || response.data;
-      const dataPayload = resObj?.data || resObj;
-
-      const token = dataPayload?.token || resObj?.token || response.data?.token;
-      const refreshToken = dataPayload?.refreshToken || resObj?.refreshToken || response.data?.refreshToken;
-      const user = dataPayload?.user || resObj?.user || { name: 'Administrador', email: this.email, role: 'admin' };
-      const message = resObj?.message || response.data?.message || 'Login realizado com sucesso!';
-
-      if (token) {
-        this.auth.setToken(token);
-        if (refreshToken) this.auth.setRefreshToken(refreshToken);
-        this.auth.setUser(user);
-
-        this.toastr.success(message);
-        this.router.navigate(['/dashboard']);
+      if (["PENDENTE", "CANCELADO", "VENCIDO"].includes(data.data.signatureStatus)) {
+        if (data.data.accessProfile == "admin") {
+          this.router.navigateByUrl("/plans");
+        } else {
+          this.toastr.warning("Plano suspenso, entre em contato com o Administrador da Clínica");
+        }
       } else {
-        throw new Error('Token de autenticação não retornado.');
+        this.auth.setToken(data.data.token);
+        this.auth.setSignatureId(data.data.signatureId);
+        this.toastr.success(data?.message);
+        this.router.navigateByUrl('/dashboard');
       }
     } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.message ||
-        err.response?.data?.result?.message ||
-        err.response?.data?.errors?.[0]?.message ||
-        err.message ||
-        'Não foi possível conectar ao servidor da API.';
-      this.toastr.error(errorMsg);
+      this.auth.validatedError(err);
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
+    }
+  }
+
+  async getSignature() {
+    try {
+      const id = this.auth.getSignature() ?? "";
+      const { data } = await api.get(`/api/signatures/${id}`);
+      this.clinicSetting = data.data.clinicSetting;
+      this.auth.applyClinicTheme(data.data.clinicSetting);
+      this.cdr.detectChanges();
+    } catch (error) {
+      this.auth.validatedError(error);
     }
   }
 }

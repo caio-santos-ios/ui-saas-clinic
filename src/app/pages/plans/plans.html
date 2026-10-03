@@ -1,0 +1,327 @@
+<div class="min-h-screen bg-slate-50 flex flex-col">
+
+  <header class="w-full bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg text-black shrink-0"
+          style="background: linear-gradient(135deg, #fdbf0f 0%, #dca311 100%); box-shadow: 0 4px 14px rgba(253,191,15,0.35)">
+          <i class="fa-solid fa-heart-pulse"></i>
+        </div>
+        <span class="text-lg font-black text-slate-900 tracking-wide">ClinicSaaS</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500 hidden sm:inline">Já tem uma conta?</span>
+        <a routerLink="/login"
+          class="text-xs font-bold text-slate-700 hover:text-black border border-slate-300 rounded-lg px-3.5 py-2 transition hover:bg-slate-50">
+          Fazer Login
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-16 w-full flex flex-col items-center">
+
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#b45309] bg-amber-50 border border-amber-200 mb-3">
+        <i class="fa-solid fa-sparkles text-[10px]"></i>
+        Último passo da sua configuração
+      </span>
+      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-3">
+        Escolha o plano ideal para sua clínica
+      </h1>
+      <p class="text-sm sm:text-base text-slate-500 leading-relaxed">
+        Acompanhe pacientes antes e depois de procedimentos com Inteligência Artificial e aplicativo personalizado. Cancele ou altere a qualquer momento.
+      </p>
+
+      <div class="mt-7 inline-flex items-center bg-slate-200/70 p-1 rounded-xl">
+        <button type="button" (click)="setCycle('monthly')"
+          class="px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer"
+          [ngClass]="billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'">
+          Mensal
+        </button>
+        <button type="button" (click)="setCycle('yearly')"
+          class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+          [ngClass]="billingCycle === 'yearly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'">
+          <span>Anual</span>
+          <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+            -20%
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch">
+
+      <div *ngFor="let plan of plans"
+        class="bg-white rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative"
+        [ngClass]="plan.isPopular ? 'border-2 border-[#dca311] shadow-xl lg:-translate-y-2' : 'border border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md'">
+
+        <div *ngIf="plan.isPopular"
+          class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#dca311] text-black text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm flex items-center gap-1">
+          <i class="fa-solid fa-crown text-[10px]"></i>
+          Mais Escolhido
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xl font-black text-slate-900">{{ plan.name }}</h3>
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
+              [style.background]="plan.id === 'prata' ? 'rgba(220,163,17,0.15)' : plan.id === 'ouro' ? 'rgba(234,179,8,0.15)' : 'rgba(180,83,9,0.12)'"
+              [style.color]="plan.color">
+              <i class="fa-solid" [ngClass]="plan.id === 'ouro' ? 'fa-crown' : plan.id === 'prata' ? 'fa-medal' : 'fa-shield-halved'"></i>
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-500 mb-6 leading-relaxed min-h-[32px]">{{ plan.tagline }}</p>
+
+          <div class="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-slate-100">
+            <span class="text-xs font-bold text-slate-400">R$</span>
+            <span class="text-4xl font-black text-slate-900 tracking-tight">
+              {{ billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice }}
+            </span>
+            <span class="text-xs font-medium text-slate-500">/mês</span>
+          </div>
+
+          <div class="space-y-3 mb-8">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">O que está incluso:</p>
+            <ul class="space-y-2.5">
+              <li *ngFor="let feat of plan.features" class="flex items-start gap-2.5 text-xs text-slate-700">
+                <span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] shrink-0 mt-0.5"
+                  [ngClass]="feat.highlight ? 'bg-amber-100 text-[#b45309]' : 'bg-emerald-50 text-emerald-600'">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+                <span [ngClass]="feat.highlight ? 'font-bold text-slate-900' : 'font-normal'">
+                  {{ feat.text }}
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <button type="button" (click)="selectPlan(plan)"
+            class="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+            [ngClass]="plan.isPopular ? 'text-black shadow-md hover:-translate-y-px hover:shadow-lg' : 'bg-slate-900 text-white hover:bg-slate-800'"
+            [style.background]="plan.isPopular ? '#dca311' : ''">
+            <i class="fa-solid fa-credit-card text-xs"></i>
+            <span>Assinar {{ plan.name }}</span>
+          </button>
+
+          <p class="text-[11px] text-center text-slate-400 mt-2.5">
+            Teste grátis por 14 dias sem compromisso
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="mt-14 w-full max-w-4xl bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-[#dca311] flex items-center justify-center text-2xl shrink-0 border border-amber-200">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-slate-900 mb-0.5">Segurança e garantia total</h4>
+          <p class="text-xs text-slate-500">Dados criptografados, multiempresa e em conformidade rigorosa com a LGPD e RGPD.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-600 shrink-0">
+        <i class="fa-solid fa-lock text-emerald-600"></i>
+        <span>Pagamento seguro via Asaas</span>
+      </div>
+    </div>
+
+  </main>
+
+  <div *ngIf="showPaymentModal && selectedPlan"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
+
+      <button type="button" (click)="closePaymentModal()"
+        class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded"
+            [style.background]="selectedPlan.id === 'prata' ? 'rgba(220,163,17,0.2)' : selectedPlan.id === 'ouro' ? 'rgba(234,179,8,0.2)' : 'rgba(180,83,9,0.15)'"
+            [style.color]="selectedPlan.color">
+            Plano {{ selectedPlan.name }}
+          </span>
+          <span class="text-xs text-slate-500">• {{ billingCycle === 'monthly' ? 'Mensal' : 'Anual' }}</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900">Forma de Pagamento</h2>
+        <div class="mt-2 p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+          <div>
+            <p class="text-xs text-slate-500">Total da assinatura:</p>
+            <p class="text-lg font-black text-slate-900">
+              R$ {{ currentPrice }}<span class="text-xs font-normal text-slate-500">/mês</span>
+            </p>
+          </div>
+          <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+            14 dias grátis
+          </span>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+          Escolha como deseja pagar:
+        </label>
+        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+          <button type="button" (click)="setPaymentMethod('credit_card')"
+            class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5"
+            [ngClass]="paymentMethod === 'credit_card' ? 'border-[#dca311] bg-amber-50/40 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+            <i class="fa-solid fa-credit-card text-base" [ngClass]="paymentMethod === 'credit_card' ? 'text-[#dca311]' : 'text-slate-400'"></i>
+            <span class="text-xs font-bold">Cartão</span>
+          </button>
+
+          <button type="button" (click)="setPaymentMethod('pix')"
+            class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5 relative"
+            [ngClass]="paymentMethod === 'pix' ? 'border-[#dca311] bg-amber-50/40 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+            <i class="fa-brands fa-pix text-base" [ngClass]="paymentMethod === 'pix' ? 'text-teal-600' : 'text-slate-400'"></i>
+            <span class="text-xs font-bold">PIX</span>
+            <span class="absolute -top-2 right-1 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
+              Rápido
+            </span>
+          </button>
+
+          <button type="button" (click)="setPaymentMethod('boleto')"
+            class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5"
+            [ngClass]="paymentMethod === 'boleto' ? 'border-[#dca311] bg-amber-50/40 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+            <i class="fa-solid fa-barcode text-base" [ngClass]="paymentMethod === 'boleto' ? 'text-[#dca311]' : 'text-slate-400'"></i>
+            <span class="text-xs font-bold">Boleto</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="paymentMethod === 'credit_card'" class="space-y-3 mb-6">
+        <div>
+          <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            Número do Cartão <span class="text-red-500">*</span>
+          </label>
+          <input type="text" [(ngModel)]="cardData.number" mask="0000 0000 0000 0000"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            placeholder="0000 0000 0000 0000" />
+        </div>
+
+        <div>
+          <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            Nome Impresso no Cartão <span class="text-red-500">*</span>
+          </label>
+          <input type="text" [(ngModel)]="cardData.holderName"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            placeholder="NOME COMO NO CARTÃO" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              Validade <span class="text-red-500">*</span>
+            </label>
+            <input type="text" [(ngModel)]="cardData.expiry" mask="00/00"
+              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+              placeholder="MM/AA" />
+          </div>
+
+          <div>
+            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              CVV <span class="text-red-500">*</span>
+            </label>
+            <input type="text" [(ngModel)]="cardData.cvv" mask="0000"
+              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+              placeholder="123" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            CPF/CNPJ do Titular
+          </label>
+          <input type="text" [(ngModel)]="cardData.document"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            placeholder="000.000.000-00 ou 00.000.000/0001-00" />
+        </div>
+      </div>
+
+      <div *ngIf="paymentMethod === 'pix'" class="mb-6 flex flex-col items-center text-center space-y-4">
+        <div class="w-44 h-44 bg-white border-2 border-slate-300 rounded-2xl p-3 flex flex-col items-center justify-center shadow-inner relative">
+          <div class="grid grid-cols-6 gap-1 w-full h-full opacity-80 p-2">
+            <div *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36]"
+              class="rounded-xs" [ngClass]="(i % 2 === 0 || i % 3 === 0) ? 'bg-slate-900' : 'bg-transparent'"></div>
+          </div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="bg-white p-2 rounded-xl shadow-md border border-slate-200">
+              <i class="fa-brands fa-pix text-2xl text-teal-600"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full">
+          <p class="text-xs font-bold text-slate-700 mb-1">Código Pix Copia e Cola:</p>
+          <div class="flex items-center gap-2">
+            <input type="text" readonly [value]="pixCode"
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2 px-3 text-xs text-slate-600 font-mono truncate outline-none select-all" />
+            <button type="button" (click)="copyPix()"
+              class="px-3.5 py-2 rounded-lg text-xs font-bold shrink-0 transition cursor-pointer"
+              [ngClass]="pixCopied ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'">
+              <i class="fa-solid" [ngClass]="pixCopied ? 'fa-check' : 'fa-copy'"></i>
+              <span class="ml-1">{{ pixCopied ? 'Copiado!' : 'Copiar' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-500">
+          Após o pagamento via Pix, a confirmação ocorre em até 1 minuto e sua conta é liberada imediatamente.
+        </p>
+      </div>
+
+      <div *ngIf="paymentMethod === 'boleto'" class="space-y-3 mb-6">
+        <div>
+          <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            Nome Completo ou Razão Social <span class="text-red-500">*</span>
+          </label>
+          <input type="text" [(ngModel)]="boletoData.name"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            placeholder="Nome para emissão do boleto" />
+        </div>
+
+        <div>
+          <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            CPF ou CNPJ <span class="text-red-500">*</span>
+          </label>
+          <input type="text" [(ngModel)]="boletoData.document"
+            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+            placeholder="000.000.000-00 ou 00.000.000/0001-00" />
+        </div>
+
+        <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-start gap-2">
+          <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
+          <span>O boleto tem vencimento para 3 dias úteis. A liberação da conta ocorre após a compensação bancária (1 a 2 dias úteis).</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pt-4 border-t border-slate-200">
+        <button type="button" (click)="closePaymentModal()"
+          class="px-4 py-3 rounded-lg text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 border border-slate-300 hover:bg-slate-50 transition cursor-pointer">
+          Voltar
+        </button>
+        <button type="button" (click)="confirmSubscription()" [disabled]="isLoading"
+          class="flex-1 py-3 px-4 rounded-lg text-xs sm:text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          style="background: #dca311">
+          <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isLoading"></i>
+          <i class="fa-solid fa-check text-xs" *ngIf="!isLoading"></i>
+          <span>{{ isLoading ? 'Processando...' : 'Confirmar e Iniciar Teste Grátis' }}</span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

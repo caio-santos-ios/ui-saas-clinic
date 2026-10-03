@@ -5,7 +5,12 @@ module.exports = {
     './src/**/*.ts',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'clinic-primary': 'var(--clinic-primary, #dca311)',
+        'clinic-secondary': 'var(--clinic-secondary, #0b1120)',
+      }
+    }
   },
   plugins: [],
 }
