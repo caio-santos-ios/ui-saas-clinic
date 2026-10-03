@@ -8,12 +8,15 @@ import { AuthGuard } from './guards/auth-guard';
 import { Signature } from './pages/signature/signature';
 import { Plans } from './pages/plans/plans';
 import { Doctors } from './pages/doctors/doctors';
+import { ForgotPassword } from './pages/forgot-password/forgot-password';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
   { path: 'plans', component: Plans },
   { path: 'login', component: Login },
+  { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
+  { path: 'reset-password/:code', component: ResetPassword },
   { path: 'confirmation/:code', component: Confirmation },
   {
     path: '',
