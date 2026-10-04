@@ -9,6 +9,7 @@ import { Signature } from './pages/signature/signature';
 import { Plans } from './pages/plans/plans';
 import { Doctors } from './pages/doctors/doctors';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
+import { MasterPlans } from './pages/master/plans/plans';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -26,6 +27,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
       { path: 'doctors', component: Doctors },
+      { path: 'planos', component: MasterPlans },
+      { path: 'master/plans', redirectTo: 'planos' },
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

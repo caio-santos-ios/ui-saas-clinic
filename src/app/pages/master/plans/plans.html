@@ -1,0 +1,446 @@
+<div class="page-container">
+  <div class="page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="page-title flex items-center gap-2.5 text-2xl font-black text-slate-900 dark:text-slate-100">
+        <i class="fa-solid fa-tags text-clinic-primary"></i>
+        Planos do Sistema
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie os planos de assinatura, preços, limites e recursos disponíveis para as clínicas.</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
+          placeholder="Buscar plano..."
+          class="pl-3 pr-3 py-2 text-xs bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg outline-none transition focus:border-clinic-primary shadow-sm w-48 sm:w-64" />
+      </div>
+
+      <button type="button" [disabled]="isLoading" (click)="openModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-md bg-clinic-primary disabled:opacity-55 disabled:cursor-not-allowed">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Novo Plano</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid mb-6">
+    <div class="kpi-card gold-border">
+      <div class="kpi-icon-wrap gold-icon">
+        <i class="fa-solid fa-tags"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Total de Planos</div>
+        <div class="kpi-value">{{ totalPlans }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap green-icon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Planos Ativos</div>
+        <div class="kpi-value">{{ activePlans }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap blue-icon">
+        <i class="fa-solid fa-dollar-sign"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Média de Preço</div>
+        <div class="kpi-value">{{ global.formatCurrency(avgPrice) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="!isLoading">
+    <div class="table-responsive desktop-table-view hidden lg:flex">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome do Plano</th>
+            <th>Preço Mensal</th>
+            <th>Trial (Grátis)</th>
+            <th>Limites da Clínica</th>
+            <th>Recursos</th>
+            <th>Status</th>
+            <th style="text-align: right;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of data.data">
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-clinic-primary/20 text-clinic-primary font-bold flex items-center justify-center shrink-0 border border-clinic-primary/30">
+                  <i class="fa-solid fa-cubes text-base"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm truncate text-slate-900 dark:text-slate-100">{{ p.name }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[220px]">{{ p.description || 'Sem descrição' }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="text-sm font-black text-slate-900 dark:text-slate-100">{{ global.formatCurrency(p.price) }}</span>
+              <span class="text-[11px] text-slate-400 block">/mês</span>
+            </td>
+            <td>
+              <span *ngIf="p.trialDays > 0" class="inline-flex items-center gap-1 text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-2.5 py-1 rounded-lg">
+                <i class="fa-regular fa-clock text-[10px]"></i>
+                {{ p.trialDays }} dias
+              </span>
+              <span *ngIf="!p.trialDays || p.trialDays === 0" class="text-xs text-slate-400">
+                Sem teste
+              </span>
+            </td>
+            <td>
+              <div class="flex flex-col gap-1 text-[11px]">
+                <span class="font-medium text-slate-700 dark:text-slate-300">
+                  <i class="fa-solid fa-user-doctor text-slate-400 w-3.5"></i>
+                  Médicos: <strong>{{ p.limits?.maxDoctors === 0 || !p.limits?.maxDoctors ? 'Ilimitado' : p.limits?.maxDoctors }}</strong>
+                </span>
+                <span class="font-medium text-slate-700 dark:text-slate-300">
+                  <i class="fa-solid fa-hospital-user text-slate-400 w-3.5"></i>
+                  Pacientes: <strong>{{ p.limits?.maxPatients === 0 || !p.limits?.maxPatients ? 'Ilimitado' : p.limits?.maxPatients }}</strong>
+                </span>
+                <span class="font-medium text-slate-700 dark:text-slate-300">
+                  <i class="fa-solid fa-users text-slate-400 w-3.5"></i>
+                  Equipe: <strong>{{ p.limits?.maxStaff === 0 || !p.limits?.maxStaff ? 'Ilimitado' : p.limits?.maxStaff }}</strong>
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-wrap gap-1 max-w-[200px]">
+                <span *ngFor="let feat of (p.features || []).slice(0, 2)"
+                  class="text-[10.5px] font-medium bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded truncate max-w-[140px]">
+                  {{ feat }}
+                </span>
+                <span *ngIf="(p.features || []).length > 2"
+                  class="text-[10.5px] font-bold text-clinic-primary bg-clinic-primary/10 border border-clinic-primary/30 px-1.5 py-0.5 rounded"
+                  [title]="p.features.join(' • ')">
+                  +{{ p.features.length - 2 }}
+                </span>
+                <span *ngIf="!(p.features && p.features.length)" class="text-xs text-slate-400">
+                  Nenhum recurso
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="p.active === false ? 'inactive' : 'active'">
+                <i class="fa-solid" [ngClass]="p.active === false ? 'fa-xmark' : 'fa-check'"></i>
+                {{ p.active === false ? 'Inativo' : 'Ativo' }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                <button type="button" class="btn-icon" style="color: var(--clinic-primary);" (click)="openModal(p)" title="Editar Plano">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" class="btn-icon" [style.color]="p.active === false ? 'var(--status-active)' : '#f59e0b'" (click)="toggleActive(p)" [title]="p.active === false ? 'Ativar Plano' : 'Desativar Plano'">
+                  <i class="fa-solid" [ngClass]="p.active === false ? 'fa-toggle-off' : 'fa-toggle-on'"></i>
+                </button>
+                <button type="button" class="btn-icon" style="color: #ef4444;" (click)="openDeleteModal(p)" title="Excluir Plano">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="data.data.length === 0">
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              Nenhum plano cadastrado ainda.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-card-list lg:hidden flex flex-col gap-3 p-4">
+      <div *ngFor="let p of data.data" class="mobile-data-card bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">{{ p.name }}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ p.description || 'Sem descrição' }}</p>
+          </div>
+          <span class="status-badge" [ngClass]="p.active === false ? 'inactive' : 'active'">
+            {{ p.active === false ? 'Inativo' : 'Ativo' }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 mb-3">
+          <div>
+            <span class="text-slate-400 block text-[11px]">Preço Mensal:</span>
+            <span class="font-black text-slate-900 dark:text-slate-100">{{ global.formatCurrency(p.price) }}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Período de Teste:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ p.trialDays > 0 ? p.trialDays + ' dias' : 'Sem teste' }}</span>
+          </div>
+          <div class="col-span-2">
+            <span class="text-slate-400 block text-[11px]">Limites:</span>
+            <span class="text-slate-700 dark:text-slate-300 text-[11.5px]">
+              Médicos: <strong>{{ p.limits?.maxDoctors === 0 || !p.limits?.maxDoctors ? 'Ilimitado' : p.limits?.maxDoctors }}</strong> |
+              Pacientes: <strong>{{ p.limits?.maxPatients === 0 || !p.limits?.maxPatients ? 'Ilimitado' : p.limits?.maxPatients }}</strong> |
+              Equipe: <strong>{{ p.limits?.maxStaff === 0 || !p.limits?.maxStaff ? 'Ilimitado' : p.limits?.maxStaff }}</strong>
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button type="button" class="btn-icon" style="color: var(--clinic-primary);" (click)="openModal(p)">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <button type="button" class="btn-icon" [style.color]="p.active === false ? 'var(--status-active)' : '#f59e0b'" (click)="toggleActive(p)">
+            <i class="fa-solid" [ngClass]="p.active === false ? 'fa-toggle-off' : 'fa-toggle-on'"></i>
+          </button>
+          <button type="button" class="btn-icon" style="color: #ef4444;" (click)="openDeleteModal(p)">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="data.data.length === 0" class="text-center py-8 text-slate-400 text-xs">
+        Nenhum plano cadastrado.
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between px-5 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-xl" *ngIf="data.totalPages > 1">
+      <span class="text-xs text-slate-500 dark:text-slate-400">
+        Página <strong>{{ data.currentPage }}</strong> de <strong>{{ data.totalPages }}</strong> ({{ data.totalCount }} no total)
+      </span>
+      <div class="flex items-center gap-1.5">
+        <button type="button" (click)="onPageChange(data.currentPage - 1)" [disabled]="data.currentPage === 1"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Anterior
+        </button>
+        <button *ngFor="let p of visiblePages" type="button" (click)="onPageChange(p)"
+          class="px-2.5 py-1 text-xs font-bold rounded border transition"
+          [ngClass]="p === data.currentPage ? 'bg-clinic-primary border-clinic-primary text-black' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'">
+          {{ p }}
+        </button>
+        <button type="button" (click)="onPageChange(data.currentPage + 1)" [disabled]="data.currentPage === data.totalPages"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Próxima
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <i class="fa-solid fa-tags text-clinic-primary"></i>
+          {{ editingPlan ? 'Editar Plano' : 'Cadastrar Novo Plano' }}
+        </h2>
+        <button type="button" class="btn-icon" (click)="closeModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 overflow-x-auto">
+        <button type="button" (click)="setTab('general')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'general' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-700 dark:hover:text-slate-200'">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>1. Dados Básicos</span>
+          <span *ngIf="err('name') || err('price')" class="w-2 h-2 rounded-full bg-red-500"></span>
+        </button>
+
+        <button type="button" (click)="setTab('limits')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'limits' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-700 dark:hover:text-slate-200'">
+          <i class="fa-solid fa-sliders"></i>
+          <span>2. Limites da Clínica</span>
+        </button>
+
+        <button type="button" (click)="setTab('features')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'features' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-700 dark:hover:text-slate-200'">
+          <i class="fa-solid fa-list-check"></i>
+          <span>3. Recursos Inclusos ({{ featuresList.length }})</span>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="savePlan()" class="space-y-4">
+        <div *ngIf="activeTab === 'general'" class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Nome do Plano <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="name" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('name') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="Ex: Bronze, Prata, Ouro, VIP" />
+              <span class="text-[11px] text-red-500" *ngIf="err('name')">{{ err('name') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Preço Mensal (R$) <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="price" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('price') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="R$ 0,00" currencyMask [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left' }"/>
+              <span class="text-[11px] text-red-500" *ngIf="err('price')">{{ err('price') }}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Dias de Teste Grátis (Trial)
+              </label>
+              <input formControlName="trialDays" type="number" min="0" step="1"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="Ex: 14" />
+            </div>
+
+            <div class="flex items-center gap-2 pt-6">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" formControlName="active" />
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Plano Ativo para Novas Assinaturas</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+              Descrição do Plano
+            </label>
+            <textarea formControlName="description" rows="3"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Descreva o público-alvo e o posicionamento do plano..."></textarea>
+          </div>
+        </div>
+
+        <div *ngIf="activeTab === 'limits'" formGroupName="limits" class="space-y-4">
+          <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2">
+            <i class="fa-solid fa-circle-info text-amber-600 dark:text-amber-400 mt-0.5"></i>
+            <span>Defina <strong>0 (zero)</strong> em qualquer campo para indicar que a quantidade é <strong>ilimitada</strong>.</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Limite de Médicos
+              </label>
+              <input formControlName="maxDoctors" type="number" min="0" step="1"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="0 = Ilimitado" />
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">0 = ilimitado</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Limite de Pacientes
+              </label>
+              <input formControlName="maxPatients" type="number" min="0" step="1"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="0 = Ilimitado" />
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">0 = ilimitado</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Limite de Funcionários
+              </label>
+              <input formControlName="maxStaff" type="number" min="0" step="1"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="0 = Ilimitado" />
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">0 = ilimitado</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeTab === 'features'" class="space-y-4">
+          <div>
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+              Adicionar Recurso ou Funcionalidade
+            </label>
+            <div class="flex items-center gap-2">
+              <input type="text" [(ngModel)]="newFeatureInput" [ngModelOptions]="{standalone: true}" (keyup.enter)="addFeature()"
+                placeholder="Ex: Chat com a clínica, Agendamento online, IA de suporte..."
+                class="flex-1 bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm" />
+              <button type="button" (click)="addFeature()"
+                class="px-3.5 py-2 rounded-lg text-xs font-bold text-black bg-clinic-primary hover:opacity-90 transition cursor-pointer flex items-center gap-1.5">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>Adicionar</span>
+              </button>
+            </div>
+            <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">Pressione Enter ou clique em Adicionar.</span>
+          </div>
+
+          <div class="space-y-1.5 pt-2">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-200 block">Recursos deste plano ({{ featuresList.length }}):</span>
+            <div class="flex flex-wrap gap-2 max-h-56 overflow-y-auto p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl">
+              <span *ngFor="let feat of featuresList; let i = index"
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 shadow-sm">
+                <i class="fa-solid fa-check text-emerald-600 dark:text-emerald-400 text-[10px]"></i>
+                <span>{{ feat }}</span>
+                <button type="button" (click)="removeFeature(i)" class="text-slate-400 hover:text-red-500 transition cursor-pointer p-0.5 border-none bg-transparent">
+                  <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+              </span>
+              <span *ngIf="featuresList.length === 0" class="text-xs text-slate-400 dark:text-slate-500 italic py-2">
+                Nenhum recurso cadastrado para este plano ainda.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" class="btn-secondary px-4 py-2 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-700 transition cursor-pointer" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="isSaving"
+            class="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-black bg-clinic-primary rounded-lg transition hover:-translate-y-px hover:shadow-md cursor-pointer disabled:opacity-50">
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="isSaving"></i>
+            <i class="fa-solid fa-floppy-disk" *ngIf="!isSaving"></i>
+            <span>{{ isSaving ? 'Salvando...' : 'Salvar Plano' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="deleteModal">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+          Excluir Plano
+        </h2>
+        <button type="button" class="btn-icon" (click)="closeDeleteModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="py-4">
+        <p class="text-sm text-slate-700 dark:text-slate-300">
+          Tem certeza de que deseja excluir o plano <strong>"{{ planToDelete?.name }}"</strong>?
+        </p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+          Esta ação marcará o plano como removido no sistema. Novas clínicas não poderão assinar este plano.
+        </p>
+      </div>
+
+      <div class="modal-footer flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <button type="button" class="btn-secondary px-4 py-2 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-700 transition cursor-pointer" (click)="closeDeleteModal()">
+          Cancelar
+        </button>
+        <button type="button" [disabled]="isDeleting" (click)="confirmDelete()"
+          class="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition cursor-pointer disabled:opacity-50 border-none">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="isDeleting"></i>
+          <i class="fa-solid fa-trash-can" *ngIf="!isDeleting"></i>
+          <span>{{ isDeleting ? 'Excluindo...' : 'Confirmar Exclusão' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-loading [isLoading]="isLoading"></app-loading>
+</div>

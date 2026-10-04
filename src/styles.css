@@ -75,8 +75,54 @@
 input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
 select,
 textarea {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+body.dark-theme input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+body.dark-theme select,
+body.dark-theme textarea {
+  background-color: #0b1120 !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus,
+body.dark-theme input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
+body.dark-theme select:focus,
+body.dark-theme textarea:focus {
+  background-color: #0f172a !important;
+  border-color: var(--clinic-primary, #dca311) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder,
+body.dark-theme input::placeholder,
+body.dark-theme textarea::placeholder {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] select option,
+body.dark-theme select option {
+  background-color: #0b1120 !important;
+  color: #f8fafc !important;
+}
+
+::selection {
+  background-color: rgba(var(--clinic-primary-rgb, 220, 163, 17), 0.35);
+  color: inherit;
+}
+
+[data-theme="dark"] ::selection,
+body.dark-theme ::selection {
+  background-color: rgba(var(--clinic-primary-rgb, 220, 163, 17), 0.5);
+  color: #ffffff;
 }
 
 input[type="checkbox"],
@@ -695,7 +741,6 @@ button[disabled],
 
 .form-control:focus, .form-input:focus, select:focus, textarea:focus, input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus {
   border-color: var(--clinic-primary, var(--accent-primary, #dca311)) !important;
-  background-color: #ffffff !important;
   box-shadow: 0 0 0 3px rgba(var(--clinic-primary-rgb, 220, 163, 17), 0.15) !important;
 }
 
