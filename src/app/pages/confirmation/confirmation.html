@@ -1,62 +1,89 @@
-<div class="confirmation-container">
-  <div class="confirmation-card">
-    <div class="brand-header">
-      <img src="assets/logo-bora-trampar.jpeg" alt="Bora Trampar" class="brand-logo" />
-      <h1 class="brand-title">BORA <span class="gold-text">TRAMPAR</span></h1>
-    </div>
+<div class="min-h-screen flex bg-slate-50">
+  <div class="flex-1 flex items-center justify-center px-5 py-8 md:px-8 md:py-12">
+    <div class="w-full max-w-[460px]">
 
-    <div *ngIf="isLoading" class="state-box loading-box">
-      <div class="spinner"></div>
-      <h2 class="state-title">Validando sua conta</h2>
-      <p class="state-desc">Aguarde um instante enquanto confirmamos seus dados...</p>
-    </div>
-
-    <div *ngIf="!isLoading && isSuccess" class="state-box success-box">
-      <div class="icon-circle success-icon">
-        <i class="fa-solid fa-check"></i>
-      </div>
-      <h2 class="state-title">Conta confirmada com sucesso!</h2>
-      <p class="state-desc">Seu cadastro foi ativado e está pronto para uso.</p>
-
-      <div *ngIf="isApp" class="app-redirect-container">
-        <div class="redirect-info">
-          <i class="fa-solid fa-mobile-screen-button"></i>
-          <span>Redirecionando para o aplicativo em <strong>{{ countdown }}</strong>s...</span>
+      <div class="mb-8 flex flex-col items-center justify-center text-center">
+        <img *ngIf="clinicSetting?.logo" [src]="clinicSetting.logo"
+          class="max-h-[6rem] max-w-[12rem] object-contain rounded-lg mb-4" alt="Logo da Clínica" />
+        <div *ngIf="!clinicSetting?.logo"
+          class="w-12 h-12 rounded-xl flex items-center justify-center text-xl text-black bg-clinic-primary shadow-md mb-4">
+          <i class="fa-solid fa-hospital"></i>
         </div>
-        <button class="btn-primary" (click)="openApp()">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          <span>Voltar para o App</span>
-        </button>
       </div>
 
-      <div *ngIf="!isApp" class="web-redirect-container">
-        <a routerLink="/login" class="btn-primary">
-          <span>Acessar Painel</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </a>
-      </div>
-    </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col items-center text-center">
 
-    <div *ngIf="!isLoading && !isSuccess" class="state-box error-box">
-      <div class="icon-circle error-icon">
-        <i class="fa-solid fa-xmark"></i>
-      </div>
-      <h2 class="state-title">Não foi possível confirmar</h2>
-      <p class="state-desc">{{ errorMessage }}</p>
+        <div *ngIf="isLoading" class="flex flex-col items-center gap-3 py-6">
+          <div class="w-14 h-14 rounded-full flex items-center justify-center text-2xl text-clinic-primary bg-slate-100 mb-2">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-800">Validando sua conta</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Aguarde um instante enquanto confirmamos seus dados...</p>
+        </div>
 
-      <div *ngIf="isApp" class="app-redirect-container">
-        <button class="btn-secondary" (click)="openApp()">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>Voltar para o App</span>
-        </button>
+        <div *ngIf="!isLoading && isSuccess" class="flex flex-col items-center gap-3 w-full py-2">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl text-emerald-600 bg-emerald-50 border border-emerald-200 mb-2 shadow-sm">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-800">Conta confirmada com sucesso!</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mb-4">Seu cadastro foi ativado e está pronto para uso.</p>
+
+          <div *ngIf="isApp" class="w-full flex flex-col gap-3">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-mobile-screen-button text-clinic-primary"></i>
+              <span>Redirecionando para o aplicativo em <strong>{{ countdown }}</strong>s...</span>
+            </div>
+            <button type="button" (click)="openApp()"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)] bg-clinic-primary border-none">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              <span>Voltar para o App</span>
+            </button>
+          </div>
+
+          <div *ngIf="!isApp" class="w-full">
+            <a routerLink="/login"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)] bg-clinic-primary no-underline">
+              <span>Acessar Painel</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && !isSuccess" class="flex flex-col items-center gap-3 w-full py-2">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl text-red-600 bg-red-50 border border-red-200 mb-2 shadow-sm">
+            <i class="fa-solid fa-xmark"></i>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-800">Não foi possível confirmar</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mb-4">{{ errorMessage }}</p>
+
+          <div *ngIf="isApp" class="w-full">
+            <button type="button" (click)="openApp()"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)] bg-clinic-primary border-none">
+              <i class="fa-solid fa-arrow-left"></i>
+              <span>Voltar para o App</span>
+            </button>
+          </div>
+
+          <div *ngIf="!isApp" class="w-full">
+            <a routerLink="/login"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)] bg-clinic-primary no-underline">
+              <i class="fa-solid fa-arrow-left"></i>
+              <span>Ir para o Login</span>
+            </a>
+          </div>
+        </div>
+
       </div>
 
-      <div *ngIf="!isApp" class="web-redirect-container">
-        <a routerLink="/login" class="btn-secondary">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>Ir para o Login</span>
-        </a>
+      <div class="flex flex-col items-center gap-3 mt-8 pt-6 border-t border-slate-200">
+        <p class="text-center text-[13px] text-slate-500">
+          Já confirmou sua conta?
+          <a routerLink="/login" class="font-semibold no-underline hover:underline text-clinic-primary">
+            Fazer Login
+          </a>
+        </p>
       </div>
+
     </div>
   </div>
 </div>

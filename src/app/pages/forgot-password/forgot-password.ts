@@ -82,8 +82,8 @@ export class ForgotPassword implements OnInit {
       setTimeout(() => {
         this.router.navigateByUrl("/login");
       }, 300)
-    } catch (err: any) {
-      this.auth.validatedError(err);
+    } catch (error: any) {
+      this.global.errorNotification(error);
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();

@@ -142,8 +142,8 @@ export class ResetPassword implements OnInit {
       setTimeout(() => {
         this.router.navigateByUrl('/login');
       }, 500);
-    } catch (err: any) {
-      this.auth.validatedError(err);
+    } catch (error: any) {
+      this.global.errorNotification(error);
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();

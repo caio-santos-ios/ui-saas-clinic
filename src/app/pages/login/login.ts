@@ -106,8 +106,8 @@ export class Login implements OnInit {
           this.router.navigateByUrl('/dashboard');
         }
       }
-    } catch (err: any) {
-      this.auth.validatedError(err);
+    } catch (error: any) {
+      this.global.errorNotification(error);
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { api } from '../../services/api';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-confirmation',
@@ -18,20 +19,34 @@ export class Confirmation implements OnInit, OnDestroy {
   isLoading = true;
   isSuccess = false;
   errorMessage = '';
+  clinicSetting: any = null;
 
   countdown = 3;
   private timerInterval: any = null;
 
   constructor(
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public auth: Auth
   ) {}
 
-  ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.code = params['code'] || '';
-      this.device = (params['device'] || '').toLowerCase();
+  async ngOnInit(): Promise<void> {
+    this.clinicSetting = this.auth.getClinicTheme();
+    if (this.clinicSetting) {
+      this.auth.applyClinicTheme(this.clinicSetting);
+    }
+
+    this.route.params.subscribe(async params => {
+      this.code = params['code'] || this.route.snapshot.queryParams['code'] || '';
+      this.device = (params['device'] || this.route.snapshot.queryParams['device'] || '').toLowerCase();
       this.isApp = this.device === 'app';
+
+      const clinicId = this.route.snapshot.queryParams['clinicId'] || '';
+      if (clinicId) {
+        await this.loadThemeByClinicId(clinicId);
+      } else if (this.code && !this.clinicSetting) {
+        await this.loadThemeByCode(this.code);
+      }
 
       if (!this.code) {
         this.isLoading = false;
@@ -42,6 +57,30 @@ export class Confirmation implements OnInit, OnDestroy {
 
       this.executeConfirmation();
     });
+  }
+
+  async loadThemeByCode(code: string): Promise<void> {
+    try {
+      const { data } = await api.get(`/api/auth/theme/${code}`);
+      if (data?.data) {
+        this.clinicSetting = data.data;
+        this.auth.applyClinicTheme(this.clinicSetting);
+        this.cdr.detectChanges();
+      }
+    } catch {
+    }
+  }
+
+  async loadThemeByClinicId(clinicId: string): Promise<void> {
+    try {
+      const { data } = await api.get(`/api/auth/theme/clinic/${clinicId}`);
+      if (data?.data) {
+        this.clinicSetting = data.data;
+        this.auth.applyClinicTheme(this.clinicSetting);
+        this.cdr.detectChanges();
+      }
+    } catch {
+    }
   }
 
   ngOnDestroy() {
@@ -56,7 +95,7 @@ export class Confirmation implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     try {
-      const response = await api.get(`/api/auth/confirm-account/${this.code}`);
+      const response = await api.put(`/api/users/confirm-account`, {code: this.code});
       if (response.status === 200) {
         this.isSuccess = true;
         this.isLoading = false;
@@ -92,6 +131,6 @@ export class Confirmation implements OnInit, OnDestroy {
   }
 
   openApp() {
-    window.location.href = 'boratrampar://confirmation-success';
+    window.location.href = 'clinicsaas://confirmation-success';
   }
 }

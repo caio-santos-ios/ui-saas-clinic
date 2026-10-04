@@ -356,8 +356,8 @@ export class Signature {
       setTimeout(() => {
         this.router.navigateByUrl('/plans');
       }, 300);
-    } catch (err: any) {
-      this.auth.validatedError(err);
+    } catch (error: any) {
+      this.global.errorNotification(error);
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
