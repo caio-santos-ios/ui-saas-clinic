@@ -450,31 +450,10 @@
         </div>
 
         <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-          <div>
-            <button type="button" *ngIf="activeTab === 'professional'" (click)="setTab('personal')"
-              class="px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
-              &laquo; Anterior
-            </button>
-            <button type="button" *ngIf="activeTab === 'address'" (click)="setTab('professional')"
-              class="px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
-              &laquo; Anterior
-            </button>
-          </div>
-
           <div class="flex items-center gap-2">
             <button type="button" (click)="closeModal()"
               class="px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
               Cancelar
-            </button>
-
-            <button type="button" *ngIf="activeTab === 'personal'" (click)="setTab('professional')"
-              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition">
-              Próximo &raquo;
-            </button>
-
-            <button type="button" *ngIf="activeTab === 'professional'" (click)="setTab('address')"
-              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition">
-              Próximo &raquo;
             </button>
 
             <button type="submit" [disabled]="isSaving"

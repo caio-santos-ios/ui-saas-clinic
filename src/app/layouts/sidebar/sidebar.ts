@@ -109,6 +109,11 @@ export class Sidebar implements OnInit, OnDestroy {
         link: "dashboard"
       },
       {
+        description: "Agendamentos",
+        icon: "calendar-check",
+        link: "agendamentos"
+      },
+      {
         description: "Médicos",
         icon: "user-doctor",
         link: "medicos"
