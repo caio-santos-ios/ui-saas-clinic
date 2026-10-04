@@ -98,10 +98,17 @@
               <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
                 CNPJ <span class="text-red-500">*</span>
               </label>
-              <input formControlName="cnpj" type="text" mask="00.000.000/0000-00"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step1.cnpj') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
-                placeholder="00.000.000/0001-00" />
+              <div class="relative flex items-center">
+                <input formControlName="cnpj" type="text" mask="00.000.000/0000-00"
+                  class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 pr-10 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+                  [ngClass]="err('step1.cnpj') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                  placeholder="00.000.000/0001-00" (blur)="onCnpjBlur()" />
+                <button type="button" (click)="onCnpjBlur()" [disabled]="loadingCnpj"
+                  class="absolute right-2.5 text-slate-400 hover:text-[#dca311] transition bg-transparent border-none cursor-pointer flex items-center justify-center p-1">
+                  <i class="fa-solid fa-spinner fa-spin text-sm text-[#dca311]" *ngIf="loadingCnpj"></i>
+                  <i class="fa-solid fa-magnifying-glass text-xs" *ngIf="!loadingCnpj"></i>
+                </button>
+              </div>
               <span class="text-[11px] text-red-500" *ngIf="err('step1.cnpj')">{{ err('step1.cnpj') }}</span>
             </div>
 

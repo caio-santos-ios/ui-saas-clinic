@@ -29,6 +29,7 @@ export class Signature {
   totalSteps = 3;
   isLoading = false;
   loadingZip = false;
+  loadingCnpj = false;
   showPassword = false;
   logoPreview: string | null = null;
 
@@ -169,6 +170,79 @@ export class Signature {
     await this.uploadLogo(file);
     const fakeEvent = { target: { files: [file] } } as any;
     this.onLogoChange(fakeEvent);
+  }
+
+  async onCnpjBlur(): Promise<void> {
+    const cnpj = this.s1.get('cnpj')?.value?.replace(/\D/g, '') ?? '';
+    if (cnpj.length !== 14) return;
+
+    this.loadingCnpj = true;
+    this.cdr.detectChanges();
+
+    try {
+      const data: any = await this.consultCnpj(cnpj);
+      if (data && data.status !== 'ERROR') {
+        const phone = (data.telefone || '').split('/')[0].replace(/\D/g, '');
+        const email = (data.email || '').trim().toLowerCase();
+
+        this.s1.patchValue({
+          tradeName: data.fantasia || data.nome || this.s1.get('tradeName')?.value || '',
+          corporateName: data.nome || this.s1.get('corporateName')?.value || '',
+          ...(email ? { email } : {}),
+          ...(phone.length >= 10 ? { phone } : {}),
+        });
+
+        this.s2.patchValue({
+          zipCode: (data.cep || '').replace(/\D/g, '') || this.s2.get('zipCode')?.value || '',
+          street: data.logradouro || this.s2.get('street')?.value || '',
+          number: data.numero || this.s2.get('number')?.value || '',
+          complement: data.complemento || this.s2.get('complement')?.value || '',
+          neighborhood: data.bairro || this.s2.get('neighborhood')?.value || '',
+          city: data.municipio || this.s2.get('city')?.value || '',
+          state: (data.uf || '').substring(0, 2).toUpperCase() || this.s2.get('state')?.value || '',
+        });
+
+        this.toastr.success('Dados da empresa preenchidos automaticamente!');
+      } else {
+        this.toastr.warning(data?.message || 'CNPJ não encontrado ou limite de consultas excedido.');
+      }
+    } catch {
+      this.toastr.error('Não foi possível consultar os dados do CNPJ.');
+    } finally {
+      this.loadingCnpj = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private consultCnpj(cnpj: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'receitaws_' + Math.floor(Math.random() * 1000000);
+      const script = document.createElement('script');
+      script.src = `https://receitaws.com.br/v1/cnpj/${cnpj}?callback=${callbackName}`;
+
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('Timeout'));
+      }, 10000);
+
+      const cleanup = () => {
+        delete (window as any)[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        clearTimeout(timer);
+      };
+
+      (window as any)[callbackName] = (data: any) => {
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error('Erro ao carregar dados'));
+      };
+
+      document.body.appendChild(script);
+    });
   }
 
   async onZipCodeBlur(): Promise<void> {
