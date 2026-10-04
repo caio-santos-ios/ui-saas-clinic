@@ -17,6 +17,8 @@ import { Procedures } from './pages/admin/procedures/procedures';
 import { Employees } from './pages/admin/employees/employees';
 import { Patients } from './pages/admin/patients/patients';
 import { Appointments } from './pages/admin/appointments/appointments';
+import { DoctorSchedule } from './pages/doctor/schedule/schedule';
+import { DoctorPatients } from './pages/doctor/patients/patients';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -52,6 +54,10 @@ export const routes: Routes = [
       { path: 'master/clinics', redirectTo: 'clinicas' },
       { path: 'usuarios', component: MasterUsers },
       { path: 'master/users', redirectTo: 'usuarios' },
+      { path: 'medico/agenda', component: DoctorSchedule },
+      { path: 'doctor/schedule', redirectTo: 'medico/agenda' },
+      { path: 'medico/pacientes', component: DoctorPatients },
+      { path: 'doctor/patients', redirectTo: 'medico/pacientes' },
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

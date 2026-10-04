@@ -146,6 +146,17 @@ export class Sidebar implements OnInit, OnDestroy {
   }
 
   getMenuDoctors(): TMenu[] {
-    return []
+    return [
+      {
+        description: "Minha Agenda",
+        icon: "calendar-check",
+        link: "medico/agenda"
+      },
+      {
+        description: "Meus Pacientes",
+        icon: "hospital-user",
+        link: "medico/pacientes"
+      }
+    ]
   }
 }
