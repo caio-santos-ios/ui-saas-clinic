@@ -19,6 +19,7 @@ import { Patients } from './pages/admin/patients/patients';
 import { Appointments } from './pages/admin/appointments/appointments';
 import { DoctorSchedule } from './pages/doctor/schedule/schedule';
 import { DoctorPatients } from './pages/doctor/patients/patients';
+import { ReceptionQueue } from './pages/employee/reception-queue/reception-queue';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -58,6 +59,8 @@ export const routes: Routes = [
       { path: 'doctor/schedule', redirectTo: 'medico/agenda' },
       { path: 'medico/pacientes', component: DoctorPatients },
       { path: 'doctor/patients', redirectTo: 'medico/pacientes' },
+      { path: 'recepcao/fila', component: ReceptionQueue },
+      { path: 'reception/queue', redirectTo: 'recepcao/fila' },
     ]
   },
   { path: '**', redirectTo: 'dashboard' }
