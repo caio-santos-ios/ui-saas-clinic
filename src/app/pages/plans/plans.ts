@@ -388,7 +388,23 @@ export class Plans implements OnDestroy {
       this.cdr.detectChanges();
 
       try {
-        const [expMonth, expYear] = this.cardData.expiry.split('/');
+        const rawExpiry = (this.cardData.expiry || '').trim();
+        let expMonth = '';
+        let expYear = '';
+
+        if (rawExpiry.includes('/')) {
+          const parts = rawExpiry.split('/');
+          expMonth = parts[0]?.trim() || '';
+          expYear = parts[1]?.trim() || '';
+        } else {
+          const digits = rawExpiry.replace(/\D/g, '');
+          expMonth = digits.substring(0, 2);
+          expYear = digits.substring(2);
+        }
+
+        if (expYear.length === 2) {
+          expYear = `20${expYear}`;
+        }
 
         const { data } = await api.post('/api/signatures/subscribe', {
           signatureId,
@@ -400,7 +416,7 @@ export class Plans implements OnDestroy {
             holderName: this.cardData.holderName,
             number: this.cardData.number.replace(/\s+/g, ''),
             expiryMonth: expMonth || '',
-            expiryYear: expYear ? `20${expYear}` : '',
+            expiryYear: expYear || '',
             cvv: this.cardData.cvv,
             holderCpfCnpj: this.cardData.document
           }
