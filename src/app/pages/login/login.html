@@ -85,10 +85,16 @@
               Esqueceu a senha?
             </a>
           </div>
-          <input formControlName="password" type="password" autocomplete="current-password"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
-            [ngClass]="err('password') ? 'border-red-400 focus:border-red-400' : ''"
-            placeholder="Digite sua senha segura" />
+          <div class="relative flex items-center">
+            <input formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password"
+              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-3.5 pr-10 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+              [ngClass]="err('password') ? 'border-red-400 focus:border-red-400' : ''"
+              placeholder="Digite sua senha segura" />
+            <button type="button" (click)="toggleShowPassword()"
+              class="absolute right-3 text-slate-400 hover:text-slate-600 transition bg-transparent border-none cursor-pointer flex items-center justify-center p-1">
+              <i class="fa-solid text-sm" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
           <span class="text-[11px] text-red-500" *ngIf="err('password')">{{ err('password') }}</span>
         </div>
 
