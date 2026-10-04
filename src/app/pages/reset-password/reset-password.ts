@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
 import { GlobalService } from '../../services/global.service';
+import { ThemeService } from '../../services/theme';
 
 @Component({
   selector: 'app-reset-password',
@@ -28,7 +29,8 @@ export class ResetPassword implements OnInit {
     private route: ActivatedRoute,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
-    public global: GlobalService
+    public global: GlobalService,
+    public themeService: ThemeService
   ) {
     this.form = this.fb.group({
       code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],

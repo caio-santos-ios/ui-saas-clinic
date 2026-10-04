@@ -1,4 +1,10 @@
-<div class="min-h-screen flex bg-slate-50">
+<div class="min-h-screen flex bg-slate-50 dark:bg-[#080d1a] text-slate-900 dark:text-slate-100 transition-colors relative">
+
+  <button type="button" (click)="themeService.toggleTheme()"
+    class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 shadow-sm transition hover:scale-105 cursor-pointer"
+    [title]="themeService.isDark() ? 'Mudar para modo claro' : 'Mudar para modo escuro'">
+    <i class="fa-solid" [ngClass]="themeService.isDark() ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'"></i>
+  </button>
 
   <div class="hidden lg:flex w-[420px] shrink-0 relative overflow-hidden items-center"
     style="background: linear-gradient(160deg, #0b1120 0%, #111e38 60%, #0b1120 100%)">
@@ -38,51 +44,51 @@
     </div>
   </div>
 
-  <div class="flex-1 flex items-start md:items-center justify-center overflow-y-auto px-5 py-8 md:px-8 md:py-12">
+  <div class="flex-1 flex items-start md:items-center justify-center overflow-y-auto px-5 py-8 md:px-8 md:py-12 bg-slate-50 dark:bg-[#080d1a] transition-colors">
     <div class="w-full max-w-[580px]">
 
       <div class="mb-7">
-        <h1 class="text-2xl font-black text-slate-900 mb-1">Criar conta da clínica</h1>
-        <p class="text-sm text-slate-500">Preencha os dados para começar o período de teste gratuito</p>
+        <h1 class="text-2xl font-black text-slate-900 dark:text-slate-100 mb-1">Criar conta da clínica</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Preencha os dados para começar o período de teste gratuito</p>
       </div>
 
       <div class="flex items-center mb-7">
         <div class="flex flex-col items-center gap-1.5 shrink-0">
           <div
             class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
-            [ngClass]="currentStep === 1 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : currentStep > 1 ? 'bg-[#dca311] border-[#dca311] text-black' : 'bg-slate-200 border-slate-200 text-slate-400'">
+            [ngClass]="currentStep === 1 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : currentStep > 1 ? 'bg-[#dca311] border-[#dca311] text-black' : 'bg-slate-200 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'">
             <i class="fa-solid fa-check" *ngIf="currentStep > 1"></i>
             <span *ngIf="currentStep <= 1">1</span>
           </div>
           <span class="text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap"
-            [ngClass]="currentStep >= 1 ? 'text-[#dca311]' : 'text-slate-400'">Clínica</span>
+            [ngClass]="currentStep >= 1 ? 'text-[#dca311]' : 'text-slate-400 dark:text-slate-500'">Clínica</span>
         </div>
 
         <div class="flex-1 h-0.5 mx-2 mb-5 transition-all duration-300"
-          [ngClass]="currentStep > 1 ? 'bg-[#dca311]' : 'bg-slate-200'"></div>
+          [ngClass]="currentStep > 1 ? 'bg-[#dca311]' : 'bg-slate-200 dark:bg-slate-800'"></div>
 
         <div class="flex flex-col items-center gap-1.5 shrink-0">
           <div
             class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
-            [ngClass]="currentStep === 2 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : currentStep > 2 ? 'bg-[#dca311] border-[#dca311] text-black' : 'bg-slate-200 border-slate-200 text-slate-400'">
+            [ngClass]="currentStep === 2 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : currentStep > 2 ? 'bg-[#dca311] border-[#dca311] text-black' : 'bg-slate-200 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'">
             <i class="fa-solid fa-check" *ngIf="currentStep > 2"></i>
             <span *ngIf="currentStep <= 2">2</span>
           </div>
           <span class="text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap"
-            [ngClass]="currentStep >= 2 ? 'text-[#dca311]' : 'text-slate-400'">Endereço</span>
+            [ngClass]="currentStep >= 2 ? 'text-[#dca311]' : 'text-slate-400 dark:text-slate-500'">Endereço</span>
         </div>
 
         <div class="flex-1 h-0.5 mx-2 mb-5 transition-all duration-300"
-          [ngClass]="currentStep > 2 ? 'bg-[#dca311]' : 'bg-slate-200'"></div>
+          [ngClass]="currentStep > 2 ? 'bg-[#dca311]' : 'bg-slate-200 dark:bg-slate-800'"></div>
 
         <div class="flex flex-col items-center gap-1.5 shrink-0">
           <div
             class="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold border-2 transition-all duration-300"
-            [ngClass]="currentStep === 3 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : 'bg-slate-200 border-slate-200 text-slate-400'">
+            [ngClass]="currentStep === 3 ? 'bg-[#dca311] border-[#dca311] text-black shadow-[0_0_0_4px_rgba(220,163,17,0.2)]' : 'bg-slate-200 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'">
             <span>3</span>
           </div>
           <span class="text-[11px] font-semibold uppercase tracking-wide whitespace-nowrap"
-            [ngClass]="currentStep >= 3 ? 'text-[#dca311]' : 'text-slate-400'">Visual</span>
+            [ngClass]="currentStep >= 3 ? 'text-[#dca311]' : 'text-slate-400 dark:text-slate-500'">Visual</span>
         </div>
       </div>
 
@@ -95,13 +101,13 @@
 
           <div class="grid grid-cols-2 gap-3.5 mb-2">
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 CNPJ <span class="text-red-500">*</span>
               </label>
               <div class="relative flex items-center">
                 <input formControlName="cnpj" type="text" mask="00.000.000/0000-00"
-                  class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 pr-10 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                  [ngClass]="err('step1.cnpj') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                  class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 pr-10 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                  [ngClass]="err('step1.cnpj') ? 'border-red-400 focus:border-red-400' : ''"
                   placeholder="00.000.000/0001-00" (blur)="onCnpjBlur()" />
                 <button type="button" (click)="onCnpjBlur()" [disabled]="loadingCnpj"
                   class="absolute right-2.5 text-slate-400 hover:text-[#dca311] transition bg-transparent border-none cursor-pointer flex items-center justify-center p-1">
@@ -113,24 +119,24 @@
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 Nome Fantasia <span class="text-red-500">*</span>
               </label>
               <input formControlName="tradeName" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step1.tradeName') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step1.tradeName') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="Ex: Clínica Bella Vita" />
               <span class="text-[11px] text-red-500" *ngIf="err('step1.tradeName')">{{ err('step1.tradeName') }}</span>
             </div>
           </div>
 
           <div class="flex flex-col gap-1.5 mb-2">
-            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+            <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
               Razão Social <span class="text-red-500">*</span>
             </label>
             <input formControlName="corporateName" type="text"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-              [ngClass]="err('step1.corporateName') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+              [ngClass]="err('step1.corporateName') ? 'border-red-400 focus:border-red-400' : ''"
               placeholder="Ex: Bella Vita Cirurgia Plástica Ltda" />
             <span class="text-[11px] text-red-500"
               *ngIf="err('step1.corporateName')">{{ err('step1.corporateName') }}</span>
@@ -138,49 +144,48 @@
 
           <div class="grid grid-cols-2 gap-3.5 mb-2">
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 E-mail <span class="text-red-500">*</span>
               </label>
               <input formControlName="email" type="email"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step1.email') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step1.email') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="contato@clinica.com.br" />
               <span class="text-[11px] text-red-500" *ngIf="err('step1.email')">{{ err('step1.email') }}</span>
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 Telefone / WhatsApp <span class="text-red-500">*</span>
               </label>
               <input formControlName="phone" type="text" mask="(00) 00000-0000"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step1.phone') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step1.phone') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="(00) 00000-0000" />
               <span class="text-[11px] text-red-500" *ngIf="err('step1.phone')">{{ err('step1.phone') }}</span>
             </div>
           </div>
 
           <div class="flex flex-col gap-1.5 mb-2">
-            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+            <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
               Senha <span class="text-red-500">*</span>
             </label>
             <div class="relative flex items-center">
               <input formControlName="password" [type]="showPassword ? 'text' : 'password'"
-                class="w-full bg-white border rounded-xl py-2.5 pl-9 pr-10 text-sm font-medium text-slate-900 outline-none transition focus:shadow-[0_0_0_3px_rgba(220,163,17,0.15)] focus:bg-[#fffdf5]"
-                [ngClass]="err('step1.password') ? 'border-red-400 focus:border-red-400' : 'border-slate-200 focus:border-[#dca311]'"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step1.password') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="Digite uma senha segura (mínimo 8 caracteres)" />
               <button type="button" (click)="toggleShowPassword()"
-                class="absolute right-3 text-[13px] text-slate-400 hover:text-slate-600 transition bg-transparent border-none cursor-pointer">
-                <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition bg-transparent border-none cursor-pointer p-1">
+                <i class="fa-solid text-sm" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
               </button>
             </div>
             <span class="text-[11px] text-red-500" *ngIf="err('step1.password')">{{ err('step1.password') }}</span>
           </div>
 
-          <div class="flex justify-end mt-6 pt-5 border-t border-slate-200">
+          <div class="flex justify-end mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
             <button type="button" (click)="nextStep()"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)]"
-              style="background: #dca311">
+              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)] bg-clinic-primary border-none">
               Próximo <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
@@ -193,92 +198,91 @@
 
           <div class="grid grid-cols-2 gap-3.5 mb-2">
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 CEP <span class="text-red-500">*</span>
               </label>
               <input formControlName="zipCode" type="text" mask="00000-000"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step2.zipCode') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step2.zipCode') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="00000-000" (blur)="onZipCodeBlur()" />
               <span class="text-[11px] text-red-500" *ngIf="err('step2.zipCode')">{{ err('step2.zipCode') }}</span>
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 Estado <span class="text-red-500">*</span>
               </label>
               <input formControlName="state" type="text" maxlength="2"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step2.state') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step2.state') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="SP" />
               <span class="text-[11px] text-red-500" *ngIf="err('step2.state')">{{ err('step2.state') }}</span>
             </div>
           </div>
 
           <div class="flex flex-col gap-1.5 mb-2">
-            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+            <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
               Logradouro <span class="text-red-500">*</span>
             </label>
             <input formControlName="street" type="text"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-              [ngClass]="err('step2.street') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+              [ngClass]="err('step2.street') ? 'border-red-400 focus:border-red-400' : ''"
               placeholder="Rua, Avenida, Alameda..." />
             <span class="text-[11px] text-red-500" *ngIf="err('step2.street')">{{ err('step2.street') }}</span>
           </div>
 
           <div class="grid grid-cols-3 gap-3.5 mb-2">
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 Número <span class="text-red-500">*</span>
               </label>
               <input formControlName="number" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step2.number') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step2.number') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="123" />
               <span class="text-[11px] text-red-500" *ngIf="err('step2.number')">{{ err('step2.number') }}</span>
             </div>
 
             <div class="col-span-2 flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">Complemento</label>
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">Complemento</label>
               <input formControlName="complement" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
                 placeholder="Sala 12, Andar 3..." />
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3.5 mb-2">
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 Bairro <span class="text-red-500">*</span>
               </label>
               <input formControlName="neighborhood" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step2.neighborhood') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step2.neighborhood') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="Jardim Paulista" />
               <span class="text-[11px] text-red-500"
                 *ngIf="err('step2.neighborhood')">{{ err('step2.neighborhood') }}</span>
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 Cidade <span class="text-red-500">*</span>
               </label>
               <input formControlName="city" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
-                [ngClass]="err('step2.city') ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : ''"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#dca311] shadow-sm"
+                [ngClass]="err('step2.city') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="São Paulo" />
               <span class="text-[11px] text-red-500" *ngIf="err('step2.city')">{{ err('step2.city') }}</span>
             </div>
           </div>
 
-          <div class="flex justify-between items-center mt-6 pt-5 border-t border-slate-200">
+          <div class="flex justify-between items-center mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
             <button type="button" (click)="prevStep()"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-300 cursor-pointer transition hover:text-slate-900 hover:border-slate-400 hover:bg-slate-50">
+              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 cursor-pointer transition hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700">
               <i class="fa-solid fa-arrow-left"></i> Voltar
             </button>
             <button type="button" (click)="nextStep()"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)]"
-              style="background: #dca311">
+              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)] bg-clinic-primary border-none">
               Próximo <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
@@ -290,9 +294,9 @@
           </p>
 
           <div class="flex flex-col gap-1.5 mb-4">
-            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">Logotipo da Clínica</label>
+            <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">Logotipo da Clínica</label>
             <div
-              class="relative border-2 border-dashed border-slate-300 rounded-lg min-h-[110px] flex items-center justify-center cursor-pointer transition overflow-hidden bg-white hover:border-[#dca311] hover:bg-amber-50/20"
+              class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg min-h-[110px] flex items-center justify-center cursor-pointer transition overflow-hidden bg-white dark:bg-[#0b1120] hover:border-[#dca311]"
               [class.border-[#dca311]]="logoPreview" (click)="triggerLogoUpload()" (dragover)="onDragOver($event)"
               (drop)="onDrop($event)">
               <img *ngIf="logoPreview" [src]="logoPreview" class="max-h-20 max-w-full object-contain p-2" alt="Logo" />
@@ -300,7 +304,7 @@
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-amber-100 text-[#dca311]">
                   <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
-                <p class="text-xs font-semibold text-slate-700">Arraste ou clique para enviar</p>
+                <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Arraste ou clique para enviar</p>
                 <p class="text-[11px] text-slate-400">PNG, JPG, SVG — máx 2 MB</p>
               </div>
               <button *ngIf="logoPreview" type="button"
@@ -314,42 +318,42 @@
 
           <div class="grid grid-cols-2 gap-3.5 mb-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
                 Cor Primária <span class="text-red-500">*</span>
               </label>
               <p class="text-[11px] text-slate-400">Botões e destaques</p>
               <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-lg shrink-0 border border-slate-300 transition"
+                <div class="w-9 h-9 rounded-lg shrink-0 border border-slate-300 dark:border-slate-700 transition"
                   [style.background]="primaryColor"></div>
                 <input type="color" formControlName="primaryColor"
                   class="w-9 h-9 border-none rounded-lg cursor-pointer p-0 bg-transparent shrink-0" />
                 <input type="text" formControlName="primaryColor"
-                  class="flex-1 bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm font-medium text-black outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+                  class="flex-1 bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-[#dca311] shadow-sm"
                   placeholder="#dca311" maxlength="7" />
               </div>
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">Cor Secundária</label>
+              <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">Cor Secundária</label>
               <p class="text-[11px] text-slate-400">Backgrounds suaves</p>
               <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-lg shrink-0 border border-slate-300 transition"
+                <div class="w-9 h-9 rounded-lg shrink-0 border border-slate-300 dark:border-slate-700 transition"
                   [style.background]="secondaryColor"></div>
                 <input type="color" formControlName="secondaryColor"
                   class="w-9 h-9 border-none rounded-lg cursor-pointer p-0 bg-transparent shrink-0" />
                 <input type="text" formControlName="secondaryColor"
-                  class="flex-1 bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm font-medium text-black outline-none transition focus:border-[#dca311] focus:ring-2 focus:ring-[#dca311]/20 shadow-sm"
+                  class="flex-1 bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-sm font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-[#dca311] shadow-sm"
                   placeholder="#0b1120" maxlength="7" />
               </div>
             </div>
           </div>
 
           <div class="flex flex-col gap-1.5 mb-4">
-            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">Paletas
+            <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">Paletas
               predefinidas</label>
             <div class="flex flex-wrap gap-2 mt-1">
               <button type="button" *ngFor="let palette of palettes"
-                class="flex rounded-md overflow-hidden border border-slate-300 cursor-pointer transition p-0 w-10 h-6 hover:border-[#dca311] hover:scale-105"
+                class="flex rounded-md overflow-hidden border border-slate-300 dark:border-slate-700 cursor-pointer transition p-0 w-10 h-6 hover:border-[#dca311] hover:scale-105"
                 [title]="palette.name" (click)="applyPalette(palette)">
                 <span class="flex-1 block" [style.background]="palette.primary"></span>
                 <span class="flex-1 block" [style.background]="palette.secondary"></span>
@@ -357,7 +361,7 @@
             </div>
           </div>
 
-          <div class="border border-slate-200 rounded-lg overflow-hidden mb-4 shadow-sm"
+          <div class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden mb-4 shadow-sm"
             [style.border-color]="primaryColor">
             <div class="flex items-center gap-2.5 px-4 py-3" [style.background]="secondaryColor">
               <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm overflow-hidden shrink-0"
@@ -369,23 +373,23 @@
                 {{ tradeName }}
               </span>
             </div>
-            <div class="flex items-center justify-between px-4 py-3 bg-white">
+            <div class="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#0b1120]">
               <button class="rounded-lg px-4 py-1.5 text-xs font-bold text-black border-none cursor-default"
                 [style.background]="primaryColor">
                 Agendar Consulta
               </button>
               <div class="flex gap-1.5">
                 <span class="w-2 h-2 rounded-full" [style.background]="primaryColor"></span>
-                <span class="w-2 h-2 rounded-full bg-slate-200"></span>
-                <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></span>
               </div>
             </div>
           </div>
 
           <div class="flex flex-col gap-1 mb-4">
-            <div class="flex items-start gap-2.5 text-[12.5px] text-slate-600 leading-relaxed">
+            <div class="flex items-start gap-2.5 text-[12.5px] text-slate-600 dark:text-slate-400 leading-relaxed">
               <input type="checkbox" id="terms" formControlName="acceptedTerms"
-                class="w-4 h-4 shrink-0 mt-0.5 rounded border-slate-300 bg-white text-[#dca311] accent-[#dca311] focus:ring-[#dca311]/20 cursor-pointer" />
+                class="w-4 h-4 shrink-0 mt-0.5 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0b1120] text-[#dca311] accent-[#dca311] cursor-pointer" />
               <label for="terms" class="cursor-pointer select-none">
                 Concordo com os <a href="#" class="text-[#dca311] font-semibold no-underline hover:underline">Termos de
                   Uso</a> e
@@ -399,14 +403,13 @@
             </span>
           </div>
 
-          <div class="flex justify-between items-center mt-6 pt-5 border-t border-slate-200">
+          <div class="flex justify-between items-center mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
             <button type="button" (click)="prevStep()"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-300 cursor-pointer transition hover:text-slate-900 hover:border-slate-400 hover:bg-slate-50">
+              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 cursor-pointer transition hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700">
               <i class="fa-solid fa-arrow-left"></i> Voltar
             </button>
             <button type="submit" [disabled]="isLoading"
-              class="flex-1 ml-3 inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)] disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none"
-              style="background: #dca311">
+              class="flex-1 ml-3 inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(220,163,17,0.3)] disabled:opacity-55 disabled:cursor-not-allowed disabled:transform-none bg-clinic-primary border-none">
               <i class="fa-solid fa-spinner fa-spin" *ngIf="isLoading"></i>
               <i class="fa-solid fa-rocket" *ngIf="!isLoading"></i>
               {{ isLoading ? 'Criando conta...' : 'Criar Clínica' }}
@@ -416,7 +419,7 @@
 
       </form>
 
-      <p class="text-center mt-5 text-[13px] text-slate-500">
+      <p class="text-center mt-5 text-[13px] text-slate-500 dark:text-slate-400">
         Já possui conta?
         <a routerLink="/login" class="text-[#dca311] font-semibold no-underline hover:underline">Fazer login</a>
       </p>

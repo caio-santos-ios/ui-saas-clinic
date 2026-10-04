@@ -36,7 +36,7 @@
   --sidebar-width: 270px;
 }
 
-[data-theme="dark"], body.dark-theme {
+html.dark, [data-theme="dark"], body.dark-theme {
   --bg-main: #080d1a;
   --bg-sidebar: var(--clinic-secondary, #050914);
   --bg-sidebar-hover: #0f172a;
@@ -72,13 +72,30 @@
   color: #f8fafc !important;
 }
 
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-select,
-textarea {
-  background-color: #ffffff;
-  color: #0f172a;
+html:not(.dark):not([data-theme="dark"]) input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+html:not(.dark):not([data-theme="dark"]) select,
+html:not(.dark):not([data-theme="dark"]) textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
+html:not(.dark):not([data-theme="dark"]) input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
+html:not(.dark):not([data-theme="dark"]) select:focus,
+html:not(.dark):not([data-theme="dark"]) textarea:focus {
+  background-color: #ffffff !important;
+  border-color: var(--clinic-primary, #dca311) !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark):not([data-theme="dark"]) select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+html.dark select,
+html.dark textarea,
 [data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
 [data-theme="dark"] select,
 [data-theme="dark"] textarea,
@@ -90,6 +107,9 @@ body.dark-theme textarea {
   color: #f8fafc !important;
 }
 
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
+html.dark select:focus,
+html.dark textarea:focus,
 [data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
 [data-theme="dark"] select:focus,
 [data-theme="dark"] textarea:focus,
@@ -101,6 +121,8 @@ body.dark-theme textarea:focus {
   color: #f8fafc !important;
 }
 
+html.dark input::placeholder,
+html.dark textarea::placeholder,
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder,
 body.dark-theme input::placeholder,
@@ -108,6 +130,7 @@ body.dark-theme textarea::placeholder {
   color: #64748b !important;
 }
 
+html.dark select option,
 [data-theme="dark"] select option,
 body.dark-theme select option {
   background-color: #0b1120 !important;

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { api } from '../../services/api';
 import { Auth } from '../../services/auth';
+import { ThemeService } from '../../services/theme';
 
 @Component({
   selector: 'app-confirmation',
@@ -27,7 +28,8 @@ export class Confirmation implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    public auth: Auth
+    public auth: Auth,
+    public themeService: ThemeService
   ) {}
 
   async ngOnInit(): Promise<void> {

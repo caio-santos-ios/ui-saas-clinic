@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
 import { GlobalService } from '../../services/global.service';
+import { ThemeService } from '../../services/theme';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +27,7 @@ export class Login implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     public global: GlobalService,
+    public themeService: ThemeService,
     private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({

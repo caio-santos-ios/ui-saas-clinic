@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
+import { ThemeService } from '../../services/theme';
 
 export interface PlanFeature {
   text: string;
@@ -18,6 +19,7 @@ export interface PricingPlan {
   tagline: string;
   monthlyPrice: number;
   yearlyPrice: number;
+  trialDays?: number;
   isPopular?: boolean;
   color: string;
   features: PlanFeature[];
@@ -33,7 +35,7 @@ export type PaymentMethod = 'credit_card' | 'pix' | 'boleto';
   templateUrl: './plans.html',
   styleUrl: './plans.css'
 })
-export class Plans implements OnDestroy {
+export class Plans implements OnInit, OnDestroy {
   billingCycle: 'monthly' | 'yearly' = 'monthly';
   selectedPlan: PricingPlan | null = null;
   paymentMethod: PaymentMethod = 'credit_card';
@@ -70,69 +72,92 @@ export class Plans implements OnDestroy {
 
   pixCode = '00020126580014br.gov.bcb.pix0136clinicsaas-pix-f92a-4bc1-90a3-5204000053039865802BR5925CLINICSAAS TECNOLOGIA LTDA6009SAO PAULO62070503***6304E8A2';
 
-  plans: PricingPlan[] = [
-    {
-      id: 'bronze',
-      name: 'Bronze',
-      tagline: 'Ideal para consultórios e médicos em fase inicial.',
-      monthlyPrice: 249,
-      yearlyPrice: 199,
-      color: '#b45309',
-      features: [
-        { text: 'Até 1 médico cadastrado' },
-        { text: 'Até 100 pacientes ativos' },
-        { text: 'Cronograma pré e pós-operatório' },
-        { text: 'Chat direto com a clínica' },
-        { text: 'Envio de fotos e documentos (até 5GB)' },
-        { text: 'Registro de sinais vitais pelos pacientes' },
-        { text: 'Suporte em horário comercial' }
-      ]
-    },
-    {
-      id: 'prata',
-      name: 'Prata',
-      tagline: 'O mais escolhido para clínicas em crescimento e com equipe.',
-      monthlyPrice: 499,
-      yearlyPrice: 399,
-      isPopular: true,
-      color: '#dca311',
-      features: [
-        { text: 'Até 5 médicos e funcionários', highlight: true },
-        { text: 'Até 500 pacientes ativos', highlight: true },
-        { text: 'Inteligência Artificial para dúvidas rotineiras', highlight: true },
-        { text: 'Personalização do app com sua marca e cores' },
-        { text: 'Envio de notificações push personalizadas' },
-        { text: 'Armazenamento de exames e fotos ilimitado' },
-        { text: 'Agenda integrada de consultas e retornos' },
-        { text: 'Suporte prioritário via WhatsApp' }
-      ]
-    },
-    {
-      id: 'ouro',
-      name: 'Ouro',
-      tagline: 'Para grandes centros cirúrgicos e clínicas de alto volume.',
-      monthlyPrice: 899,
-      yearlyPrice: 719,
-      color: '#eab308',
-      features: [
-        { text: 'Médicos e funcionários ilimitados', highlight: true },
-        { text: 'Pacientes ativos ilimitados', highlight: true },
-        { text: 'IA personalizada com protocolos próprios da clínica', highlight: true },
-        { text: 'Disparo de campanhas para pacientes' },
-        { text: 'Link individual de indicação de pacientes' },
-        { text: 'Controle completo de acessos e permissões' },
-        { text: 'Adequação total à LGPD e segurança avançada' },
-        { text: 'Gerente de contas e suporte 24/7 dedicado' }
-      ]
-    }
-  ];
+  plans: PricingPlan[] = [];
+  isLoadingPlans: boolean = true;
 
   constructor(
     private router: Router,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
-    public auth: Auth
+    public auth: Auth,
+    public themeService: ThemeService
   ) { }
+
+  async ngOnInit(): Promise<void> {
+    await this.loadPlans();
+  }
+
+  async loadPlans(): Promise<void> {
+    try {
+      this.isLoadingPlans = true;
+      this.cdr.detectChanges();
+
+      const { data } = await api.get('/api/plans', { params: { pageSize: 50 } });
+      const list = data?.data?.data || [];
+
+      if (Array.isArray(list) && list.length > 0) {
+        const palette = ['#b45309', '#dca311', '#eab308', '#0284c7', '#16a34a'];
+        this.plans = list
+          .filter((p: any) => p.active !== false)
+          .map((p: any, idx: number) => {
+            const monthly = Number(p.price) || 0;
+            const yearly = Math.round(monthly * 0.8);
+            const feats: PlanFeature[] = [];
+
+            if (p.limits) {
+              const maxDoctors = p.limits.maxDoctors;
+              const maxPatients = p.limits.maxPatients;
+              const maxStaff = p.limits.maxStaff;
+
+              if (maxDoctors > 0) {
+                feats.push({ text: `Até ${maxDoctors} ${maxDoctors === 1 ? 'médico' : 'médicos'}`, highlight: true });
+              } else if (maxDoctors === 0) {
+                feats.push({ text: 'Médicos ilimitados', highlight: true });
+              }
+
+              if (maxPatients > 0) {
+                feats.push({ text: `Até ${maxPatients} pacientes ativos`, highlight: true });
+              } else if (maxPatients === 0) {
+                feats.push({ text: 'Pacientes ativos ilimitados', highlight: true });
+              }
+
+              if (maxStaff > 0) {
+                feats.push({ text: `Até ${maxStaff} membros na equipe` });
+              } else if (maxStaff === 0) {
+                feats.push({ text: 'Equipe ilimitada' });
+              }
+            }
+
+            if (Array.isArray(p.features)) {
+              p.features.forEach((f: string) => {
+                if (f && typeof f === 'string' && f.trim()) {
+                  feats.push({ text: f.trim() });
+                }
+              });
+            }
+
+            return {
+              id: p.id || p._id,
+              name: p.name,
+              tagline: p.description || '',
+              monthlyPrice: monthly,
+              yearlyPrice: yearly,
+              trialDays: Number(p.trialDays) || 0,
+              isPopular: list.length === 1 || idx === 1,
+              color: palette[idx % palette.length],
+              features: feats
+            };
+          });
+      } else {
+        this.plans = [];
+      }
+    } catch {
+      this.toastr.error('Erro ao carregar os planos disponíveis.');
+    } finally {
+      this.isLoadingPlans = false;
+      this.cdr.detectChanges();
+    }
+  }
 
   ngOnDestroy(): void {
     this.stopPixIntervals();

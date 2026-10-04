@@ -14,17 +14,18 @@
     (function() {
       try {
         const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
-          document.documentElement.setAttribute('data-theme', 'dark');
+        const theme = saved === 'light' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
         } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.classList.remove('dark');
         }
       } catch (e) {}
     })();
   </script>
 </head>
-<body class="dark-theme">
+<body>
   <app-root></app-root>
 </body>
 </html>

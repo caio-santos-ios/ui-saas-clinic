@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
 import { GlobalService } from '../../services/global.service';
+import { ThemeService } from '../../services/theme';
 
 @Component({
   selector: 'app-forgot-password',
@@ -26,7 +27,8 @@ export class ForgotPassword implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
-    public global: GlobalService
+    public global: GlobalService,
+    public themeService: ThemeService
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]]

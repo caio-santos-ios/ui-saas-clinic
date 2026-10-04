@@ -1,4 +1,10 @@
-<div class="min-h-screen flex bg-slate-50">
+<div class="min-h-screen flex bg-slate-50 dark:bg-[#080d1a] text-slate-900 dark:text-slate-100 transition-colors relative">
+
+  <button type="button" (click)="themeService.toggleTheme()"
+    class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 bg-white/80 dark:bg-slate-800/80 backdrop-blur border border-slate-200 dark:border-slate-700 shadow-sm transition hover:scale-105 cursor-pointer"
+    [title]="themeService.isDark() ? 'Mudar para modo claro' : 'Mudar para modo escuro'">
+    <i class="fa-solid" [ngClass]="themeService.isDark() ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'"></i>
+  </button>
 
   <div class="hidden lg:flex w-[420px] shrink-0 relative overflow-hidden items-center"
     [style.background]="clinicSetting?.secondaryColor ? clinicSetting.secondaryColor : 'linear-gradient(160deg, #0b1120 0%, #111e38 60%, #0b1120 100%)'">
@@ -10,12 +16,6 @@
     <div class="relative z-10 px-10 py-12 flex flex-col gap-8 w-full">
       <div class="flex items-center gap-3">
         <img *ngIf="clinicSetting?.logo" [src]="clinicSetting.logo" class="max-h-12 max-w-[220px] object-contain rounded-lg" alt="Logo da Clínica" />
-        <ng-container *ngIf="!clinicSetting?.logo">
-          <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl text-black shrink-0 bg-clinic-primary shadow-[0_6px_20px_rgba(0,0,0,0.2)]">
-            <i class="fa-solid fa-heart-pulse"></i>
-          </div>
-          <span class="text-xl font-extrabold text-slate-50 tracking-wide">ClinicSaaS</span>
-        </ng-container>
       </div>
 
       <div>
@@ -59,17 +59,26 @@
     </div>
   </div>
 
-  <div class="flex-1 flex items-center justify-center px-5 py-8 md:px-8 md:py-12">
+  <div class="flex-1 flex items-center justify-center px-5 py-8 md:px-8 md:py-12 bg-slate-50 dark:bg-[#080d1a] transition-colors">
     <div class="w-full max-w-[460px]">
+
+      <div class="lg:hidden flex items-center justify-center gap-3 mb-6">
+        <img *ngIf="clinicSetting?.logo" [src]="clinicSetting.logo" class="max-h-12 max-w-[200px] object-contain rounded-lg" alt="Logo da Clínica" />
+      </div>
+
+      <div class="mb-6">
+        <h1 class="text-2xl font-black text-slate-900 dark:text-slate-100 mb-1">Acessar Conta</h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Informe suas credenciais para entrar no sistema</p>
+      </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+          <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
             E-mail <span class="text-red-500">*</span>
           </label>
           <input formControlName="email" type="email" autocomplete="email"
-            class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+            class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
             [ngClass]="err('email') ? 'border-red-400 focus:border-red-400' : ''"
             placeholder="exemplo@clinica.com.br" />
           <span class="text-[11px] text-red-500" *ngIf="err('email')">{{ err('email') }}</span>
@@ -77,7 +86,7 @@
 
         <div class="flex flex-col gap-1.5">
           <div class="flex items-center justify-between">
-            <label class="text-[11.5px] font-bold text-slate-600 uppercase tracking-[0.4px]">
+            <label class="text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-[0.4px]">
               Senha <span class="text-red-500">*</span>
             </label>
             <a routerLink="/forgot-password"
@@ -87,23 +96,23 @@
           </div>
           <div class="relative flex items-center">
             <input formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 pl-3.5 pr-10 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-3.5 pr-10 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
               [ngClass]="err('password') ? 'border-red-400 focus:border-red-400' : ''"
               placeholder="Digite sua senha segura" />
             <button type="button" (click)="toggleShowPassword()"
-              class="absolute right-3 text-slate-400 hover:text-slate-600 transition bg-transparent border-none cursor-pointer flex items-center justify-center p-1">
+              class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition bg-transparent border-none cursor-pointer flex items-center justify-center p-1">
               <i class="fa-solid text-sm" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
           <span class="text-[11px] text-red-500" *ngIf="err('password')">{{ err('password') }}</span>
         </div>
 
-        <div class="flex items-center justify-between text-xs text-slate-600 pt-1">
+        <div class="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 pt-1">
           <label class="flex items-center gap-2 cursor-pointer select-none">
             <input type="checkbox" formControlName="remember"
-              class="w-4 h-4 rounded border-slate-300 bg-white cursor-pointer accent-clinic-primary"
+              class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0b1120] cursor-pointer"
               [style.accent-color]="'var(--clinic-primary, #dca311)'" />
-            <span class="font-medium text-slate-700">Manter conectado neste navegador</span>
+            <span class="font-medium text-slate-700 dark:text-slate-300">Manter conectado neste navegador</span>
           </label>
         </div>
 
@@ -118,8 +127,8 @@
 
       </form>
 
-      <div class="flex flex-col items-center gap-4 mt-8 pt-6 border-t border-slate-200">
-        <p class="text-center text-[13px] text-slate-500">
+      <div class="flex flex-col items-center gap-4 mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+        <p class="text-center text-[13px] text-slate-500 dark:text-slate-400">
           Ainda não tem conta da sua clínica?
           <a routerLink="/" class="font-semibold no-underline hover:underline text-clinic-primary">
             Cadastrar clínica

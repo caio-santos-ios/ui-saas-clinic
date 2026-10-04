@@ -7,6 +7,7 @@ import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { Auth } from '../../services/auth';
 import { api } from '../../services/api';
 import { GlobalService } from '../../services/global.service';
+import { ThemeService } from '../../services/theme';
 
 interface ColorPalette {
   name: string;
@@ -53,7 +54,8 @@ export class Signature {
     private router: Router,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
-    public global: GlobalService
+    public global: GlobalService,
+    public themeService: ThemeService
   ) {
     this.form = this.fb.group({
       step1: this.fb.group({

@@ -1,18 +1,16 @@
-<div class="min-h-screen bg-slate-50 flex flex-col">
+<div class="min-h-screen bg-slate-50 dark:bg-[#080d1a] text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
 
-  <header class="w-full bg-white border-b border-slate-200 sticky top-0 z-30">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg text-black shrink-0 bg-clinic-primary shadow-[0_4px_14px_rgba(var(--clinic-primary-rgb,220,163,17),0.35)]">
-          <i class="fa-solid fa-heart-pulse"></i>
-        </div>
-        <span class="text-lg font-black text-slate-900 tracking-wide">ClinicSaaS</span>
-      </div>
-
+  <header class="w-full bg-white dark:bg-[#0b1120] border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-center">
       <div class="flex items-center gap-3">
-        <span class="text-xs text-slate-500 hidden sm:inline">Já tem uma conta?</span>
+        <button type="button" (click)="themeService.toggleTheme()"
+          class="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transition hover:scale-105 cursor-pointer"
+          [title]="themeService.isDark() ? 'Mudar para modo claro' : 'Mudar para modo escuro'">
+          <i class="fa-solid" [ngClass]="themeService.isDark() ? 'fa-sun text-amber-400' : 'fa-moon text-slate-600'"></i>
+        </button>
+        <span class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">Já tem uma conta?</span>
         <a routerLink="/login"
-          class="text-xs font-bold text-slate-700 hover:text-black border border-slate-300 rounded-lg px-3.5 py-2 transition hover:bg-slate-50">
+          class="text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-black dark:hover:text-white border border-slate-300 dark:border-slate-700 rounded-lg px-3.5 py-2 transition hover:bg-slate-50 dark:hover:bg-slate-800">
           Fazer Login
         </a>
       </div>
@@ -22,39 +20,54 @@
   <main class="flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-16 w-full flex flex-col items-center">
 
     <div class="text-center max-w-2xl mx-auto mb-10">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#b45309] bg-amber-50 border border-amber-200 mb-3">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#b45309] dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 mb-3">
         <i class="fa-solid fa-sparkles text-[10px]"></i>
         Último passo da sua configuração
       </span>
-      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-3">
+      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight mb-3">
         Escolha o plano ideal para sua clínica
       </h1>
-      <p class="text-sm sm:text-base text-slate-500 leading-relaxed">
+      <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
         Acompanhe pacientes antes e depois de procedimentos com Inteligência Artificial e aplicativo personalizado. Cancele ou altere a qualquer momento.
       </p>
 
-      <div class="mt-7 inline-flex items-center bg-slate-200/70 p-1 rounded-xl">
+      <div class="mt-7 inline-flex items-center bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl">
         <button type="button" (click)="setCycle('monthly')"
           class="px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer"
-          [ngClass]="billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'">
+          [ngClass]="billingCycle === 'monthly' ? 'bg-white dark:bg-[#0b1120] text-slate-900 dark:text-slate-100 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'">
           Mensal
         </button>
         <button type="button" (click)="setCycle('yearly')"
           class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-          [ngClass]="billingCycle === 'yearly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'">
+          [ngClass]="billingCycle === 'yearly' ? 'bg-white dark:bg-[#0b1120] text-slate-900 dark:text-slate-100 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'">
           <span>Anual</span>
-          <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+          <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
             -20%
           </span>
         </button>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch">
+    <div *ngIf="isLoadingPlans" class="flex flex-col items-center justify-center py-20 gap-3">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl text-clinic-primary bg-clinic-primary/10">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+      <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Carregando planos disponíveis...</p>
+    </div>
+
+    <div *ngIf="!isLoadingPlans && plans.length === 0" class="flex flex-col items-center justify-center py-16 gap-3 text-center">
+      <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl text-slate-400 bg-slate-100 dark:bg-slate-800">
+        <i class="fa-solid fa-box-open"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">Nenhum plano disponível no momento</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm">Aguarde a liberação dos novos planos ou entre em contato com o suporte.</p>
+    </div>
+
+    <div *ngIf="!isLoadingPlans && plans.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-stretch">
 
       <div *ngFor="let plan of plans"
-        class="bg-white rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative"
-        [ngClass]="plan.isPopular ? 'border-2 border-clinic-primary shadow-xl lg:-translate-y-2' : 'border border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md'">
+        class="bg-white dark:bg-[#0f172a] rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative"
+        [ngClass]="plan.isPopular ? 'border-2 border-clinic-primary shadow-xl lg:-translate-y-2' : 'border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md'">
 
         <div *ngIf="plan.isPopular"
           class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-clinic-primary text-black text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm flex items-center gap-1">
@@ -64,35 +77,38 @@
 
         <div>
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-xl font-black text-slate-900">{{ plan.name }}</h3>
+            <h3 class="text-xl font-black text-slate-900 dark:text-slate-100">{{ plan.name }}</h3>
             <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-              [style.background]="plan.id === 'prata' ? 'rgba(220,163,17,0.15)' : plan.id === 'ouro' ? 'rgba(234,179,8,0.15)' : 'rgba(180,83,9,0.12)'"
+              [style.background]="plan.color + '22'"
               [style.color]="plan.color">
-              <i class="fa-solid" [ngClass]="plan.id === 'ouro' ? 'fa-crown' : plan.id === 'prata' ? 'fa-medal' : 'fa-shield-halved'"></i>
+              <i class="fa-solid" [ngClass]="plan.name?.toLowerCase()?.includes('ouro') || plan.name?.toLowerCase()?.includes('vip') ? 'fa-crown' : plan.name?.toLowerCase()?.includes('prata') ? 'fa-medal' : 'fa-shield-halved'"></i>
             </span>
           </div>
 
-          <p class="text-xs text-slate-500 mb-6 leading-relaxed min-h-[32px]">{{ plan.tagline }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed min-h-[32px]">{{ plan.tagline }}</p>
 
-          <div class="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-slate-100">
+          <div class="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
             <span class="text-xs font-bold text-slate-400">R$</span>
-            <span class="text-4xl font-black text-slate-900 tracking-tight">
+            <span class="text-4xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
               {{ billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice }}
             </span>
-            <span class="text-xs font-medium text-slate-500">/mês</span>
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">/mês</span>
           </div>
 
           <div class="space-y-3 mb-8">
             <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">O que está incluso:</p>
             <ul class="space-y-2.5">
-              <li *ngFor="let feat of plan.features" class="flex items-start gap-2.5 text-xs text-slate-700">
+              <li *ngFor="let feat of plan.features" class="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
                 <span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] shrink-0 mt-0.5"
-                  [ngClass]="feat.highlight ? 'bg-amber-100 text-[#b45309]' : 'bg-emerald-50 text-emerald-600'">
+                  [ngClass]="feat.highlight ? 'bg-amber-100 dark:bg-amber-950/60 text-[#b45309] dark:text-amber-400' : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'">
                   <i class="fa-solid fa-check"></i>
                 </span>
-                <span [ngClass]="feat.highlight ? 'font-bold text-slate-900' : 'font-normal'">
+                <span [ngClass]="feat.highlight ? 'font-bold text-slate-900 dark:text-slate-100' : 'font-normal'">
                   {{ feat.text }}
                 </span>
+              </li>
+              <li *ngIf="!plan.features || plan.features.length === 0" class="text-xs text-slate-400 italic">
+                Acesso completo aos recursos da clínica
               </li>
             </ul>
           </div>
@@ -100,14 +116,14 @@
 
         <div>
           <button type="button" (click)="selectPlan(plan)"
-            class="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer"
-            [ngClass]="plan.isPopular ? 'bg-clinic-primary text-black shadow-md hover:-translate-y-px hover:shadow-lg' : 'bg-slate-900 text-white hover:bg-slate-800'">
+            class="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer border-none"
+            [ngClass]="plan.isPopular ? 'bg-clinic-primary text-black shadow-md hover:-translate-y-px hover:shadow-lg' : 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700'">
             <i class="fa-solid fa-credit-card text-xs"></i>
             <span>Assinar {{ plan.name }}</span>
           </button>
 
           <p class="text-[11px] text-center text-slate-400 mt-2.5">
-            Teste grátis por 14 dias sem compromisso
+            {{ plan.trialDays ? 'Teste grátis por ' + plan.trialDays + ' dias sem compromisso' : 'Sem fidelidade, cancele quando quiser' }}
           </p>
         </div>
 
@@ -115,18 +131,18 @@
 
     </div>
 
-    <div class="mt-14 w-full max-w-4xl bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+    <div class="mt-14 w-full max-w-4xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-clinic-primary/10 text-clinic-primary flex items-center justify-center text-2xl shrink-0 border border-clinic-primary/20">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
         <div>
-          <h4 class="text-sm font-bold text-slate-900 mb-0.5">Segurança e garantia total</h4>
-          <p class="text-xs text-slate-500">Dados criptografados, multiempresa e em conformidade rigorosa com a LGPD e RGPD.</p>
+          <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-0.5">Segurança e garantia total</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Dados criptografados, multiempresa e em conformidade rigorosa com a LGPD e RGPD.</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 text-xs font-bold text-slate-600 shrink-0">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 shrink-0">
         <i class="fa-solid fa-lock text-emerald-600"></i>
         <span>Pagamento seguro via Asaas</span>
       </div>
@@ -137,52 +153,47 @@
   <div *ngIf="showPaymentModal && selectedPlan"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
 
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
+    <div class="bg-white dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
 
       <button type="button" (click)="closePaymentModal()"
-        class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition cursor-pointer">
+        class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer bg-transparent border-none">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
       <div *ngIf="!isPixWaiting && !isBoletoSuccess">
         <div class="mb-6">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded"
-              [style.background]="selectedPlan.id === 'prata' ? 'rgba(220,163,17,0.2)' : selectedPlan.id === 'ouro' ? 'rgba(234,179,8,0.2)' : 'rgba(180,83,9,0.15)'"
-              [style.color]="selectedPlan.color">
-              Plano {{ selectedPlan.name }}
-            </span>
-            <span class="text-xs text-slate-500">• {{ billingCycle === 'monthly' ? 'Mensal' : 'Anual' }}</span>
-          </div>
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900">Forma de Pagamento</h2>
-          <div class="mt-2 p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200">
+          <span class="text-xs font-black uppercase tracking-wider text-clinic-primary mb-1 block">
+            Assinatura do Plano {{ selectedPlan.name }}
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">Forma de Pagamento</h2>
+          <div class="mt-2 p-3 bg-slate-50 dark:bg-[#0b1120] rounded-xl flex items-center justify-between border border-slate-200 dark:border-slate-800">
             <div>
-              <p class="text-xs text-slate-500">Total da assinatura:</p>
-              <p class="text-lg font-black text-slate-900">
-                R$ {{ currentPrice }}<span class="text-xs font-normal text-slate-500">/mês</span>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Total da assinatura:</p>
+              <p class="text-lg font-black text-slate-900 dark:text-slate-100">
+                R$ {{ currentPrice }}<span class="text-xs font-normal text-slate-500 dark:text-slate-400">/mês</span>
               </p>
             </div>
-            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-              14 dias grátis
+            <span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-lg">
+              {{ selectedPlan.trialDays ? selectedPlan.trialDays + ' dias grátis' : 'Sem fidelidade' }}
             </span>
           </div>
         </div>
 
         <div class="mb-6">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
             Escolha como deseja pagar:
           </label>
           <div class="grid grid-cols-3 gap-2 sm:gap-3">
             <button type="button" (click)="setPaymentMethod('credit_card')"
               class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5"
-              [ngClass]="paymentMethod === 'credit_card' ? 'border-clinic-primary bg-clinic-primary/10 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+              [ngClass]="paymentMethod === 'credit_card' ? 'border-clinic-primary bg-clinic-primary/10 text-slate-900 dark:text-slate-100 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1120] text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'">
               <i class="fa-solid fa-credit-card text-base" [ngClass]="paymentMethod === 'credit_card' ? 'text-clinic-primary' : 'text-slate-400'"></i>
               <span class="text-xs font-bold">Cartão</span>
             </button>
 
             <button type="button" (click)="setPaymentMethod('pix')"
               class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5 relative"
-              [ngClass]="paymentMethod === 'pix' ? 'border-clinic-primary bg-clinic-primary/10 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+              [ngClass]="paymentMethod === 'pix' ? 'border-clinic-primary bg-clinic-primary/10 text-slate-900 dark:text-slate-100 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1120] text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'">
               <i class="fa-brands fa-pix text-base" [ngClass]="paymentMethod === 'pix' ? 'text-teal-600' : 'text-slate-400'"></i>
               <span class="text-xs font-bold">PIX</span>
               <span class="absolute -top-2 right-1 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
@@ -192,7 +203,7 @@
 
             <button type="button" (click)="setPaymentMethod('boleto')"
               class="py-3 px-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1.5"
-              [ngClass]="paymentMethod === 'boleto' ? 'border-clinic-primary bg-clinic-primary/10 text-black shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'">
+              [ngClass]="paymentMethod === 'boleto' ? 'border-clinic-primary bg-clinic-primary/10 text-slate-900 dark:text-slate-100 shadow-sm' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1120] text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'">
               <i class="fa-solid fa-barcode text-base" [ngClass]="paymentMethod === 'boleto' ? 'text-clinic-primary' : 'text-slate-400'"></i>
               <span class="text-xs font-bold">Boleto</span>
             </button>
@@ -201,60 +212,60 @@
 
         <div *ngIf="paymentMethod === 'credit_card'" class="space-y-3 mb-6">
           <div>
-            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
               Número do Cartão <span class="text-red-500">*</span>
             </label>
             <input type="text" [(ngModel)]="cardData.number" mask="0000 0000 0000 0000"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
               placeholder="0000 0000 0000 0000" />
           </div>
 
           <div>
-            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
               Nome Impresso no Cartão <span class="text-red-500">*</span>
             </label>
             <input type="text" [(ngModel)]="cardData.holderName"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
               placeholder="NOME COMO NO CARTÃO" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Validade <span class="text-red-500">*</span>
               </label>
               <input type="text" [(ngModel)]="cardData.expiry" mask="00/00"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 placeholder="MM/AA" />
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
                 CVV <span class="text-red-500">*</span>
               </label>
               <input type="text" [(ngModel)]="cardData.cvv" mask="0000"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 placeholder="123" />
             </div>
           </div>
 
           <div>
-            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
               CPF/CNPJ do Titular
             </label>
             <input type="text" [(ngModel)]="cardData.document"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
               placeholder="000.000.000-00 ou 00.000.000/0001-00" />
           </div>
         </div>
 
-        <div *ngIf="paymentMethod === 'pix'" class="mb-6 p-4 bg-teal-50/60 border border-teal-200 rounded-2xl flex items-start gap-3">
-          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl shrink-0">
+        <div *ngIf="paymentMethod === 'pix'" class="mb-6 p-4 bg-teal-50/60 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-2xl flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/60 text-teal-700 dark:text-teal-300 flex items-center justify-center text-xl shrink-0">
             <i class="fa-brands fa-pix"></i>
           </div>
           <div>
-            <h4 class="text-sm font-bold text-teal-950 mb-0.5">Pagamento Instantâneo via Pix</h4>
-            <p class="text-xs text-teal-800 leading-relaxed">
+            <h4 class="text-sm font-bold text-teal-950 dark:text-teal-200 mb-0.5">Pagamento Instantâneo via Pix</h4>
+            <p class="text-xs text-teal-800 dark:text-teal-400 leading-relaxed">
               Ao clicar no botão abaixo, geraremos um QR Code exclusivo com confirmação em tempo real. Sua conta será liberada na hora assim que você pagar.
             </p>
           </div>
@@ -262,36 +273,36 @@
 
         <div *ngIf="paymentMethod === 'boleto'" class="space-y-3 mb-6">
           <div>
-            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
               Nome Completo ou Razão Social <span class="text-red-500">*</span>
             </label>
             <input type="text" [(ngModel)]="boletoData.name"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
               placeholder="Nome para emissão do boleto" />
           </div>
 
           <div>
-            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
               CPF ou CNPJ <span class="text-red-500">*</span>
             </label>
             <input type="text" [(ngModel)]="boletoData.document"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3.5 text-sm font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary focus:ring-2 focus:ring-clinic-primary/20 shadow-sm"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
               placeholder="000.000.000-00 ou 00.000.000/0001-00" />
           </div>
 
-          <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-start gap-2">
+          <div class="p-3 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2">
             <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
             <span>O boleto tem vencimento para 3 dias úteis. A liberação da conta ocorre após a compensação bancária (1 a 2 dias úteis).</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-3 pt-4 border-t border-slate-200">
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
           <button type="button" (click)="closePaymentModal()"
-            class="px-4 py-3 rounded-lg text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 border border-slate-300 hover:bg-slate-50 transition cursor-pointer">
+            class="px-4 py-3 rounded-lg text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer">
             Voltar
           </button>
           <button type="button" (click)="confirmSubscription()" [disabled]="isLoading"
-            class="flex-1 py-3 px-4 rounded-lg text-xs sm:text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 bg-clinic-primary hover:opacity-95">
+            class="flex-1 py-3 px-4 rounded-lg text-xs sm:text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 bg-clinic-primary hover:opacity-95 border-none">
             <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isLoading"></i>
             <ng-container *ngIf="!isLoading">
               <i class="fa-solid fa-credit-card text-xs" *ngIf="paymentMethod === 'credit_card'"></i>
@@ -308,27 +319,27 @@
       <div *ngIf="isPixWaiting" class="animate-[fadeIn_0.2s_ease-out]">
         <div *ngIf="!isPixConfirmed">
           <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded bg-teal-50 text-teal-700 border border-teal-200 flex items-center gap-1.5">
+            <span class="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800 flex items-center gap-1.5">
               <i class="fa-brands fa-pix"></i> Pagamento Pix
             </span>
-            <span class="text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+            <span class="text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
               <i class="fa-regular fa-clock"></i> Expira em {{ pixFormattedTime }}
             </span>
           </div>
 
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900 mb-1">Aguardando Pagamento</h2>
-          <p class="text-xs text-slate-500 mb-4">
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mb-1">Aguardando Pagamento</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
             Abra o app do seu banco, escolha <strong>Pix</strong> e aponte a câmera para o QR Code ou use o Copia e Cola.
           </p>
 
-          <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200 mb-4">
+          <div class="p-3 bg-slate-50 dark:bg-[#0b1120] rounded-xl flex items-center justify-between border border-slate-200 dark:border-slate-800 mb-4">
             <div>
-              <p class="text-[11px] text-slate-500 font-medium">Valor a pagar:</p>
-              <p class="text-lg font-black text-slate-900">
-                R$ {{ currentPrice }},00 <span class="text-xs font-normal text-slate-500">({{ billingCycle === 'monthly' ? 'Mensal' : 'Anual' }})</span>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Valor a pagar:</p>
+              <p class="text-lg font-black text-slate-900 dark:text-slate-100">
+                R$ {{ currentPrice }},00 <span class="text-xs font-normal text-slate-500 dark:text-slate-400">({{ billingCycle === 'monthly' ? 'Mensal' : 'Anual' }})</span>
               </p>
             </div>
-            <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-lg">
               Plano {{ selectedPlan.name }}
             </span>
           </div>
@@ -363,36 +374,36 @@
           </div>
 
           <div class="w-full space-y-1.5 mb-4">
-            <p class="text-xs font-bold text-slate-700">Código Pix Copia e Cola:</p>
+            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Código Pix Copia e Cola:</p>
             <div class="flex items-center gap-2">
               <input type="text" readonly [value]="pixCode"
-                class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-600 font-mono truncate outline-none select-all" />
+                class="w-full bg-slate-50 dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3 text-xs text-slate-700 dark:text-slate-300 font-mono truncate outline-none select-all" />
               <button type="button" (click)="copyPix()"
-                class="px-4 py-2.5 rounded-lg text-xs font-bold shrink-0 transition cursor-pointer"
-                [ngClass]="pixCopied ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'">
+                class="px-4 py-2.5 rounded-lg text-xs font-bold shrink-0 transition cursor-pointer border-none"
+                [ngClass]="pixCopied ? 'bg-emerald-600 text-white' : 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700'">
                 <i class="fa-solid" [ngClass]="pixCopied ? 'fa-check' : 'fa-copy'"></i>
                 <span class="ml-1.5">{{ pixCopied ? 'Copiado!' : 'Copiar Código' }}</span>
               </button>
             </div>
           </div>
 
-          <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center gap-3 mb-5">
-            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+          <div class="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <i class="fa-solid fa-arrows-rotate fa-spin text-sm"></i>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold text-emerald-950">Aguardando confirmação do banco...</p>
-              <p class="text-[11px] text-emerald-800">A identificação é instantânea. Não precisa enviar comprovante.</p>
+              <p class="text-xs font-bold text-emerald-950 dark:text-emerald-200">Aguardando confirmação do banco...</p>
+              <p class="text-[11px] text-emerald-800 dark:text-emerald-400">A identificação é instantânea. Não precisa enviar comprovante.</p>
             </div>
           </div>
 
-          <div class="flex items-center gap-3 pt-4 border-t border-slate-200">
+          <div class="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button type="button" (click)="isPixWaiting = false; stopPixIntervals()"
-              class="px-4 py-3 rounded-lg text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 border border-slate-300 hover:bg-slate-50 transition cursor-pointer">
+              class="px-4 py-3 rounded-lg text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer">
               Alterar Forma
             </button>
             <button type="button" (click)="checkPixStatus(true)" [disabled]="isPixChecking"
-              class="flex-1 py-3 px-4 rounded-lg text-xs sm:text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer bg-clinic-primary hover:opacity-95 disabled:opacity-50">
+              class="flex-1 py-3 px-4 rounded-lg text-xs sm:text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer bg-clinic-primary hover:opacity-95 disabled:opacity-50 border-none">
               <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isPixChecking"></i>
               <i class="fa-solid fa-bolt text-xs" *ngIf="!isPixChecking"></i>
               <span>{{ isPixChecking ? 'Verificando no banco...' : 'Já realizei o pagamento' }}</span>
@@ -404,11 +415,11 @@
           <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mb-4 animate-[bounce_1s_infinite]">
             <i class="fa-solid fa-check"></i>
           </div>
-          <h3 class="text-2xl font-black text-slate-900 mb-2">Pagamento Confirmado!</h3>
-          <p class="text-sm text-slate-600 max-w-sm mb-5 leading-relaxed">
+          <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 mb-2">Pagamento Confirmado!</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 max-w-sm mb-5 leading-relaxed">
             Sua assinatura do <strong>Plano {{ selectedPlan.name }}</strong> foi ativada com sucesso. Redirecionando para o seu painel...
           </p>
-          <div class="w-48 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+          <div class="w-48 bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
             <div class="bg-emerald-500 h-1.5 rounded-full animate-[pulse_1s_infinite] w-full"></div>
           </div>
         </div>
@@ -416,58 +427,58 @@
 
       <div *ngIf="isBoletoSuccess" class="animate-[fadeIn_0.2s_ease-out]">
         <div class="flex items-center gap-2 mb-2">
-          <span class="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1.5">
+          <span class="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 flex items-center gap-1.5">
             <i class="fa-solid fa-barcode"></i> Boleto Gerado
           </span>
-          <span class="text-xs text-slate-500">• Vencimento em 3 dias úteis</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">• Vencimento em 3 dias úteis</span>
         </div>
 
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mb-1">Boleto Bancário Disponível</h2>
-        <p class="text-xs text-slate-500 mb-4">
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mb-1">Boleto Bancário Disponível</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
           Copie a linha digitável abaixo para realizar o pagamento no aplicativo do seu banco ou internet banking.
         </p>
 
-        <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-200 mb-4">
+        <div class="p-3 bg-slate-50 dark:bg-[#0b1120] rounded-xl flex items-center justify-between border border-slate-200 dark:border-slate-800 mb-4">
           <div>
-            <p class="text-[11px] text-slate-500 font-medium">Valor do documento:</p>
-            <p class="text-lg font-black text-slate-900">
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Valor do documento:</p>
+            <p class="text-lg font-black text-slate-900 dark:text-slate-100">
               R$ {{ currentPrice }},00
             </p>
           </div>
-          <span class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">
+          <span class="text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-lg">
             Plano {{ selectedPlan.name }}
           </span>
         </div>
 
         <div class="space-y-1.5 mb-5">
-          <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider">
+          <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
             Linha Digitável:
           </label>
           <div class="flex items-center gap-2">
             <input type="text" readonly [value]="boletoLine"
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-700 font-mono select-all outline-none" />
+              class="w-full bg-slate-50 dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 px-3 text-xs text-slate-700 dark:text-slate-300 font-mono select-all outline-none" />
             <button type="button" (click)="copyBoleto()"
-              class="px-4 py-2.5 rounded-lg text-xs font-bold shrink-0 transition cursor-pointer"
-              [ngClass]="boletoCopied ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'">
+              class="px-4 py-2.5 rounded-lg text-xs font-bold shrink-0 transition cursor-pointer border-none"
+              [ngClass]="boletoCopied ? 'bg-emerald-600 text-white' : 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700'">
               <i class="fa-solid" [ngClass]="boletoCopied ? 'fa-check' : 'fa-copy'"></i>
               <span class="ml-1.5">{{ boletoCopied ? 'Copiado!' : 'Copiar' }}</span>
             </button>
           </div>
         </div>
 
-        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-start gap-2.5 mb-6">
+        <div class="p-3.5 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2.5 mb-6">
           <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5 shrink-0"></i>
           <div>
             <p class="font-bold mb-0.5">Aviso sobre liberação de acesso</p>
-            <p class="text-amber-800 leading-relaxed">
+            <p class="text-amber-800 dark:text-amber-400 leading-relaxed">
               O boleto bancário leva de 1 a 2 dias úteis para compensação. Seu acesso à plataforma será liberado automaticamente após a confirmação do pagamento pelo banco.
             </p>
           </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-200">
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
           <button type="button" (click)="goToLoginAfterBoleto()"
-            class="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer bg-clinic-primary hover:opacity-95 shadow-sm">
+            class="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-black transition flex items-center justify-center gap-2 cursor-pointer bg-clinic-primary hover:opacity-95 shadow-sm border-none">
             <i class="fa-solid fa-right-to-bracket text-xs"></i>
             <span>Entendido, ir para o Login</span>
           </button>
