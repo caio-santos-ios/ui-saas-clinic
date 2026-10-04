@@ -2,7 +2,7 @@ import axios from 'axios';
 import { environment } from '../../environments/environment';
 
 export const api = axios.create({
-  baseURL: environment.apiUrl || 'http://localhost:5067',
+  baseURL: environment.apiUrl !== undefined ? environment.apiUrl : 'http://localhost:5290',
   timeout: 15000,
 });
 

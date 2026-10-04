@@ -14,6 +14,7 @@ import { MasterClinics } from './pages/master/clinics/clinics';
 import { MasterUsers } from './pages/master/users/users';
 import { ClinicSettings } from './pages/admin/clinic-settings/clinic-settings';
 import { Procedures } from './pages/admin/procedures/procedures';
+import { Employees } from './pages/admin/employees/employees';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -34,6 +35,8 @@ export const routes: Routes = [
       { path: 'doctors', redirectTo: 'medicos' },
       { path: 'procedimentos', component: Procedures },
       { path: 'procedures', redirectTo: 'procedimentos' },
+      { path: 'funcionarios', component: Employees },
+      { path: 'employees', redirectTo: 'funcionarios' },
       { path: 'configuracoes', component: ClinicSettings },
       { path: 'settings', redirectTo: 'configuracoes' },
       { path: 'admin/settings', redirectTo: 'configuracoes' },
