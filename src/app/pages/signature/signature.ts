@@ -62,7 +62,7 @@ export class Signature {
         corporateName: ['', [Validators.required, Validators.minLength(2)]],
         email: ['', [Validators.required, Validators.email]],
         phone: ['', [Validators.required, Validators.minLength(10)]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
       }),
       step2: this.fb.group({
         zipCode: ['', [Validators.required, Validators.minLength(8)]],

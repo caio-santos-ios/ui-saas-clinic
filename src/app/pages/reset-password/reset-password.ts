@@ -32,7 +32,7 @@ export class ResetPassword implements OnInit {
   ) {
     this.form = this.fb.group({
       code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     });
   }
