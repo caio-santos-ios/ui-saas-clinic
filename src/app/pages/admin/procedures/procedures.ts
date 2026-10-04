@@ -84,12 +84,7 @@ export class Procedures implements OnInit {
       const { data } = await api.get('/api/procedures', { params });
 
       if (data?.data) {
-        this.data = {
-          data: data.data.data || [],
-          totalCount: data.data.totalCount || 0,
-          totalPages: data.data.totalPages || 1,
-          currentPage: page
-        };
+        this.data = data.data;
         this.updateKPIs(this.data.data, this.data.totalCount);
         this.updateVisiblePages();
       }

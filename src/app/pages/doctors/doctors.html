@@ -1,36 +1,110 @@
 <div class="page-container">
   <div class="page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
-      <h1 class="page-title flex items-center gap-2.5 text-2xl font-black text-slate-900">
+      <h1 class="page-title flex items-center gap-2.5 text-2xl font-black text-slate-900 dark:text-slate-100">
         <i class="fa-solid fa-user-doctor text-clinic-primary"></i>
         Médicos
       </h1>
-      <p class="text-xs text-slate-500 mt-0.5">Gerencie os profissionais de saúde e membros do corpo clínico.</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+        Gerencie os profissionais de saúde e membros do corpo clínico da unidade.
+      </p>
     </div>
 
     <div class="flex items-center gap-3">
       <div class="relative">
         <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
-          placeholder="Buscar rápida..."
-          class="pl-2 pr-3 py-2 text-xs bg-white border border-slate-300 rounded-lg outline-none transition focus:border-clinic-primary shadow-sm w-48 sm:w-64" />
+          placeholder="Buscar por nome..."
+          class="pl-3 pr-3 py-2 text-xs bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg outline-none transition focus:border-clinic-primary shadow-sm w-48 sm:w-64" />
       </div>
 
       <button type="button" [disabled]="isLoading" (click)="openModal()"
         class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-md bg-clinic-primary disabled:opacity-55 disabled:cursor-not-allowed">
         <i class="fa-solid fa-plus text-xs"></i>
-        <span>Adicionar Médico</span>
+        <span>Novo Médico</span>
       </button>
     </div>
   </div>
 
+  <div class="kpi-grid mb-6">
+    <div class="kpi-card gold-border">
+      <div class="kpi-icon-wrap gold-icon">
+        <i class="fa-solid fa-user-doctor"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Total de Médicos</div>
+        <div class="kpi-value">{{ totalDoctors }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card green-border">
+      <div class="kpi-icon-wrap green-icon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Médicos Ativos</div>
+        <div class="kpi-value text-emerald-600 dark:text-emerald-400">{{ activeDoctors }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card red-border">
+      <div class="kpi-icon-wrap red-icon">
+        <i class="fa-solid fa-user-lock"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Médicos Bloqueados</div>
+        <div class="kpi-value text-rose-500">{{ blockedDoctors }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card blue-border">
+      <div class="kpi-icon-wrap blue-icon">
+        <i class="fa-solid fa-stethoscope"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Especialidades</div>
+        <div class="kpi-value">{{ totalSpecialties }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 mb-4">
+    <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs">
+      <button type="button" (click)="setStatusFilter('all')"
+        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer"
+        [ngClass]="statusFilter === 'all' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'">
+        Todos
+      </button>
+      <button type="button" (click)="setStatusFilter('active')"
+        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer"
+        [ngClass]="statusFilter === 'active' ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'">
+        ATIVO
+      </button>
+      <button type="button" (click)="setStatusFilter('blocked')"
+        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer"
+        [ngClass]="statusFilter === 'blocked' ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'">
+        BLOQUEADO
+      </button>
+    </div>
+
+    <button *ngIf="search" (click)="clearSearch()"
+      class="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer">
+      <i class="fa-solid fa-xmark"></i>
+      Limpar busca
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="p-12 flex justify-center items-center">
+    <app-loading></app-loading>
+  </div>
+
   <div class="card" *ngIf="!isLoading">
-    <div class="table-responsive desktop-table-view hiddenlg:flex">
+    <div class="table-responsive hidden lg:block">
       <table class="table">
         <thead>
           <tr>
-            <th>Nome</th>
+            <th>Médico</th>
             <th>Telefone</th>
-            <th>Documento</th>
+            <th>CRM / Registro</th>
             <th>Especialidade</th>
             <th>Status</th>
             <th>Data Cadastro</th>
@@ -46,21 +120,21 @@
                   <span *ngIf="!doc.photo">{{ (doc.name || 'M')[0].toUpperCase() }}</span>
                 </div>
                 <div class="min-w-0">
-                  <div class="font-bold text-sm truncate">{{ doc.name }}</div>
-                  <div class="text-xs text-slate-500 truncate">{{ doc.email }}</div>
+                  <div class="font-bold text-sm truncate text-slate-900 dark:text-slate-100">{{ doc.name }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ doc.email }}</div>
                 </div>
               </div>
             </td>
             <td>
-              <span class="text-xs font-medium text-slate-700">{{ doc.phone | phone }}</span>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ doc.phone | phone }}</span>
             </td>
             <td>
-              <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
+              <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
                 CRM {{ doc.licenseNumber }}{{ doc.licenseState ? '/' + doc.licenseState : '' }}
               </span>
             </td>
             <td>
-              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg">
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 px-2.5 py-1 rounded-lg">
                 <i class="fa-solid fa-stethoscope text-[10px]"></i>
                 {{ doc.specialty || 'Geral' }}
               </span>
@@ -68,14 +142,14 @@
             <td>
               <span class="status-badge" [ngClass]="doc.blocked ? 'inactive' : 'active'">
                 <i class="fa-solid" [ngClass]="doc.blocked ? 'fa-lock' : 'fa-check'"></i>
-                {{ doc.blocked ? 'Bloqueado' : 'Ativo' }}
+                {{ doc.blocked ? 'BLOQUEADO' : 'ATIVO' }}
               </span>
             </td>
             <td>
-              <span class="text-xs text-slate-500">{{ global.formatDate(doc.createdAt) }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">{{ global.formatDate(doc.createdAt) }}</span>
             </td>
             <td style="text-align: right;">
-              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+              <div class="flex items-center justify-end gap-1.5">
                 <button type="button" class="btn-icon" style="color: var(--clinic-primary);" (click)="openModal(doc)" title="Editar Médico">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
@@ -89,7 +163,7 @@
             </td>
           </tr>
           <tr *ngIf="data.data.length === 0">
-            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <td colspan="7" class="text-center py-10 text-slate-400 text-xs">
               Nenhum médico encontrado.
             </td>
           </tr>
@@ -97,84 +171,85 @@
       </table>
     </div>
 
-    <div class="mobile-card-list lg:hidden">
-      <div class="user-card-item" *ngFor="let doc of data.data">
-        <div class="user-card-header">
-          <div class="user-cell">
+    <div class="mobile-card-list lg:hidden flex flex-col gap-3">
+      <div class="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm" *ngFor="let doc of data.data">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center gap-3">
             <div class="avatar-circle" *ngIf="!doc.photo">{{ (doc.name || 'M')[0].toUpperCase() }}</div>
             <div class="avatar-circle" *ngIf="doc.photo">
               <img [src]="doc.photo" [alt]="doc.name" />
             </div>
             <div>
-              <div class="user-cell-name">{{ doc.name }}</div>
-              <div class="user-cell-sub">{{ doc.email }}</div>
+              <div class="font-bold text-sm text-slate-900 dark:text-slate-100">{{ doc.name }}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400">{{ doc.email }}</div>
             </div>
           </div>
           <span class="status-badge" [ngClass]="doc.blocked ? 'inactive' : 'active'">
-            {{ doc.blocked ? 'Bloqueado' : 'Ativo' }}
+            {{ doc.blocked ? 'BLOQUEADO' : 'ATIVO' }}
           </span>
         </div>
-        <div class="user-card-body">
-          <div class="user-card-row">
-            <span class="label">Telefone:</span>
-            <span>{{ doc.phone | phone }}</span>
+        <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 mb-3">
+          <div>
+            <span class="text-slate-400 block text-[11px]">Telefone:</span>
+            <span class="font-medium text-slate-800 dark:text-slate-200">{{ doc.phone | phone }}</span>
           </div>
-          <div class="user-card-row">
-            <span class="label">CRM:</span>
-            <span>{{ doc.licenseNumber }}{{ doc.licenseState ? '/' + doc.licenseState : '' }}</span>
+          <div>
+            <span class="text-slate-400 block text-[11px]">CRM:</span>
+            <span class="font-mono font-medium text-slate-800 dark:text-slate-200">{{ doc.licenseNumber }}{{ doc.licenseState ? '/' + doc.licenseState : '' }}</span>
           </div>
-          <div class="user-card-row">
-            <span class="label">Especialidade:</span>
-            <span>{{ doc.specialty || 'Geral' }}</span>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Especialidade:</span>
+            <span class="font-bold text-clinic-primary">{{ doc.specialty || 'Geral' }}</span>
           </div>
-          <div class="user-card-row">
-            <span class="label">Cadastro:</span>
-            <span>{{ global.formatDate(doc.createdAt) }}</span>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Cadastro:</span>
+            <span class="font-medium text-slate-800 dark:text-slate-200">{{ global.formatDate(doc.createdAt) }}</span>
           </div>
         </div>
-        <div class="user-card-actions">
-          <button class="btn-secondary" style="flex: 1; padding: 8px;" (click)="openModal(doc)">
-            <i class="fa-solid fa-pen-to-square"></i> Editar
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button type="button" class="btn-icon" style="color: var(--clinic-primary);" (click)="openModal(doc)" title="Editar">
+            <i class="fa-solid fa-pen-to-square"></i>
           </button>
-          <button class="btn-secondary" style="flex: 1; padding: 8px;" [style.color]="doc.blocked ? 'var(--status-active)' : '#f59e0b'" (click)="toggleBlock(doc)">
+          <button type="button" class="btn-icon" [style.color]="doc.blocked ? 'var(--status-active)' : '#f59e0b'" (click)="toggleBlock(doc)" [title]="doc.blocked ? 'Desbloquear' : 'Bloquear'">
             <i class="fa-solid" [ngClass]="doc.blocked ? 'fa-lock-open' : 'fa-lock'"></i>
-            {{ doc.blocked ? 'Desbloquear' : 'Bloquear' }}
           </button>
-          <button class="btn-secondary" style="flex: 1; padding: 8px; color: #ef4444;" (click)="openDeleteModal(doc)">
-            <i class="fa-solid fa-trash-can"></i> Excluir
+          <button type="button" class="btn-icon" style="color: #ef4444;" (click)="openDeleteModal(doc)" title="Excluir">
+            <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
+      </div>
+
+      <div *ngIf="data.data.length === 0" class="text-center py-8 text-slate-400 text-xs">
+        Nenhum médico encontrado.
       </div>
     </div>
 
-    <div class="pagination-container" *ngIf="data.totalCount > 0">
-      <div class="pagination-text">
-        Exibindo <strong>{{ data.data.length }}</strong> de <strong>{{ data.totalCount }}</strong> registros
-      </div>
-      <div class="pagination-nav">
-        <button class="page-btn" (click)="goToPage(1)" [disabled]="data.currentPage === 1" title="Primeira página">
-          &laquo;
+    <div class="flex items-center justify-between px-5 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-xl" *ngIf="data.totalCount > 0">
+      <span class="text-xs text-slate-500 dark:text-slate-400">
+        Página <strong>{{ data.currentPage }}</strong> de <strong>{{ data.totalPages }}</strong> ({{ data.totalCount }} no total)
+      </span>
+      <div class="flex items-center gap-1.5">
+        <button type="button" (click)="onPageChange(data.currentPage - 1)" [disabled]="data.currentPage === 1"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Anterior
         </button>
-        <button class="page-btn" (click)="goToPage(data.currentPage - 1)" [disabled]="data.currentPage === 1" title="Página anterior">
-          &lsaquo;
+        <button *ngFor="let p of visiblePages" type="button" (click)="onPageChange(p)"
+          class="px-2.5 py-1 text-xs font-bold rounded border transition"
+          [ngClass]="p === data.currentPage ? 'bg-clinic-primary border-clinic-primary text-black' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'">
+          {{ p }}
         </button>
-        <button *ngFor="let page of visiblePages" class="page-btn" [class.active]="page === data.currentPage" (click)="goToPage(page)">
-          {{ page }}
-        </button>
-        <button class="page-btn" (click)="goToPage(data.currentPage + 1)" [disabled]="data.currentPage === data.totalPages" title="Próxima página">
-          &rsaquo;
-        </button>
-        <button class="page-btn" (click)="goToPage(data.totalPages)" [disabled]="data.currentPage === data.totalPages" title="Última página">
-          &raquo;
+        <button type="button" (click)="onPageChange(data.currentPage + 1)" [disabled]="data.currentPage === data.totalPages"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Próxima
         </button>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" *ngIf="modal" (click)="closeModal()">
-    <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" *ngIf="modal">
+    <div class="modal-content modal-lg">
       <div class="modal-header">
-        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <i class="fa-solid fa-user-doctor text-clinic-primary"></i>
           {{ doctor ? 'Editar Médico' : 'Cadastrar Novo Médico' }}
         </h2>
@@ -183,10 +258,10 @@
         </button>
       </div>
 
-      <div class="flex items-center gap-1.5 border-b border-slate-200 pb-2 mb-4 overflow-x-auto">
+      <div class="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 overflow-x-auto">
         <button type="button" (click)="setTab('personal')"
           class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
-          [ngClass]="activeTab === 'personal' ? 'bg-clinic-primary/15 text-black border-clinic-primary' : 'bg-transparent text-slate-600 border-transparent hover:bg-slate-100'">
+          [ngClass]="activeTab === 'personal' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'">
           <i class="fa-regular fa-user text-clinic-primary"></i>
           <span>1. Dados Pessoais</span>
           <span *ngIf="err('name') || err('email') || err('phone')" class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -194,7 +269,7 @@
 
         <button type="button" (click)="setTab('professional')"
           class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
-          [ngClass]="activeTab === 'professional' ? 'bg-clinic-primary/15 text-black border-clinic-primary' : 'bg-transparent text-slate-600 border-transparent hover:bg-slate-100'">
+          [ngClass]="activeTab === 'professional' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'">
           <i class="fa-solid fa-id-card text-clinic-primary"></i>
           <span>2. Dados Profissionais</span>
           <span *ngIf="err('specialty') || err('licenseNumber')" class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -202,7 +277,7 @@
 
         <button type="button" (click)="setTab('address')"
           class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
-          [ngClass]="activeTab === 'address' ? 'bg-clinic-primary/15 text-black border-clinic-primary' : 'bg-transparent text-slate-600 border-transparent hover:bg-slate-100'">
+          [ngClass]="activeTab === 'address' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'">
           <i class="fa-solid fa-location-dot text-clinic-primary"></i>
           <span>3. Endereço</span>
         </button>
@@ -212,44 +287,44 @@
         <div *ngIf="activeTab === 'personal'" class="space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Nome Completo <span class="text-red-500">*</span>
               </label>
               <input formControlName="name" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 [ngClass]="err('name') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="Dr. Nome Sobrenome" />
-              <span class="text-[11px] text-red-500" *ngIf="err('name')">{{ err('name') }}</span>
+              <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('name')">{{ err('name') }}</span>
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 E-mail <span class="text-red-500">*</span>
               </label>
               <input formControlName="email" type="email"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 [ngClass]="err('email') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="medico@clinica.com.br" />
-              <span class="text-[11px] text-red-500" *ngIf="err('email')">{{ err('email') }}</span>
+              <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('email')">{{ err('email') }}</span>
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Telefone / WhatsApp <span class="text-red-500">*</span>
               </label>
               <input formControlName="phone" type="text" mask="(00) 00000-0000"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 [ngClass]="err('phone') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="(11) 99999-9999" />
-              <span class="text-[11px] text-red-500" *ngIf="err('phone')">{{ err('phone') }}</span>
+              <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('phone')">{{ err('phone') }}</span>
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Senha de Acesso {{ doctor ? '(Opcional)' : '' }}
               </label>
               <input formControlName="password" type="password"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 [placeholder]="doctor ? 'Deixe vazio para manter a atual' : 'Senha temporária'" />
             </div>
           </div>
@@ -258,47 +333,47 @@
         <div *ngIf="activeTab === 'professional'" class="space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Especialidade <span class="text-red-500">*</span>
               </label>
               <input formControlName="specialty" list="specialtiesList" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 [ngClass]="err('specialty') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="Ex: Cardiologia" />
               <datalist id="specialtiesList">
                 <option *ngFor="let s of specialties" [value]="s"></option>
               </datalist>
-              <span class="text-[11px] text-red-500" *ngIf="err('specialty')">{{ err('specialty') }}</span>
+              <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('specialty')">{{ err('specialty') }}</span>
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 CRM / Registro <span class="text-red-500">*</span>
               </label>
               <input formControlName="licenseNumber" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 [ngClass]="err('licenseNumber') ? 'border-red-400 focus:border-red-400' : ''"
                 placeholder="Ex: 123456" />
-              <span class="text-[11px] text-red-500" *ngIf="err('licenseNumber')">{{ err('licenseNumber') }}</span>
+              <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('licenseNumber')">{{ err('licenseNumber') }}</span>
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 UF do CRM <span class="text-red-500">*</span>
               </label>
               <select formControlName="licenseState"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black outline-none transition focus:border-clinic-primary shadow-sm cursor-pointer">
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-clinic-primary shadow-sm cursor-pointer">
                 <option *ngFor="let st of states" [value]="st">{{ st }}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Minibiografia / Resumo Profissional
             </label>
             <textarea formControlName="bio" rows="3"
-              class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+              class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm resize-none"
               placeholder="Breve resumo da trajetória acadêmica, titulações e atuação médica..."></textarea>
           </div>
         </div>
@@ -306,94 +381,99 @@
         <div *ngIf="activeTab === 'address'" class="space-y-3">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 CEP
               </label>
               <div class="relative">
                 <input formControlName="zipCode" type="text" mask="00000-000" (blur)="searchCep()"
-                  class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                  class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                   placeholder="00000-000" />
                 <i class="fa-solid fa-spinner fa-spin absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400" *ngIf="loadingZip"></i>
               </div>
             </div>
 
             <div class="col-span-2">
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Logradouro / Rua
               </label>
               <input formControlName="street" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 placeholder="Av. Paulista" />
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Número
               </label>
               <input formControlName="number" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 placeholder="1000" />
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Complemento
               </label>
               <input formControlName="complement" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 placeholder="Sala 102" />
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Bairro
               </label>
               <input formControlName="neighborhood" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 placeholder="Bela Vista" />
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Cidade
               </label>
               <input formControlName="city" type="text"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black placeholder:text-slate-400 outline-none transition focus:border-clinic-primary shadow-sm"
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
                 placeholder="São Paulo" />
             </div>
 
             <div>
-              <label class="block text-[11.5px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Estado (UF)
               </label>
               <select formControlName="state"
-                class="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-xs font-medium text-black outline-none transition focus:border-clinic-primary shadow-sm cursor-pointer">
+                class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-clinic-primary shadow-sm cursor-pointer">
                 <option *ngFor="let st of states" [value]="st">{{ st }}</option>
               </select>
             </div>
           </div>
         </div>
 
-        <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200">
+        <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
           <div>
-            <button type="button" *ngIf="activeTab === 'professional'" (click)="setTab('personal')" class="btn-secondary text-xs">
+            <button type="button" *ngIf="activeTab === 'professional'" (click)="setTab('personal')"
+              class="px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
               &laquo; Anterior
             </button>
-            <button type="button" *ngIf="activeTab === 'address'" (click)="setTab('professional')" class="btn-secondary text-xs">
+            <button type="button" *ngIf="activeTab === 'address'" (click)="setTab('professional')"
+              class="px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
               &laquo; Anterior
             </button>
           </div>
 
           <div class="flex items-center gap-2">
-            <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="button" (click)="closeModal()"
+              class="px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+              Cancelar
+            </button>
 
             <button type="button" *ngIf="activeTab === 'personal'" (click)="setTab('professional')"
-              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 cursor-pointer transition">
+              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition">
               Próximo &raquo;
             </button>
 
             <button type="button" *ngIf="activeTab === 'professional'" (click)="setTab('address')"
-              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 cursor-pointer transition">
+              class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer transition">
               Próximo &raquo;
             </button>
 
@@ -408,8 +488,8 @@
     </div>
   </div>
 
-  <div class="modal-overlay" *ngIf="deleteModal" (click)="closeDeleteModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()" style="max-width: 440px;">
+  <div class="modal-overlay" *ngIf="deleteModal">
+    <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
         <h2 class="text-base font-bold text-red-600 flex items-center gap-2">
           <i class="fa-solid fa-triangle-exclamation"></i>
@@ -421,23 +501,25 @@
       </div>
 
       <div class="py-2">
-        <p class="text-sm text-slate-700">
+        <p class="text-sm text-slate-700 dark:text-slate-300">
           Deseja realmente remover o médico <strong>{{ doctorToDelete?.name }}</strong>?
         </p>
-        <p class="text-xs text-slate-500 mt-2">
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
           O profissional será desativado e não poderá mais acessar a plataforma da clínica.
         </p>
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 mt-4">
-        <button type="button" class="btn-secondary" (click)="closeDeleteModal()">Cancelar</button>
-        <button type="button" class="btn-danger" [disabled]="isDeleting" (click)="confirmDelete()">
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
+        <button type="button" (click)="closeDeleteModal()"
+          class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" (click)="confirmDelete()" [disabled]="isDeleting"
+          class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 flex items-center gap-2 cursor-pointer transition">
           <i class="fa-solid fa-spinner fa-spin text-xs" *ngIf="isDeleting"></i>
           <span>{{ isDeleting ? 'Excluindo...' : 'Sim, Remover' }}</span>
         </button>
       </div>
     </div>
   </div>
-
-  <app-loading [isLoading]="isLoading"></app-loading>
 </div>

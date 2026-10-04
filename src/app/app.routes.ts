@@ -30,7 +30,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
-      { path: 'doctors', component: Doctors },
+      { path: 'medicos', component: Doctors },
+      { path: 'doctors', redirectTo: 'medicos' },
       { path: 'procedimentos', component: Procedures },
       { path: 'procedures', redirectTo: 'procedimentos' },
       { path: 'configuracoes', component: ClinicSettings },

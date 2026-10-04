@@ -31,7 +31,13 @@ export class Doctors implements OnInit {
   activeTab: 'personal' | 'professional' | 'address' = 'personal';
   form: FormGroup;
   search: string = '';
+  statusFilter: 'all' | 'active' | 'blocked' = 'all';
   visiblePages: number[] = [];
+
+  totalDoctors = 0;
+  activeDoctors = 0;
+  blockedDoctors = 0;
+  totalSpecialties = 0;
 
   states: string[] = [
     'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
@@ -94,14 +100,29 @@ export class Doctors implements OnInit {
       this.isLoading = true;
       this.cdr.detectChanges();
 
-      const params: any = { page, pageSize: 10 };
-      if (this.search.trim()) {
-        params.name = this.search.trim();
+      const params: any = {
+        page,
+        pageSize: 10,
+        deleted: false
+      };
+
+      if (this.search?.trim()) {
+        params['regex$name'] = this.search.trim();
       }
 
-      const { data } = await api.get('api/doctors', { params });
-      this.data = data.data || ResetPagination;
-      this.calculateVisiblePages();
+      if (this.statusFilter === 'active') {
+        params.blocked = false;
+      } else if (this.statusFilter === 'blocked') {
+        params.blocked = true;
+      }
+
+      const { data } = await api.get('/api/doctors', { params });
+
+      if (data?.data) {
+        this.data = data.data;
+        this.updateKPIs(this.data.data, this.data.totalCount);
+        this.updateVisiblePages();
+      }
     } catch (error) {
       this.global.errorNotification(error);
     } finally {
@@ -110,34 +131,50 @@ export class Doctors implements OnInit {
     }
   }
 
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.data.totalPages && page !== this.data.currentPage) {
-      this.loadData(page);
-    }
+  updateKPIs(doctors: any[], totalCount: number) {
+    this.totalDoctors = totalCount;
+    this.activeDoctors = doctors.filter(d => !d.blocked).length;
+    this.blockedDoctors = doctors.filter(d => !!d.blocked).length;
+    const specSet = new Set(doctors.map(d => d.specialty).filter(Boolean));
+    this.totalSpecialties = specSet.size;
   }
 
-  calculateVisiblePages() {
+  onSearch() {
+    this.loadData(1);
+  }
+
+  clearSearch() {
+    this.search = '';
+    this.statusFilter = 'all';
+    this.loadData(1);
+  }
+
+  setStatusFilter(filter: 'all' | 'active' | 'blocked') {
+    this.statusFilter = filter;
+    this.loadData(1);
+  }
+
+  onPageChange(page: number) {
+    if (page < 1 || page > this.data.totalPages || page === this.data.currentPage) return;
+    this.loadData(page);
+  }
+
+  updateVisiblePages() {
     const total = this.data.totalPages;
     const current = this.data.currentPage;
-    const pages: number[] = [];
     const maxVisible = 5;
 
-    let start = Math.max(1, current - 2);
+    let start = Math.max(1, current - Math.floor(maxVisible / 2));
     let end = Math.min(total, start + maxVisible - 1);
 
     if (end - start + 1 < maxVisible) {
       start = Math.max(1, end - maxVisible + 1);
     }
 
+    this.visiblePages = [];
     for (let i = start; i <= end; i++) {
-      pages.push(i);
+      this.visiblePages.push(i);
     }
-
-    this.visiblePages = pages;
-  }
-
-  onSearch() {
-    this.loadData(1);
   }
 
   setTab(tab: 'personal' | 'professional' | 'address') {
@@ -241,10 +278,10 @@ export class Doctors implements OnInit {
 
       if (this.doctor?.id) {
         payload.id = this.doctor.id;
-        await api.put('api/doctors', payload);
+        await api.put('/api/doctors', payload);
         this.toastr.success('Médico atualizado com sucesso!');
       } else {
-        await api.post('api/doctors', payload);
+        await api.post('/api/doctors', payload);
         this.toastr.success('Médico cadastrado com sucesso!');
       }
 
@@ -278,8 +315,8 @@ export class Doctors implements OnInit {
       } else {
         this.toastr.warning('CEP não encontrado');
       }
-    } catch {
-      this.toastr.error('Erro ao consultar CEP');
+    } catch (error) {
+      this.global.errorNotification(error);
     } finally {
       this.loadingZip = false;
       this.cdr.detectChanges();
@@ -288,9 +325,10 @@ export class Doctors implements OnInit {
 
   async toggleBlock(doctor: any) {
     try {
-      const { data } = await api.patch(`api/doctors/${doctor.id}/toggle-block`);
+      const { data } = await api.patch(`/api/doctors/${doctor.id}/toggle-block`);
       doctor.blocked = data.data.blocked;
       this.toastr.success(data.message || (doctor.blocked ? 'Médico bloqueado.' : 'Médico desbloqueado.'));
+      this.updateKPIs(this.data.data, this.data.totalCount);
       this.cdr.detectChanges();
     } catch (error) {
       this.global.errorNotification(error);
@@ -316,7 +354,7 @@ export class Doctors implements OnInit {
       this.isDeleting = true;
       this.cdr.detectChanges();
 
-      await api.delete(`api/doctors/${this.doctorToDelete.id}`);
+      await api.delete(`/api/doctors/${this.doctorToDelete.id}`);
       this.toastr.success('Médico removido com sucesso!');
       this.closeDeleteModal();
       await this.loadData(1);
