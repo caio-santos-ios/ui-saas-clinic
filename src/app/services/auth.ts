@@ -13,6 +13,7 @@ export interface UserSession {
   photo?: string;
   whatsapp?: string;
   accessProfile?: string;
+  clinicId?: string;
 }
 
 @Injectable({
@@ -89,7 +90,8 @@ export class Auth {
         email: decoded.email,
         name: decoded.name,
         photo: decoded.photo,
-        accessProfile: decoded.accessProfile
+        accessProfile: decoded.accessProfile,
+        clinicId: decoded.clinicId
       };
     }
     return null;

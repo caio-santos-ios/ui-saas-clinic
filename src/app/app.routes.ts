@@ -12,6 +12,7 @@ import { ForgotPassword } from './pages/forgot-password/forgot-password';
 import { MasterPlans } from './pages/master/plans/plans';
 import { MasterClinics } from './pages/master/clinics/clinics';
 import { MasterUsers } from './pages/master/users/users';
+import { ClinicSettings } from './pages/admin/clinic-settings/clinic-settings';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -29,6 +30,9 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
       { path: 'doctors', component: Doctors },
+      { path: 'configuracoes', component: ClinicSettings },
+      { path: 'settings', redirectTo: 'configuracoes' },
+      { path: 'admin/settings', redirectTo: 'configuracoes' },
       { path: 'planos', component: MasterPlans },
       { path: 'master/plans', redirectTo: 'planos' },
       { path: 'clinicas', component: MasterClinics },

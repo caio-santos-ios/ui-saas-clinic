@@ -1,0 +1,468 @@
+<div class="page-container">
+  <div class="page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="page-title flex items-center gap-2.5 text-2xl font-black text-slate-900 dark:text-slate-100">
+        <i class="fa-solid fa-sliders text-clinic-primary"></i>
+        Configurações da Clínica
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie os dados cadastrais, localização, identidade visual e o plano de assinatura da sua clínica.</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="p-12 flex justify-center items-center">
+    <app-loading></app-loading>
+  </div>
+
+  <div *ngIf="!isLoading" class="space-y-6">
+    <div class="flex border-b border-slate-200 dark:border-slate-800 gap-2 overflow-x-auto pb-1">
+      <button type="button" (click)="setTab('general')"
+        class="flex items-center gap-2 py-3 px-4 border-b-2 text-xs font-bold transition whitespace-nowrap cursor-pointer"
+        [ngClass]="activeTab === 'general' ? 'border-clinic-primary text-clinic-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
+        <i class="fa-solid fa-hospital"></i>
+        Dados Gerais
+      </button>
+
+      <button type="button" (click)="setTab('address')"
+        class="flex items-center gap-2 py-3 px-4 border-b-2 text-xs font-bold transition whitespace-nowrap cursor-pointer"
+        [ngClass]="activeTab === 'address' ? 'border-clinic-primary text-clinic-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
+        <i class="fa-solid fa-location-dot"></i>
+        Endereço
+      </button>
+
+      <button type="button" (click)="setTab('visual')"
+        class="flex items-center gap-2 py-3 px-4 border-b-2 text-xs font-bold transition whitespace-nowrap cursor-pointer"
+        [ngClass]="activeTab === 'visual' ? 'border-clinic-primary text-clinic-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
+        <i class="fa-solid fa-palette"></i>
+        Identidade Visual & Tema
+      </button>
+
+      <button type="button" (click)="setTab('plan')"
+        class="flex items-center gap-2 py-3 px-4 border-b-2 text-xs font-bold transition whitespace-nowrap cursor-pointer"
+        [ngClass]="activeTab === 'plan' ? 'border-clinic-primary text-clinic-primary' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'">
+        <i class="fa-solid fa-gem"></i>
+        Meu Plano & Assinatura
+        <span *ngIf="signatureData" class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"
+          [ngClass]="getSignatureStatusBadgeClass(signatureData.status)">
+          {{ signatureData.status || 'PENDENTE' }}
+        </span>
+      </button>
+    </div>
+
+    <form [formGroup]="form" class="space-y-6">
+      <div *ngIf="activeTab === 'general'" class="card p-6 space-y-6">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-clinic-primary"></i>
+            Informações Cadastrais da Clínica
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Mantenha os dados legais e os canais de contato da sua clínica sempre atualizados.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              CNPJ <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input formControlName="cnpj" type="text" mask="00.000.000/0000-00" (blur)="onCnpjBlur()"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('cnpj') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="00.000.000/0000-00" />
+              <span *ngIf="loadingCnpj" class="absolute right-3 top-3 text-clinic-primary text-xs">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">Consulte o CNPJ para preenchimento automático</span>
+            <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('cnpj')">{{ err('cnpj') }}</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Nome Fantasia <span class="text-red-500">*</span>
+            </label>
+            <input formControlName="tradeName" type="text"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              [ngClass]="err('tradeName') ? 'border-red-400 focus:border-red-400' : ''"
+              placeholder="Ex: Clínica São Lucas" />
+            <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('tradeName')">{{ err('tradeName') }}</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Razão Social <span class="text-red-500">*</span>
+          </label>
+          <input formControlName="corporateName" type="text"
+            class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+            [ngClass]="err('corporateName') ? 'border-red-400 focus:border-red-400' : ''"
+            placeholder="Ex: São Lucas Serviços Médicos e Diagnósticos LTDA" />
+          <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('corporateName')">{{ err('corporateName') }}</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              E-mail Principal de Contato <span class="text-red-500">*</span>
+            </label>
+            <input formControlName="email" type="email"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              [ngClass]="err('email') ? 'border-red-400 focus:border-red-400' : ''"
+              placeholder="contato@clinicasaolucas.com.br" />
+            <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('email')">{{ err('email') }}</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Telefone / WhatsApp <span class="text-red-500">*</span>
+            </label>
+            <input formControlName="phone" type="text" mask="(00) 00000-0000"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              [ngClass]="err('phone') ? 'border-red-400 focus:border-red-400' : ''"
+              placeholder="(00) 00000-0000" />
+            <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('phone')">{{ err('phone') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'address'" formGroupName="address" class="card p-6 space-y-6">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-map-location-dot text-clinic-primary"></i>
+            Endereço da Unidade
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Informe a localização física da clínica para emissão de guias, recibos e orientações aos pacientes.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              CEP
+            </label>
+            <div class="relative">
+              <input formControlName="zipCode" type="text" mask="00000-000" (blur)="searchCep()"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="00000-000" />
+              <span *ngIf="loadingZip" class="absolute right-3 top-3 text-clinic-primary text-xs">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">Preenchimento automático via CEP</span>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Logradouro / Rua / Avenida
+            </label>
+            <input formControlName="street" type="text"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Ex: Av. Paulista, Rua das Oliveiras..." />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Número
+            </label>
+            <input formControlName="number" type="text"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Ex: 1250" />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Complemento
+            </label>
+            <input formControlName="complement" type="text"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Ex: Sala 405 - Bloco A" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Bairro
+            </label>
+            <input formControlName="neighborhood" type="text"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Ex: Centro" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Cidade
+            </label>
+            <input formControlName="city" type="text"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Ex: São Paulo" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Estado (UF)
+            </label>
+            <input formControlName="state" type="text" maxlength="2"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm uppercase"
+              placeholder="SP" />
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'visual'" formGroupName="setting" class="card p-6 space-y-6">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-paintbrush text-clinic-primary"></i>
+            Identidade Visual & Personalização
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Configure as cores e o logotipo da clínica. As alterações serão refletidas em todo o painel whitelabel.
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Logotipo da Clínica
+          </label>
+          <div
+            class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl min-h-[120px] flex items-center justify-center cursor-pointer transition overflow-hidden bg-white dark:bg-[#0b1120] hover:border-clinic-primary"
+            [class.border-clinic-primary]="logoPreview" (click)="triggerLogoUpload()" (dragover)="onDragOver($event)"
+            (drop)="onDrop($event)">
+            <img *ngIf="logoPreview" [src]="logoPreview" class="max-h-24 max-w-full object-contain p-2" alt="Logo" />
+            <div class="flex flex-col items-center gap-1.5 p-4 text-center" *ngIf="!logoPreview">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg bg-clinic-primary/10 text-clinic-primary">
+                <i *ngIf="!isUploadingLogo" class="fa-solid fa-cloud-arrow-up"></i>
+                <i *ngIf="isUploadingLogo" class="fa-solid fa-spinner fa-spin"></i>
+              </div>
+              <p class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                {{ isUploadingLogo ? 'Enviando arquivo...' : 'Arraste ou clique para enviar' }}
+              </p>
+              <p class="text-[11px] text-slate-400">PNG, JPG, SVG — máx 2 MB</p>
+            </div>
+            <button *ngIf="logoPreview" type="button"
+              class="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 text-white border-none flex items-center justify-center text-xs z-10 cursor-pointer hover:bg-red-600 transition shadow-sm"
+              (click)="removeLogo($event)" title="Remover logotipo">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <input #logoInput type="file" accept="image/*" class="hidden" (change)="onLogoChange($event)" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 space-y-3">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Cor Primária (Destaques & Acentos)
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="color" formControlName="primaryColor"
+                class="w-12 h-12 rounded-xl border border-slate-300 dark:border-slate-700 p-0.5 bg-transparent cursor-pointer shadow-sm" />
+              <div class="flex-1">
+                <input type="text" formControlName="primaryColor"
+                  class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2 px-3 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-clinic-primary uppercase shadow-sm" />
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">Botões principais, badges e links</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 space-y-3">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Cor Secundária (Barra Lateral & Fundo)
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="color" formControlName="secondaryColor"
+                class="w-12 h-12 rounded-xl border border-slate-300 dark:border-slate-700 p-0.5 bg-transparent cursor-pointer shadow-sm" />
+              <div class="flex-1">
+                <input type="text" formControlName="secondaryColor"
+                  class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-xl py-2 px-3 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-clinic-primary uppercase shadow-sm" />
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">Menu de navegação e cabeçalhos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/30 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+              <i class="fa-solid fa-eye text-clinic-primary"></i>
+              Pré-visualização do Tema em Tempo Real
+            </span>
+            <span class="text-[11px] text-slate-400">Como seus usuários verão o sistema</span>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            [style.backgroundColor]="form.get('setting.secondaryColor')?.value || '#0b1120'">
+            <div class="w-full md:w-56 p-3 rounded-lg border border-white/10 space-y-3" style="background: rgba(0,0,0,0.2);">
+              <div class="flex items-center gap-3 pb-2 border-b border-white/10">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs bg-white/10 overflow-hidden"
+                  [style.color]="form.get('setting.primaryColor')?.value || '#dca311'">
+                  <img *ngIf="logoPreview || form.get('setting.logo')?.value" [src]="logoPreview || form.get('setting.logo')?.value" class="w-full h-full object-contain" />
+                  <span *ngIf="!logoPreview && !form.get('setting.logo')?.value">{{ (form.get('tradeName')?.value || 'CL').substring(0, 2).toUpperCase() }}</span>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-white truncate">{{ form.get('tradeName')?.value || 'Clínica Demo' }}</div>
+                  <div class="text-[10px] text-slate-300">Sistema Whitelabel</div>
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-bold"
+                  [style.backgroundColor]="(form.get('setting.primaryColor')?.value || '#dca311') + '33'"
+                  [style.color]="form.get('setting.primaryColor')?.value || '#dca311'">
+                  <i class="fa-solid fa-chart-pie text-[11px]"></i>
+                  <span>Dashboard</span>
+                </div>
+                <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-white/70">
+                  <i class="fa-solid fa-calendar text-[11px]"></i>
+                  <span>Agendamentos</span>
+                </div>
+                <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-white/70">
+                  <i class="fa-solid fa-user-doctor text-[11px]"></i>
+                  <span>Médicos</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex-1 bg-white dark:bg-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-900 dark:text-slate-100">Painel de Demonstração</h4>
+                  <p class="text-[10px] text-slate-400">Botões e indicadores no padrão da sua marca</p>
+                </div>
+                <button type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-950 shadow-sm"
+                  [style.backgroundColor]="form.get('setting.primaryColor')?.value || '#dca311'">
+                  Ação Primária
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-2">
+                <div class="p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold">Consultas Hoje</span>
+                  <div class="text-sm font-black mt-0.5" [style.color]="form.get('setting.primaryColor')?.value || '#dca311'">24</div>
+                </div>
+                <div class="p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold">Médicos Ativos</span>
+                  <div class="text-sm font-black mt-0.5 text-slate-800 dark:text-slate-200">8</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div *ngIf="activeTab === 'plan'" class="space-y-6">
+      <div class="card p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-bold uppercase tracking-wider text-clinic-primary">Assinatura Ativa</span>
+              <span class="text-xs text-slate-400">•</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Recursos e Cobrança</span>
+            </div>
+            <h2 class="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <i class="fa-solid fa-gem text-clinic-primary"></i>
+              {{ planData?.name || 'Plano Personalizado' }}
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
+              [ngClass]="getSignatureStatusBadgeClass(signatureData?.status)">
+              STATUS: {{ signatureData?.status || 'PENDENTE' }}
+            </span>
+            <button type="button" (click)="goToUpgrade()"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-950 bg-clinic-primary hover:brightness-105 active:scale-95 transition shadow-sm cursor-pointer">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              Alterar / Fazer Upgrade
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+            <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Valor do Plano</span>
+            <div class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
+              {{ (signatureData?.value || planData?.price || 0) | currency: 'BRL':'symbol':'1.2-2':'pt-BR' }}
+              <span class="text-xs font-normal text-slate-400">/{{ getCycleDescription(signatureData?.cycle) }}</span>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+            <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Ciclo de Cobrança</span>
+            <div class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
+              {{ getCycleDescription(signatureData?.cycle) }}
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+            <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Forma de Pagamento</span>
+            <div class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
+              {{ getPaymentMethodDescription(signatureData?.paymentMethod) }}
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+            <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Próxima Renovação</span>
+            <div class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
+              {{ (signatureData?.nextDueDate || signatureData?.endDate) ? ((signatureData?.nextDueDate || signatureData?.endDate) | date:'dd/MM/yyyy') : 'Sob consulta' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-clinic-primary"></i>
+            Recursos Inclusos no Plano
+          </h3>
+
+          <div *ngIf="planData?.features && planData.features.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div *ngFor="let feat of planData.features"
+              class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+              <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ feat }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="!planData?.features || planData.features.length === 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+              <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Gestão de Consultas e Agendamentos</span>
+            </div>
+            <div class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+              <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Cadastro de Médicos e Funcionários</span>
+            </div>
+            <div class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+              <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Prontuário Eletrônico do Paciente</span>
+            </div>
+            <div class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+              <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Catálogo de Procedimentos e Preços</span>
+            </div>
+            <div class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+              <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Whitelabel com Logo e Cores Próprias</span>
+            </div>
+            <div class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+              <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Suporte Técnico Prioritário</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+      <button type="button" (click)="save()" [disabled]="isSaving || isLoading"
+        class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-clinic-primary hover:brightness-105 active:scale-95 transition shadow-sm disabled:opacity-50 cursor-pointer">
+        <i *ngIf="!isSaving" class="fa-solid fa-floppy-disk"></i>
+        <i *ngIf="isSaving" class="fa-solid fa-spinner fa-spin"></i>
+        <span>{{ isSaving ? 'Salvando...' : 'Salvar Alterações' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
