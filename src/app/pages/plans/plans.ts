@@ -92,7 +92,7 @@ export class Plans implements OnInit, OnDestroy {
       this.isLoadingPlans = true;
       this.cdr.detectChanges();
 
-      const { data } = await api.get('/api/plans', { params: { pageSize: 50 } });
+      const { data } = await api.get('/api/plans', { params: { pageSize: 50, deleted: false } });
       const list = data?.data?.data || [];
 
       if (Array.isArray(list) && list.length > 0) {

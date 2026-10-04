@@ -10,6 +10,7 @@ import { Plans } from './pages/plans/plans';
 import { Doctors } from './pages/doctors/doctors';
 import { ForgotPassword } from './pages/forgot-password/forgot-password';
 import { MasterPlans } from './pages/master/plans/plans';
+import { MasterClinics } from './pages/master/clinics/clinics';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -29,6 +30,8 @@ export const routes: Routes = [
       { path: 'doctors', component: Doctors },
       { path: 'planos', component: MasterPlans },
       { path: 'master/plans', redirectTo: 'planos' },
+      { path: 'clinicas', component: MasterClinics },
+      { path: 'master/clinics', redirectTo: 'clinicas' },
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

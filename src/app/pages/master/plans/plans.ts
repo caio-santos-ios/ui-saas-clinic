@@ -66,9 +66,9 @@ export class MasterPlans implements OnInit {
       this.isLoading = true;
       this.cdr.detectChanges();
 
-      const params: any = { page, pageSize: 10 };
+      const params: any = { page, pageSize: 10, deleted: false };
       if (this.search.trim()) {
-        params.name = this.search.trim();
+        params['regex$name'] = this.search.trim();
       }
 
       const { data } = await api.get('/api/plans', { params });

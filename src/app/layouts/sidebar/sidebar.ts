@@ -87,6 +87,11 @@ export class Sidebar implements OnInit, OnDestroy {
         description: "Planos",
         icon: "tags",
         link: "planos"
+      },
+      {
+        description: "Clínicas",
+        icon: "hospital",
+        link: "clinicas"
       }
     ]
   }

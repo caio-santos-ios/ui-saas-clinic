@@ -1,0 +1,668 @@
+<div class="page-container">
+  <div class="page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="page-title flex items-center gap-2.5 text-2xl font-black text-slate-900 dark:text-slate-100">
+        <i class="fa-solid fa-hospital text-clinic-primary"></i>
+        Gestão de Clínicas
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie as clínicas cadastradas na plataforma, suas assinaturas, planos e configurações visuais.</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
+          placeholder="Buscar por nome ou CNPJ..."
+          class="pl-3 pr-3 py-2 text-xs bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg outline-none transition focus:border-clinic-primary shadow-sm w-48 sm:w-64" />
+      </div>
+
+      <button type="button" [disabled]="isLoading" (click)="openModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-md bg-clinic-primary disabled:opacity-55 disabled:cursor-not-allowed">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Nova Clínica</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid mb-6">
+    <div class="kpi-card gold-border">
+      <div class="kpi-icon-wrap gold-icon">
+        <i class="fa-solid fa-hospital"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Total de Clínicas</div>
+        <div class="kpi-value">{{ totalClinics }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap green-icon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Clínicas Ativas</div>
+        <div class="kpi-value">{{ activeClinics }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap blue-icon">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Em Período de Teste</div>
+        <div class="kpi-value">{{ trialClinics }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-wrap amber-icon">
+        <i class="fa-solid fa-ban"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Clínicas Inativas</div>
+        <div class="kpi-value">{{ inactiveClinics }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+    <div class="flex items-center gap-2">
+      <button type="button" (click)="setStatusFilter('all')"
+        class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer border"
+        [ngClass]="statusFilter === 'all' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-white dark:bg-[#0f172a] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300'">
+        Todas ({{ totalClinics }})
+      </button>
+      <button type="button" (click)="setStatusFilter('active')"
+        class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer border"
+        [ngClass]="statusFilter === 'active' ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500 shadow-sm' : 'bg-white dark:bg-[#0f172a] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300'">
+        Ativas
+      </button>
+      <button type="button" (click)="setStatusFilter('inactive')"
+        class="px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer border"
+        [ngClass]="statusFilter === 'inactive' ? 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-500 shadow-sm' : 'bg-white dark:bg-[#0f172a] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300'">
+        Inativas
+      </button>
+    </div>
+
+    <button *ngIf="search" type="button" (click)="search = ''; onSearch()"
+      class="text-xs text-clinic-primary hover:underline flex items-center gap-1 font-semibold">
+      <i class="fa-solid fa-xmark"></i>
+      Limpar busca
+    </button>
+  </div>
+
+  <div class="card" *ngIf="!isLoading">
+    <div class="table-responsive desktop-table-view hidden lg:flex">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Clínica</th>
+            <th>CNPJ</th>
+            <th>Contato</th>
+            <th>Localização</th>
+            <th>Plano & Assinatura</th>
+            <th>Status</th>
+            <th style="text-align: right;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of data.data">
+            <td>
+              <div class="flex items-center gap-3">
+                <div *ngIf="c.setting?.logo" class="w-10 h-10 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center shrink-0">
+                  <img [src]="c.setting.logo" [alt]="c.tradeName" class="w-full h-full object-contain" />
+                </div>
+                <div *ngIf="!c.setting?.logo" class="w-10 h-10 rounded-xl bg-clinic-primary/20 text-clinic-primary font-black flex items-center justify-center shrink-0 border border-clinic-primary/30 uppercase text-xs">
+                  {{ (c.tradeName || 'CL').substring(0, 2) }}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm truncate text-slate-900 dark:text-slate-100">{{ c.tradeName }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]" [title]="c.corporateName">{{ c.corporateName }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="text-xs font-mono font-medium text-slate-700 dark:text-slate-300">
+                {{ c.cnpj | mask: '00.000.000/0000-00' }}
+              </span>
+            </td>
+            <td>
+              <div class="flex flex-col gap-0.5 text-xs">
+                <span class="text-slate-700 dark:text-slate-300 flex items-center gap-1.5 truncate max-w-[190px]" [title]="c.email">
+                  <i class="fa-regular fa-envelope text-slate-400 text-[11px] w-3.5"></i>
+                  {{ c.email }}
+                </span>
+                <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-phone text-slate-400 text-[11px] w-3.5"></i>
+                  {{ c.phone | mask: '(00) 00000-0000' }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-col text-xs text-slate-600 dark:text-slate-400">
+                <span class="font-medium text-slate-800 dark:text-slate-200">
+                  {{ c.address?.city || 'Não inf.' }}<span *ngIf="c.address?.state">/{{ c.address?.state }}</span>
+                </span>
+                <span class="text-[11px] text-slate-400 truncate max-w-[150px]">
+                  {{ c.address?.neighborhood || c.address?.street || 'Sem endereço' }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-col gap-1">
+                <span *ngIf="c.planName" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <i class="fa-solid fa-tag text-clinic-primary text-[10px]"></i>
+                  {{ c.planName }}
+                </span>
+                <span *ngIf="!c.planName" class="text-xs text-slate-400 italic">
+                  Sem plano
+                </span>
+                <span *ngIf="c.signature?.status" class="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-semibold w-fit"
+                  [ngClass]="{
+                    'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30': c.signature.status.toLowerCase() === 'ativa',
+                    'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30': c.signature.status.toLowerCase() === 'trial' || c.signature.status.toLowerCase() === 'pendente',
+                    'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30': c.signature.status.toLowerCase() === 'cancelada' || c.signature.status.toLowerCase() === 'expirada'
+                  }">
+                  {{ c.signature.status }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="c.active === false ? 'inactive' : 'active'">
+                <i class="fa-solid" [ngClass]="c.active === false ? 'fa-xmark' : 'fa-check'"></i>
+                {{ c.active === false ? 'Inativa' : 'Ativa' }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                <button type="button" class="btn-icon" style="color: #0284c7;" (click)="openDetails(c)" title="Ver Detalhes">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button type="button" class="btn-icon" style="color: var(--clinic-primary);" (click)="openModal(c)" title="Editar Clínica">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" class="btn-icon" [style.color]="c.active === false ? 'var(--status-active)' : '#f59e0b'" (click)="toggleActive(c)" [title]="c.active === false ? 'Ativar Clínica' : 'Desativar Clínica'">
+                  <i class="fa-solid" [ngClass]="c.active === false ? 'fa-toggle-off' : 'fa-toggle-on'"></i>
+                </button>
+                <button type="button" class="btn-icon" style="color: #ef4444;" (click)="openDeleteModal(c)" title="Excluir Clínica">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="data.data.length === 0">
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              Nenhuma clínica cadastrada ainda.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-card-list lg:hidden flex flex-col gap-3 p-4">
+      <div *ngFor="let c of data.data" class="mobile-data-card bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center gap-3">
+            <div *ngIf="c.setting?.logo" class="w-10 h-10 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center shrink-0">
+              <img [src]="c.setting.logo" [alt]="c.tradeName" class="w-full h-full object-contain" />
+            </div>
+            <div *ngIf="!c.setting?.logo" class="w-10 h-10 rounded-xl bg-clinic-primary/20 text-clinic-primary font-black flex items-center justify-center shrink-0 border border-clinic-primary/30 uppercase text-xs">
+              {{ (c.tradeName || 'CL').substring(0, 2) }}
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">{{ c.tradeName }}</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ c.cnpj | mask: '00.000.000/0000-00' }}</p>
+            </div>
+          </div>
+          <span class="status-badge" [ngClass]="c.active === false ? 'inactive' : 'active'">
+            {{ c.active === false ? 'Inativa' : 'Ativa' }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 mb-3">
+          <div>
+            <span class="text-slate-400 block text-[11px]">E-mail:</span>
+            <span class="font-medium text-slate-800 dark:text-slate-200 truncate block">{{ c.email }}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Telefone:</span>
+            <span class="font-medium text-slate-800 dark:text-slate-200">{{ c.phone | mask: '(00) 00000-0000' }}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Cidade/UF:</span>
+            <span class="font-medium text-slate-800 dark:text-slate-200">{{ c.address?.city || '-' }}/{{ c.address?.state || '-' }}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Plano:</span>
+            <span class="font-bold text-clinic-primary">{{ c.planName || 'Sem plano' }}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button type="button" class="btn-icon" style="color: #0284c7;" (click)="openDetails(c)" title="Ver Detalhes">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+          <button type="button" class="btn-icon" style="color: var(--clinic-primary);" (click)="openModal(c)" title="Editar Clínica">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <button type="button" class="btn-icon" [style.color]="c.active === false ? 'var(--status-active)' : '#f59e0b'" (click)="toggleActive(c)">
+            <i class="fa-solid" [ngClass]="c.active === false ? 'fa-toggle-off' : 'fa-toggle-on'"></i>
+          </button>
+          <button type="button" class="btn-icon" style="color: #ef4444;" (click)="openDeleteModal(c)">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="data.data.length === 0" class="text-center py-8 text-slate-400 text-xs">
+        Nenhuma clínica cadastrada.
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between px-5 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-xl" *ngIf="data.totalPages > 1">
+      <span class="text-xs text-slate-500 dark:text-slate-400">
+        Página <strong>{{ data.currentPage }}</strong> de <strong>{{ data.totalPages }}</strong> ({{ data.totalCount }} no total)
+      </span>
+      <div class="flex items-center gap-1.5">
+        <button type="button" (click)="onPageChange(data.currentPage - 1)" [disabled]="data.currentPage === 1"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Anterior
+        </button>
+        <button *ngFor="let p of visiblePages" type="button" (click)="onPageChange(p)"
+          class="px-2.5 py-1 text-xs font-bold rounded border transition"
+          [ngClass]="p === data.currentPage ? 'bg-clinic-primary border-clinic-primary text-black' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'">
+          {{ p }}
+        </button>
+        <button type="button" (click)="onPageChange(data.currentPage + 1)" [disabled]="data.currentPage === data.totalPages"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Próxima
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <i class="fa-solid fa-hospital text-clinic-primary"></i>
+          {{ editingClinic ? 'Editar Clínica' : 'Cadastrar Nova Clínica' }}
+        </h2>
+        <button type="button" class="btn-icon" (click)="closeModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 overflow-x-auto">
+        <button type="button" (click)="setTab('general')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'general' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-700 dark:hover:text-slate-200'">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>1. Dados Gerais</span>
+          <span *ngIf="err('cnpj') || err('tradeName') || err('corporateName') || err('email') || err('phone')" class="w-2 h-2 rounded-full bg-red-500"></span>
+        </button>
+
+        <button type="button" (click)="setTab('address')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'address' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-700 dark:hover:text-slate-200'">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>2. Endereço</span>
+        </button>
+
+        <button type="button" (click)="setTab('visual')"
+          class="px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer border"
+          [ngClass]="activeTab === 'visual' ? 'bg-clinic-primary/20 text-clinic-primary border-clinic-primary shadow-sm' : 'bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-700 dark:hover:text-slate-200'">
+          <i class="fa-solid fa-palette"></i>
+          <span>3. Identidade Visual</span>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="saveClinic()" class="space-y-4">
+        <div *ngIf="activeTab === 'general'" class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                CNPJ <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input formControlName="cnpj" type="text" mask="00.000.000/0000-00" (blur)="onCnpjBlur()"
+                  class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                  [ngClass]="err('cnpj') ? 'border-red-400 focus:border-red-400' : ''"
+                  placeholder="00.000.000/0000-00" />
+                <span *ngIf="loadingCnpj" class="absolute right-3 top-2.5 text-clinic-primary text-xs">
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                </span>
+              </div>
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">Busca automática na Receita Federal ao sair do campo</span>
+              <span class="text-[11px] text-red-500" *ngIf="err('cnpj')">{{ err('cnpj') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Telefone / WhatsApp <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="phone" type="text" mask="(00) 00000-0000||(00) 0000-0000"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('phone') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="(00) 00000-0000" />
+              <span class="text-[11px] text-red-500" *ngIf="err('phone')">{{ err('phone') }}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Nome Fantasia <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="tradeName" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('tradeName') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="Ex: Clínica Bem Estar" />
+              <span class="text-[11px] text-red-500" *ngIf="err('tradeName')">{{ err('tradeName') }}</span>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Razão Social <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="corporateName" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('corporateName') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="Ex: Clínica Bem Estar Serviços Médicos LTDA" />
+              <span class="text-[11px] text-red-500" *ngIf="err('corporateName')">{{ err('corporateName') }}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                E-mail Principal <span class="text-red-500">*</span>
+              </label>
+              <input formControlName="email" type="email"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                [ngClass]="err('email') ? 'border-red-400 focus:border-red-400' : ''"
+                placeholder="contato@clinicabemestar.com.br" />
+              <span class="text-[11px] text-red-500" *ngIf="err('email')">{{ err('email') }}</span>
+            </div>
+
+            <div class="flex items-center gap-2 pt-6">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" formControlName="active" />
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Clínica Ativa no Sistema</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeTab === 'address'" formGroupName="address" class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                CEP
+              </label>
+              <div class="relative">
+                <input formControlName="zipCode" type="text" mask="00000-000" (blur)="searchCep()"
+                  class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                  placeholder="00000-000" />
+                <span *ngIf="loadingZip" class="absolute right-3 top-2.5 text-clinic-primary text-xs">
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                </span>
+              </div>
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">Busca automática ViaCEP</span>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Logradouro / Rua
+              </label>
+              <input formControlName="street" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="Av. Paulista, Rua das Flores..." />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Número
+              </label>
+              <input formControlName="number" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="123" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Complemento
+              </label>
+              <input formControlName="complement" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="Sala 402, Bloco B" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Bairro
+              </label>
+              <input formControlName="neighborhood" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="Centro" />
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Cidade
+              </label>
+              <input formControlName="city" type="text"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+                placeholder="São Paulo" />
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                UF / Estado
+              </label>
+              <input formControlName="state" type="text" maxlength="2"
+                class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm uppercase"
+                placeholder="SP" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeTab === 'visual'" formGroupName="setting" class="space-y-4">
+          <div>
+            <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+              URL da Logomarca (Imagem)
+            </label>
+            <input formControlName="logo" type="url"
+              class="w-full bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="https://exemplo.com.br/logo.png" />
+            <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 block">Informe a URL pública de uma imagem PNG ou SVG para o logotipo</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Cor Primária (Destaque)
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="color" formControlName="primaryColor"
+                  class="w-10 h-10 rounded-lg border border-slate-300 dark:border-slate-700 p-0.5 bg-transparent cursor-pointer" />
+                <input type="text" formControlName="primaryColor"
+                  class="flex-1 bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-mono font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-clinic-primary shadow-sm uppercase" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                Cor Secundária (Sidebar / Fundo)
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="color" formControlName="secondaryColor"
+                  class="w-10 h-10 rounded-lg border border-slate-300 dark:border-slate-700 p-0.5 bg-transparent cursor-pointer" />
+                <input type="text" formControlName="secondaryColor"
+                  class="flex-1 bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 rounded-lg py-2 px-3 text-xs font-mono font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-clinic-primary shadow-sm uppercase" />
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 space-y-2">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Prévia da Identidade Visual:</span>
+            <div class="flex items-center gap-4 p-3 rounded-xl border" [style.backgroundColor]="form.get('setting.secondaryColor')?.value || '#0b1120'">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm overflow-hidden bg-white/10" [style.color]="form.get('setting.primaryColor')?.value || '#dca311'">
+                <img *ngIf="form.get('setting.logo')?.value" [src]="form.get('setting.logo')?.value" class="w-full h-full object-contain" />
+                <span *ngIf="!form.get('setting.logo')?.value">{{ (form.get('tradeName')?.value || 'CL').substring(0, 2).toUpperCase() }}</span>
+              </div>
+              <div class="min-w-0">
+                <div class="text-sm font-bold text-white truncate">{{ form.get('tradeName')?.value || 'Nome da Clínica' }}</div>
+                <div class="text-xs truncate" [style.color]="form.get('setting.primaryColor')?.value || '#dca311'">Tema Personalizado Whitelabel</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" class="btn-secondary px-4 py-2 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-700 transition cursor-pointer" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="isSaving"
+            class="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-black bg-clinic-primary rounded-lg transition hover:-translate-y-px hover:shadow-md cursor-pointer disabled:opacity-50">
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="isSaving"></i>
+            <i class="fa-solid fa-floppy-disk" *ngIf="!isSaving"></i>
+            <span>{{ isSaving ? 'Salvando...' : 'Salvar Clínica' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="detailsModal">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <div class="flex items-center gap-3">
+          <div *ngIf="selectedClinicDetails?.setting?.logo" class="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-center shrink-0">
+            <img [src]="selectedClinicDetails.setting.logo" [alt]="selectedClinicDetails.tradeName" class="w-full h-full object-contain" />
+          </div>
+          <div *ngIf="!selectedClinicDetails?.setting?.logo" class="w-12 h-12 rounded-xl bg-clinic-primary/20 text-clinic-primary font-black flex items-center justify-center shrink-0 border border-clinic-primary/30 uppercase text-sm">
+            {{ (selectedClinicDetails?.tradeName || 'CL').substring(0, 2) }}
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ selectedClinicDetails?.tradeName }}</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ selectedClinicDetails?.corporateName }}</p>
+          </div>
+        </div>
+        <button type="button" class="btn-icon" (click)="closeDetails()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 py-2" *ngIf="selectedClinicDetails">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+          <div>
+            <span class="text-slate-400 block text-[11px]">CNPJ:</span>
+            <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ selectedClinicDetails.cnpj | mask: '00.000.000/0000-00' }}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">E-mail de Contato:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedClinicDetails.email }}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[11px]">Telefone:</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedClinicDetails.phone | mask: '(00) 00000-0000' }}</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+          <span class="text-slate-400 block text-[11px] font-bold uppercase tracking-wider">Endereço Completo:</span>
+          <p class="text-slate-700 dark:text-slate-300">
+            {{ selectedClinicDetails.address?.street || 'Sem rua' }}, {{ selectedClinicDetails.address?.number || 'S/N' }}
+            <span *ngIf="selectedClinicDetails.address?.complement">- {{ selectedClinicDetails.address?.complement }}</span>
+          </p>
+          <p class="text-slate-500 dark:text-slate-400 text-[11.5px]">
+            Bairro: {{ selectedClinicDetails.address?.neighborhood || 'Não informado' }} •
+            Cidade: {{ selectedClinicDetails.address?.city || 'Não informado' }}/{{ selectedClinicDetails.address?.state || '-' }} •
+            CEP: {{ selectedClinicDetails.address?.zipCode | mask: '00000-000' }}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 text-xs space-y-2">
+            <span class="text-slate-400 block text-[11px] font-bold uppercase tracking-wider">Assinatura & Plano:</span>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-600 dark:text-slate-400">Plano Atual:</span>
+              <span class="font-bold text-clinic-primary">{{ selectedClinicDetails.planName || 'Nenhum' }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-600 dark:text-slate-400">Status da Assinatura:</span>
+              <span class="font-bold text-slate-800 dark:text-slate-200">{{ selectedClinicDetails.signature?.status || 'Sem assinatura' }}</span>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 text-xs space-y-2">
+            <span class="text-slate-400 block text-[11px] font-bold uppercase tracking-wider">Customização Whitelabel:</span>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full border border-slate-400" [style.backgroundColor]="selectedClinicDetails.setting?.primaryColor || '#dca311'"></span>
+                <span class="text-[11px] font-mono text-slate-600 dark:text-slate-400">{{ selectedClinicDetails.setting?.primaryColor || '#dca311' }}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-4 h-4 rounded-full border border-slate-400" [style.backgroundColor]="selectedClinicDetails.setting?.secondaryColor || '#0b1120'"></span>
+                <span class="text-[11px] font-mono text-slate-600 dark:text-slate-400">{{ selectedClinicDetails.setting?.secondaryColor || '#0b1120' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <button type="button" class="btn-secondary px-4 py-2 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-700 transition cursor-pointer" (click)="closeDetails()">
+          Fechar
+        </button>
+        <button type="button" (click)="closeDetails(); openModal(selectedClinicDetails)"
+          class="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-black bg-clinic-primary rounded-lg transition hover:-translate-y-px hover:shadow-md cursor-pointer">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>Editar Clínica</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="deleteModal">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+          Excluir Clínica
+        </h2>
+        <button type="button" class="btn-icon" (click)="closeDeleteModal()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="py-4">
+        <p class="text-sm text-slate-700 dark:text-slate-300">
+          Tem certeza de que deseja excluir a clínica <strong>"{{ clinicToDelete?.tradeName }}"</strong>?
+        </p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+          Esta ação marcará a clínica como excluída no sistema e suspenderá os acessos vinculados.
+        </p>
+      </div>
+
+      <div class="modal-footer flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <button type="button" class="btn-secondary px-4 py-2 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-700 transition cursor-pointer" (click)="closeDeleteModal()">
+          Cancelar
+        </button>
+        <button type="button" [disabled]="isDeleting" (click)="confirmDelete()"
+          class="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition cursor-pointer disabled:opacity-50 border-none">
+          <i class="fa-solid fa-spinner fa-spin" *ngIf="isDeleting"></i>
+          <i class="fa-solid fa-trash-can" *ngIf="!isDeleting"></i>
+          <span>{{ isDeleting ? 'Excluindo...' : 'Confirmar Exclusão' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <app-loading [isLoading]="isLoading"></app-loading>
+</div>
