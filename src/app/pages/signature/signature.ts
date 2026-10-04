@@ -54,10 +54,6 @@ export class Signature {
     private cdr: ChangeDetectorRef,
     public global: GlobalService
   ) {
-    if (auth.isSignatureValidated()) {
-      // router.navigateByUrl('/login');
-    }
-
     this.form = this.fb.group({
       step1: this.fb.group({
         cnpj: ['', [Validators.required, Validators.minLength(14)]],

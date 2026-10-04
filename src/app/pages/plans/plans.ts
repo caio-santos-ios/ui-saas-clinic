@@ -132,7 +132,7 @@ export class Plans implements OnDestroy {
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
     public auth: Auth
-  ) {}
+  ) { }
 
   ngOnDestroy(): void {
     this.stopPixIntervals();
@@ -244,6 +244,8 @@ export class Plans implements OnDestroy {
       try {
         const { data } = await api.get(`/api/signatures/${signatureId}`);
         if (data?.data?.status === 'ATIVO' || data?.data?.status === 'CONFIRMADO') {
+          console.log(data.data.clinicSetting);
+          this.auth.applyClinicTheme(data.data.clinicSetting);
           isApproved = true;
         }
       } catch {
