@@ -101,7 +101,6 @@ export class Doctors implements OnInit {
 
       const { data } = await api.get('api/doctors', { params });
       this.data = data.data || ResetPagination;
-      console.log(data.data.data[0])
       this.calculateVisiblePages();
     } catch (error) {
       this.global.errorNotification(error);
