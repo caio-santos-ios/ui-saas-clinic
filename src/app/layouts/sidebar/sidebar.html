@@ -17,11 +17,11 @@
     <div class="user-profile-bar" (click)="goToProfile()" title="Editar Perfil">
       <div class="user-avatar-circle">
         <img *ngIf="user?.photo" [src]="user?.photo" alt="Avatar" />
-        <span *ngIf="!user?.photo">{{ (user?.name || 'A')[0].toUpperCase() }}</span>
+        <span *ngIf="!user?.photo">{{ (user?.name || 'U')[0].toUpperCase() }}</span>
       </div>
       <div class="user-profile-info">
-        <span class="user-profile-name">{{ user?.name || 'Administrador' }}</span>
-        <span class="user-profile-role">{{ user?.role === 'Admin' || user?.role === 'admin' ? 'Administrador' : (user?.role || 'Admin') }}</span>
+        <span class="user-profile-name">{{ user?.name || 'Usuário' }}</span>
+        <span class="user-profile-role" *ngIf="isAdmin">Admin</span>
       </div>
       <button class="btn-logout-mini" (click)="logout($event)" title="Sair do painel">
         <i class="fa-solid fa-arrow-right-from-bracket"></i>

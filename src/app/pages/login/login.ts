@@ -88,6 +88,16 @@ export class Login implements OnInit {
         }
       });
 
+      if (data?.data) {
+        this.auth.setUser({
+          name: data.data.name || '',
+          photo: data.data.photo || '',
+          accessProfile: data.data.accessProfile || '',
+          admin: data.data.admin === 'True' || data.data.admin === true || data.data.accessProfile === 'admin',
+          role: (data.data.admin === 'True' || data.data.admin === true || data.data.accessProfile === 'admin') ? 'Admin' : data.data.accessProfile
+        });
+      }
+
       if(data.data.accessProfile == "master") {
         this.auth.setToken(data.data.token);
         this.auth.setSignatureId(data.data.signatureId);

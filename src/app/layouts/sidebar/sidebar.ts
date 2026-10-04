@@ -27,8 +27,9 @@ export class Sidebar implements OnInit, OnDestroy {
 
   constructor(public auth: Auth, private router: Router, public themeService: ThemeService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.user = this.auth.getUser();
+    this.updateMenu();
     this.clinicTheme = this.auth.getClinicTheme();
     this.themeSub = this.auth.clinicTheme$.subscribe(theme => {
       if (theme) {
@@ -36,29 +37,37 @@ export class Sidebar implements OnInit, OnDestroy {
       }
     });
 
-    if (this.user) {
-      switch(this.user.accessProfile) {
-        case "admin":  
-          this.menu = this.getMenuAdmin();
-          break;
-
-        case "master":  
-          this.menu = this.getMenuMaster();
-          break;
-
-        case "clinic-employee":  
-          this.menu = this.getMenuClinicEmployee();
-          break;
-
-        case "doctor":  
-          this.menu = this.getMenuDoctors();
-          break;
-      }
-    }
-
     this.sub = this.auth.user$.subscribe(u => {
       this.user = u;
+      this.updateMenu();
     });
+
+    await this.auth.loadCurrentUser();
+  }
+
+  updateMenu() {
+    if (!this.user) return;
+    switch(this.user.accessProfile) {
+      case "admin":  
+        this.menu = this.getMenuAdmin();
+        break;
+
+      case "master":  
+        this.menu = this.getMenuMaster();
+        break;
+
+      case "clinic-employee":  
+        this.menu = this.getMenuClinicEmployee();
+        break;
+
+      case "doctor":  
+        this.menu = this.getMenuDoctors();
+        break;
+    }
+  }
+
+  get isAdmin(): boolean {
+    return this.user?.admin === true || this.user?.accessProfile === 'admin';
   }
 
   ngOnDestroy() {
@@ -67,7 +76,7 @@ export class Sidebar implements OnInit, OnDestroy {
   }
 
   goToProfile() {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/perfil']);
   }
 
   logout(event?: Event) {

@@ -11,9 +11,11 @@ export interface UserSession {
   email?: string;
   role?: string;
   photo?: string;
+  phone?: string;
   whatsapp?: string;
   accessProfile?: string;
   clinicId?: string;
+  admin?: boolean;
 }
 
 @Injectable({
@@ -43,6 +45,10 @@ export class Auth {
   setToken(token: string) {
     if (this.isBrowser) {
       localStorage.setItem('token', token);
+      const user = this.getUser();
+      if (user) {
+        this.setUser(user);
+      }
     }
   }
 
@@ -79,22 +85,72 @@ export class Auth {
 
   getUser(): UserSession | null {
     if (this.isBrowser) {
+      let session: UserSession | null = null;
+      const stored = localStorage.getItem('user');
+      if (stored) {
+        try {
+          session = JSON.parse(stored);
+        } catch { }
+      }
+
       const data = localStorage.getItem('token');
+      if (data == null) return session;
 
-      if (data == null) return data;
+      try {
+        const decoded: any = jwtDecode(data);
+        const name = session?.name || decoded.name || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.unique_name || '';
+        const email = session?.email || decoded.email || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || '';
+        const photo = session?.photo || decoded.photo || '';
+        const accessProfile = session?.accessProfile || decoded.accessProfile || '';
+        const adminVal = session?.admin ?? (decoded.admin === 'True' || decoded.admin === true || accessProfile === 'admin');
+        const id = session?.id || decoded.sub || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || '';
+        const clinicId = session?.clinicId || decoded.clinicId || '';
 
-      const decoded: any = jwtDecode(data);
-
-      return {
-        id: decoded.sub,
-        email: decoded.email,
-        name: decoded.name,
-        photo: decoded.photo,
-        accessProfile: decoded.accessProfile,
-        clinicId: decoded.clinicId
-      };
+        return {
+          id,
+          name,
+          email,
+          photo,
+          phone: session?.phone || '',
+          accessProfile,
+          admin: adminVal,
+          role: adminVal ? 'Admin' : accessProfile,
+          clinicId
+        };
+      } catch {
+        return session;
+      }
     }
     return null;
+  }
+
+  async loadCurrentUser(): Promise<UserSession | null> {
+    if (!this.isBrowser) return null;
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const { data } = await api.get('/api/users/me');
+      if (data?.data) {
+        const u = data.data;
+        const current: UserSession = {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          photo: u.photo || '',
+          phone: u.phone || '',
+          accessProfile: u.accessProfile,
+          admin: u.admin === true || u.accessProfile === 'admin',
+          role: (u.admin === true || u.accessProfile === 'admin') ? 'Admin' : u.accessProfile,
+          clinicId: u.clinicId
+        };
+        this.setUser(current);
+        return current;
+      }
+    } catch {
+      return this.getUser();
+    }
+    return this.getUser();
   }
 
   clearSession() {
@@ -115,16 +171,6 @@ export class Auth {
   }
 
   validatedError(err: any) {
-    // const status = err.response.status;
-    // if(status > 500 && status < 599) {
-    //   this.toastr.error("Falha interna, entre em contato com o Administrador");
-    //   return;
-    // } 
-
-    // if(status > 400 && status < 499) {
-    //   this.toastr.warning(err.response.data.message);
-    //   return;
-    // } 
   }
 
   applyClinicTheme(setting: { primaryColor?: string; secondaryColor?: string; logo?: string }) {
