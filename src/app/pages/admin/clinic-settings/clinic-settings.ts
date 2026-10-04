@@ -126,8 +126,8 @@ export class ClinicSettings implements OnInit {
           this.auth.applyClinicTheme(this.clinicData.setting);
         }
       }
-    } catch (err: any) {
-      this.toastr.error('Erro ao carregar dados da clínica.');
+    } catch (error) {
+      this.global.errorNotification(error);
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
@@ -337,8 +337,8 @@ export class ClinicSettings implements OnInit {
       } else {
         this.toastr.error(data?.message || 'Falha ao salvar configurações.');
       }
-    } catch (err: any) {
-      this.toastr.error(err?.response?.data?.message || 'Erro ao salvar configurações.');
+    } catch (error) {
+      this.global.errorNotification(error);
     } finally {
       this.isSaving = false;
       this.cdr.detectChanges();

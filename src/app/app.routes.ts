@@ -13,6 +13,7 @@ import { MasterPlans } from './pages/master/plans/plans';
 import { MasterClinics } from './pages/master/clinics/clinics';
 import { MasterUsers } from './pages/master/users/users';
 import { ClinicSettings } from './pages/admin/clinic-settings/clinic-settings';
+import { Procedures } from './pages/admin/procedures/procedures';
 
 export const routes: Routes = [
   { path: '', component: Signature, pathMatch: 'full' },
@@ -30,6 +31,8 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
       { path: 'doctors', component: Doctors },
+      { path: 'procedimentos', component: Procedures },
+      { path: 'procedures', redirectTo: 'procedimentos' },
       { path: 'configuracoes', component: ClinicSettings },
       { path: 'settings', redirectTo: 'configuracoes' },
       { path: 'admin/settings', redirectTo: 'configuracoes' },

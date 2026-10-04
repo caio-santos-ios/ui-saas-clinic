@@ -1,0 +1,380 @@
+<div class="page-container">
+  <div class="page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="page-title flex items-center gap-2.5 text-2xl font-black text-slate-900 dark:text-slate-100">
+        <i class="fa-solid fa-stethoscope text-clinic-primary"></i>
+        Catálogo de Procedimentos
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+        Gerencie os procedimentos, consultas e serviços oferecidos pela clínica, seus valores e durações.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()"
+          placeholder="Buscar por nome ou código..."
+          class="pl-3 pr-3 py-2 text-xs bg-white dark:bg-[#0b1120] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-lg outline-none transition focus:border-clinic-primary shadow-sm w-48 sm:w-64" />
+      </div>
+
+      <button type="button" [disabled]="isLoading" (click)="openModal()"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-black cursor-pointer transition hover:-translate-y-px hover:shadow-md bg-clinic-primary disabled:opacity-55 disabled:cursor-not-allowed">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Novo Procedimento</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid mb-6">
+    <div class="kpi-card gold-border">
+      <div class="kpi-icon-wrap gold-icon">
+        <i class="fa-solid fa-stethoscope"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Total de Procedimentos</div>
+        <div class="kpi-value">{{ totalProcedures }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card green-border">
+      <div class="kpi-icon-wrap green-icon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Procedimentos Ativos</div>
+        <div class="kpi-value text-emerald-600 dark:text-emerald-400">{{ activeProcedures }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card red-border">
+      <div class="kpi-icon-wrap red-icon">
+        <i class="fa-solid fa-circle-xmark"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Procedimentos Inativos</div>
+        <div class="kpi-value text-rose-500">{{ inactiveProcedures }}</div>
+      </div>
+    </div>
+
+    <div class="kpi-card blue-border">
+      <div class="kpi-icon-wrap blue-icon">
+        <i class="fa-solid fa-hand-holding-dollar"></i>
+      </div>
+      <div class="kpi-data">
+        <div class="kpi-title">Valor Médio</div>
+        <div class="kpi-value">{{ global.formatCurrency(avgPrice) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 mb-4">
+    <div class="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs">
+      <button type="button" (click)="setStatusFilter('all')"
+        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer"
+        [ngClass]="statusFilter === 'all' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'">
+        Todos
+      </button>
+      <button type="button" (click)="setStatusFilter('active')"
+        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer"
+        [ngClass]="statusFilter === 'active' ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'">
+        ATIVO
+      </button>
+      <button type="button" (click)="setStatusFilter('inactive')"
+        class="px-3 py-1.5 rounded-lg font-bold transition cursor-pointer"
+        [ngClass]="statusFilter === 'inactive' ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'">
+        INATIVO
+      </button>
+    </div>
+
+    <button *ngIf="search" (click)="clearSearch()"
+      class="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer">
+      <i class="fa-solid fa-xmark"></i>
+      Limpar busca
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="p-12 flex justify-center items-center">
+    <app-loading></app-loading>
+  </div>
+
+  <div class="card" *ngIf="!isLoading">
+    <div class="table-responsive desktop-table-view hidden lg:flex">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Procedimento</th>
+            <th>Código</th>
+            <th>Duração</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th style="text-align: right;">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of data.data">
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-clinic-primary/10 text-clinic-primary font-bold flex items-center justify-center shrink-0 border border-clinic-primary/20">
+                  <i class="fa-solid fa-stethoscope text-sm"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm truncate text-slate-900 dark:text-slate-100">{{ p.name }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[280px]" *ngIf="p.description" [title]="p.description">
+                    {{ p.description }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="text-xs font-mono font-medium text-slate-700 dark:text-slate-300">
+                {{ p.code || '—' }}
+              </span>
+            </td>
+            <td>
+              <div class="flex items-center gap-1.5 text-xs font-medium text-slate-700 dark:text-slate-300">
+                <i class="fa-regular fa-clock text-slate-400 text-xs"></i>
+                <span>{{ p.durationMinutes }} min</span>
+              </div>
+            </td>
+            <td>
+              <span class="text-xs font-bold text-slate-900 dark:text-slate-100">
+                {{ global.formatCurrency(p.price) }}
+              </span>
+            </td>
+            <td>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider"
+                [ngClass]="getStatusBadgeClass(p.active)">
+                {{ p.active !== false ? 'ATIVO' : 'INATIVO' }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div class="flex items-center justify-end gap-1.5">
+                <button type="button" (click)="toggleStatus(p)"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center transition border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  [title]="p.active !== false ? 'Desativar procedimento' : 'Ativar procedimento'">
+                  <i class="fa-solid" [ngClass]="p.active !== false ? 'fa-toggle-on text-emerald-500' : 'fa-toggle-off text-slate-400'"></i>
+                </button>
+
+                <button type="button" (click)="openModal(p)"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center transition border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-clinic-primary cursor-pointer"
+                  title="Editar">
+                  <i class="fa-solid fa-pen-to-square text-xs"></i>
+                </button>
+
+                <button type="button" (click)="openDeleteModal(p)"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center transition border border-slate-200 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-500 cursor-pointer"
+                  title="Excluir">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="data.data.length === 0">
+            <td colspan="6" class="text-center py-10 text-slate-500 dark:text-slate-400 text-xs">
+              <i class="fa-solid fa-stethoscope text-2xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
+              Nenhum procedimento encontrado.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-cards-view flex flex-col gap-3 p-4 lg:hidden">
+      <div *ngFor="let p of data.data" class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b1120] space-y-3">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="font-bold text-sm text-slate-900 dark:text-slate-100 truncate">{{ p.name }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">Código: {{ p.code || '—' }}</div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0"
+            [ngClass]="getStatusBadgeClass(p.active)">
+            {{ p.active !== false ? 'ATIVO' : 'INATIVO' }}
+          </span>
+        </div>
+
+        <p *ngIf="p.description" class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+          {{ p.description }}
+        </p>
+
+        <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <i class="fa-regular fa-clock text-slate-400"></i>
+            <span>{{ p.durationMinutes }} min</span>
+          </div>
+          <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">
+            {{ global.formatCurrency(p.price) }}
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" (click)="toggleStatus(p)"
+            class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid" [ngClass]="p.active !== false ? 'fa-toggle-on text-emerald-500' : 'fa-toggle-off text-slate-400'"></i>
+            <span>{{ p.active !== false ? 'ATIVO' : 'INATIVO' }}</span>
+          </button>
+          <button type="button" (click)="openModal(p)"
+            class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-clinic-primary flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-pen-to-square text-xs"></i>
+            <span>Editar</span>
+          </button>
+          <button type="button" (click)="openDeleteModal(p)"
+            class="px-2.5 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900/40 text-xs font-semibold text-rose-500 flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-trash text-xs"></i>
+            <span>Excluir</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="data.data.length === 0" class="text-center py-8 text-slate-500 dark:text-slate-400 text-xs">
+        Nenhum procedimento encontrado.
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between px-5 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 rounded-b-xl" *ngIf="data.totalPages > 1">
+      <span class="text-xs text-slate-500 dark:text-slate-400">
+        Página <strong>{{ data.currentPage }}</strong> de <strong>{{ data.totalPages }}</strong> ({{ data.totalCount }} no total)
+      </span>
+      <div class="flex items-center gap-1.5">
+        <button type="button" (click)="onPageChange(data.currentPage - 1)" [disabled]="data.currentPage === 1"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Anterior
+        </button>
+        <button *ngFor="let p of visiblePages" type="button" (click)="onPageChange(p)"
+          class="px-2.5 py-1 text-xs font-bold rounded border transition"
+          [ngClass]="p === data.currentPage ? 'bg-clinic-primary border-clinic-primary text-black' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'">
+          {{ p }}
+        </button>
+        <button type="button" (click)="onPageChange(data.currentPage + 1)" [disabled]="data.currentPage === data.totalPages"
+          class="px-2.5 py-1 text-xs font-semibold rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-700">
+          Próxima
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="modal-box w-full max-w-xl bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="modal-header p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-stethoscope text-clinic-primary"></i>
+            {{ editingProcedure ? 'Editar Procedimento' : 'Novo Procedimento' }}
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Preencha os dados e parâmetros do procedimento clínico.
+          </p>
+        </div>
+        <button type="button" (click)="closeModal()"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" class="p-6 overflow-y-auto space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Nome do Procedimento / Serviço <span class="text-red-500">*</span>
+          </label>
+          <input formControlName="name" type="text"
+            class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+            [ngClass]="err('name') ? 'border-red-400 focus:border-red-400' : ''"
+            placeholder="Ex: Consulta Cardiológica, Limpeza Dental, Biópsia..." />
+          <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('name')">{{ err('name') }}</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Código TUSS / Interno
+            </label>
+            <input formControlName="code" type="text"
+              class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-mono font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              placeholder="Ex: 10101012" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Duração (Minutos) <span class="text-red-500">*</span>
+            </label>
+            <select formControlName="durationMinutes"
+              class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-clinic-primary shadow-sm cursor-pointer">
+              <option *ngFor="let d of durations" [value]="d">{{ d }} minutos</option>
+            </select>
+            <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('durationMinutes')">{{ err('durationMinutes') }}</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Valor / Preço (R$) <span class="text-red-500">*</span>
+            </label>
+            <input formControlName="price" type="text" currencyMask
+              [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left' }"
+              class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-bold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm"
+              [ngClass]="err('price') ? 'border-red-400 focus:border-red-400' : ''"
+              placeholder="R$ 0,00" />
+            <span class="text-[11px] text-red-500 mt-1 block" *ngIf="err('price')">{{ err('price') }}</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            Descrição / Recomendações aos Pacientes
+          </label>
+          <textarea formControlName="description" rows="3"
+            class="w-full bg-white dark:bg-[#080d1a] border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3 text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-clinic-primary shadow-sm resize-none"
+            placeholder="Orientações prévias, materiais necessários ou detalhes sobre a execução do procedimento..."></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" formControlName="active"
+              class="w-4 h-4 rounded border-slate-300 text-clinic-primary focus:ring-clinic-primary cursor-pointer" />
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Procedimento ATIVO no catálogo da clínica</span>
+          </label>
+        </div>
+
+        <div class="modal-footer flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" (click)="closeModal()"
+            class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="isSaving"
+            class="px-5 py-2.5 rounded-xl bg-clinic-primary text-black text-xs font-bold uppercase tracking-wider hover:brightness-105 active:scale-95 transition shadow-sm disabled:opacity-50 cursor-pointer flex items-center gap-2">
+            <i *ngIf="!isSaving" class="fa-solid fa-floppy-disk"></i>
+            <i *ngIf="isSaving" class="fa-solid fa-spinner fa-spin"></i>
+            <span>{{ isSaving ? 'Salvando...' : 'Salvar Procedimento' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="deleteModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="modal-box w-full max-w-md bg-white dark:bg-[#0b1120] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <div class="text-center space-y-1">
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Excluir Procedimento?</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Tem certeza que deseja excluir o procedimento <strong class="text-slate-800 dark:text-slate-200">{{ procedureToDelete?.name }}</strong>? Esta ação não poderá ser desfeita.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 pt-2">
+        <button type="button" (click)="closeDeleteModal()" [disabled]="isDeleting"
+          class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" (click)="confirmDelete()" [disabled]="isDeleting"
+          class="px-5 py-2.5 rounded-xl bg-rose-500 text-white text-xs font-bold uppercase tracking-wider hover:bg-rose-600 active:scale-95 transition shadow-sm disabled:opacity-50 cursor-pointer flex items-center gap-2">
+          <i *ngIf="!isDeleting" class="fa-solid fa-trash"></i>
+          <i *ngIf="isDeleting" class="fa-solid fa-spinner fa-spin"></i>
+          <span>{{ isDeleting ? 'Excluindo...' : 'Excluir' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
